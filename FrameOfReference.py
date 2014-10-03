@@ -103,6 +103,7 @@ class Frame:
             npPoint = np.dot(self.npMatSelfToFather, npPoint)
             npPoint += self.npVectSelfToFather
             pointsInFatherFrame.append(npPoint.tolist())
+        return pointsInFatherFrame
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
 class FrameOfReference:
@@ -110,14 +111,19 @@ class FrameOfReference:
         self.nom = dic["nom"]
         self.dic_frames = {"Canonical": None}
     def append(self, frame):
-        # Verifier que le père du reper ajouter existe bien dans le réferentiel
+        # Verifier que le père du repère ajouté existe bien dans le réferentiel
         # Ajouter le repère au dico des repères. Les clés sont les noms des repères
         if self.dic_frames.has_key(frame.fatherFrame):
             self.dic_frames[frame.name] = Frame
         else raise FatherFrameError
-    def givePointsInCanonicalFrame(self, frame, points):
+    def givePointsInCanonicalFrame(self, frameName, points):
         """
-        points are given in the frame "frame". 
+        points are given in the frame whose name is frameName. 
         return points coordinates expressed in Canonical Frame.
         """
+        _points_ = self.dic_frames[frameName].givePointsInFatherFrame(points)
+        if self.dic_frames[frameName].fatherFrame == "Canonical":
+            return _points_
+        else:
+            return self.givePointsInCanonicalFrame(self.dic_frames[frameName].fatherFrame ,_points_)
         
