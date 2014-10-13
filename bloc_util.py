@@ -2,7 +2,7 @@
 import sys
 import random
 
-sys.path.append('./mesh')
+sys.path.append('/Users/gengembre/nessy2/mesh/util_mesh')
 
 import v3d
 import Mesh_IO
@@ -36,4 +36,4 @@ def view_bloc(Bloc):
     
     lf_file.close()
 
-    v3d.show(v3d_lf_name)
+    v3d.show([v3d_lf_name])
