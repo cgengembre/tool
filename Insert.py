@@ -389,7 +389,8 @@ if __name__ == "__main__":
     #plaquette = Insert(dicPlaquette1Segment)
     #plaquette = Insert(dicPlaquette1Arc)
     #plaquette = Insert(dicPlaquette3seg)
-    plaquette = Insert(dicPlaquetteEquerre)
+    #plaquette = Insert(dicPlaquetteEquerre)
+    plaquette = Insert(dico1)
     
     print plaquette.dic
     plaquette.showyou()

@@ -10,7 +10,10 @@
 
 import math
 import numpy as np
+
 import bloc_util
+import FrameOfReference as fom
+import Insert
 
 class InconcistentDataError(Exception):
     pass
@@ -28,13 +31,46 @@ class Tool:
         nbCouchesLiaison
         nbDents
         """
+        self.name  = dic ["name"]
         self.nbParties          = dic["nbParties"] if dic.has_key("nbParties") else 5
         self.nbTranches         = dic["nbTranches"] if dic.has_key("nbTranches") else 1
         self.nbCouchesFaceCoupe = dic["nbCouchesFaceCoupe"] if dic.has_key("nbCouchesFaceCoupe") else 1
         self.nbCouchesLiaison   = dic["nbCouchesLiaison"] if dic.has_key("nbCouchesLiaison") else 1
         self.idNoeudMaitre      = dic["idNoeudMaitre"] if dic.has_key("idNoeudMaitre") else None
 
-# --------------------------------------------------------------------------------------------------        
+# --------------------------------------------------------------------------------------------------
+# ==================================================================================================
+class WithInsertsMill (Tool):
+# ==================================================================================================
+# --------------------------------------------------------------------------------------------------
+    def __init__(self, dic):
+        
+        Tool.__init__(self, dic)
+        self.millFom = fom.FrameOfReference(dic)
+        self.listInserts = []
+        self.__toothId__ = 0
+        self.partiesEtMaillageFaceDeCoupe = []
+        
+    def __addInsert__(self, dicInsert, dicFrame):
+        insert = Insert.Insert(dicInsert)
+        frame = fom.Frame(dicFrame)
+        self.millFom.add(frame)
+        # calculer les points de la plaquette dans le repere canonique de la fraise
+        # insert.partiesEtMaillageFaceDeCoupe est la liste des parties de la plaquette ajoutée
+        dicPartie = {}
+        dicPartie["tooth_id"] = self.__toothId__
+        for partie in insert.partiesEtMaillageFaceDeCoupe:
+            dicPartie["pnt_cut_edge"] = fom.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
+            dicPartie["pnt_in_cut_face"] = fom.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
+            dicPartie["h_cut_max"] = partie["h_cut_max"]
+            dicPartie["node"] = fom.givePointsInCanonicalFrame(frame.name, partie["node"])
+            dicPartie["tri"] = partie[tri]
+        self.partiesEtMaillageFaceDeCoupe.append(dicPartie)   
+        self.__toothId__+=1
+    def __addInsertByRotation__(self):
+    
+        
+        
 # ==================================================================================================
 class MonoblocMill(Tool):
 # ==================================================================================================

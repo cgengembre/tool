@@ -35,9 +35,9 @@ class Frame:
     """
     	Structures possibles pour dic :
         --> clés communes à tous les types de reperes :
-           "Name"            : "nom du repere"
-    	   "FatherFrameName" : "nom du repere pere"
-    	   "FrameType"       : <Id type frame>
+           "name"            : "nom du repere"
+    	   "fatherFrameName" : "nom du repere pere"
+    	   "frameType"       : <Id type frame>
         --> clés suivantes en fonction de dic["FrameType"]
     	A/ "FrameType"   :
     	   ---------------
@@ -81,7 +81,7 @@ class Frame:
     """
     Compute the matrix self.MatSelfToFather and the vector self.VectSelfToFather.
     Let P be a point expressed in self,
-    [ self.npMatSelfToFather ].P + self.npVectSelfToFather expresses P in self.FatherFrameName.
+    [ self.npMatSelfToFather ].P + self.npVectSelfToFather expresses P in self.
     """
         if dic["FrameType"] == INSERT_FRAME_AROUND_A_MILL:
             alpha    = m.radians(dic["axialAngleDegrees"])
@@ -116,7 +116,7 @@ class Frame:
 class FrameOfReference:
 # --------------------------------------------------------------------------------------------------
     def __init__(self, dic):
-        self.name = dic["Name"]
+        self.name = dic["name"]
         self.dic_frames = {"Canonical": None}
 # --------------------------------------------------------------------------------------------------
     def add(self, frame):
