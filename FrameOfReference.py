@@ -9,6 +9,10 @@
 import math  as m
 import numpy as np
 
+class FatherFrameError(Exception):
+    pass
+
+
 # --------------------------------------------------------------------------------------------------
 def npRotAroundOxAxisMatrix(angle):
     sin_angle = m.sin(angle)
@@ -32,7 +36,7 @@ INSERT_FRAME_AROUND_A_MILL = 2
 class Frame:
 # --------------------------------------------------------------------------------------------------
     def __init__(self, dic):
-    """
+        """
     	Structures possibles pour dic :
         --> clés communes à tous les types de reperes :
            "name"            : "nom du repere"
@@ -66,9 +70,9 @@ class Frame:
     	   "rotDegreAutourAxiale"  : rotZp
     	   Example : position plaquettes de fraise
     	   
-       Le but du constructeur est de générer le vecteur translation et la matrice de
-       rotation pour faire le changement de repère toujours de la meme manière
-    """
+       	Le but du constructeur est de générer le vecteur translation et la matrice de
+        rotation pour faire le changement de repère toujours de la meme manière
+        """
         self.name = dic["nom"]
         self.__computeRotationMatAndTanslationVect__(dic)
         #self.name
@@ -78,11 +82,11 @@ class Frame:
         #self.origin
 # --------------------------------------------------------------------------------------------------
     def __computeRotationMatAndTanslationVect__(self,dic):
-    """
-    Compute the matrix self.MatSelfToFather and the vector self.VectSelfToFather.
-    Let P be a point expressed in self,
-    [ self.npMatSelfToFather ].P + self.npVectSelfToFather expresses P in self.
-    """
+        """
+        Compute the matrix self.MatSelfToFather and the vector self.VectSelfToFather.
+        Let P be a point expressed in self,
+        [ self.npMatSelfToFather ].P + self.npVectSelfToFather expresses P in fatherFrame    
+        """
         if dic["FrameType"] == INSERT_FRAME_AROUND_A_MILL:
             alpha    = m.radians(dic["axialAngleDegrees"])
             radius   = dic["radius"]
@@ -124,7 +128,7 @@ class FrameOfReference:
         # Ajouter le repère au dico des repères. Les clés sont les noms des repères
         if self.dic_frames.has_key(frame.FatherFrameName):
             self.dic_frames[frame.name] = Frame
-        else raise FatherFrameError
+        else: raise FatherFrameError("Pere inexistant")
 # --------------------------------------------------------------------------------------------------
     def givePointsInCanonicalFrame(self, frameName, points):
         """
