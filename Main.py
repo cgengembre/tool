@@ -5,6 +5,8 @@
 # Outil, piece, trajectoire.
 # 1: création de l'outil
 import Tools
+import Insert
+import FrameOfReference as Fom
 #fraise = Tools.FraiseMonoblocType1 (idNoeudMaitre      = 1,    # Champ facultatif
 #  loiDeCoupe         = "nomLoiCoupe",
 #  angleAxialInitial  = 0.0,
@@ -40,3 +42,37 @@ fraise = Tools.MonoblocMillType1 (dic)
  
 # 2: affichage de l'outil avec viewer3D
 fraise.showyou()
+
+# Test de fraise à plaquette :
+
+dicPlaquette1Segment ={
+    	    "nom" : "nomModelGeomPlaquette",
+            "longSegment1" : 6.0e-3, "nbPartieSeg1"   :  4,
+            #"bissectriceArc" : 2,
+            "mediatriceSeg": 1,
+            # Numéro de l'arc pour definir axe x_p
+            # Utiliser 'mediatriceSeg' pour un segment
+            "distanceOrigine" : 4.0e-3,
+            "epaisseurFaceCoupe" : 3.e-3,
+            "nbCouchesFaceDeCoupe": 2
+           } 
+dicFramePlaquette = {
+            "name"            : "repere plaquette ",
+    	   "fatherFrameName" : "Canonical",
+    	   "frameType"       : Fom.INSERT_FRAME_AROUND_A_MILL,
+    	   "axialAngleDegrees"  : 90.,
+    	   "radius"             : 20.0E-3,
+    	   "axialPosition"      : 5.0E-3,
+    	   "rotDegreAutourNormale" : 0.,
+    	   "rotDegreAutourRadiale" : 10.,
+    	   "rotDegreAutourAxiale"  : 0.
+    	   }
+    	   
+dicFraisePlaquettes = {
+           "name" : "fraisePlaquette",
+           "insert" : dicPlaquette1Segment,
+           "insertFrame" : dicFramePlaquette,
+           "nbDents" : 3
+          }
+fraise_avec_plaquettes  = Tools.WithInsertsMill(dicFraisePlaquettes)
+fraise_avec_plaquettes.showyou()

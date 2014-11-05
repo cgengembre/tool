@@ -37,6 +37,7 @@ class Tool:
         self.nbCouchesFaceCoupe = dic["nbCouchesFaceCoupe"] if dic.has_key("nbCouchesFaceCoupe") else 1
         self.nbCouchesLiaison   = dic["nbCouchesLiaison"] if dic.has_key("nbCouchesLiaison") else 1
         self.idNoeudMaitre      = dic["idNoeudMaitre"] if dic.has_key("idNoeudMaitre") else None
+        self.nbDents            = dic["nbDents"] if dic.has_key("nbDents") else 1
 # --------------------------------------------------------------------------------------------------        
     def __generePartiesEtMaillageDents__(self):
         """
@@ -94,13 +95,25 @@ class WithInsertsMill (Tool):
 # ==================================================================================================
 # --------------------------------------------------------------------------------------------------
     def __init__(self, dic):
-        
+        """
+        Fraise à plaquettes de base : composee de self.nbDents plaquettes identiques.
+        On définit une plaquette et calcule ses aretes faces de coupe et maillage. 
+        Ensuite, on calcule les autres dents par rotation.
+        structure de dic attendue : (en plus des cles de la classe de base Tool)
+        'insert': dic de la classe Insert
+        'frameInsert' : dic de la classe Frame.
+        """
         Tool.__init__(self, dic)
         self.millFom = fom.FrameOfReference(dic)
         self.listInserts = []
         self.__toothId__ = 0
         self.partiesEtMaillageFaceDeCoupe = []
-        
+        self.__computeTeeth__(dic)
+# --------------------------------------------------------------------------------------------------
+    def __computeTeeth__(self, dic):
+        self.__addInsert__(dic['insert'], dic['insertFrame'])
+        self.__addInsertByRotation__()
+# --------------------------------------------------------------------------------------------------
     def __addInsert__(self, dicInsert, dicFrame):
         insert = Insert.Insert(dicInsert)
         frame = fom.Frame(dicFrame)
@@ -110,17 +123,17 @@ class WithInsertsMill (Tool):
         dicPartie = {}
         dicPartie["tooth_id"] = self.__toothId__
         for partie in insert.partiesEtMaillageFaceDeCoupe:
-            dicPartie["pnt_cut_edge"] = fom.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
-            dicPartie["pnt_in_cut_face"] = fom.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
+            dicPartie["pnt_cut_edge"] = self.millFom.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
+            dicPartie["pnt_in_cut_face"] = self.millFom.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
             dicPartie["h_cut_max"] = partie["h_cut_max"]
-            dicPartie["node"] = fom.givePointsInCanonicalFrame(frame.name, partie["node"])
+            dicPartie["node"] = self.millFom.givePointsInCanonicalFrame(frame.name, partie["node"])
             dicPartie["tri"] = partie["tri"]
         self.partiesEtMaillageFaceDeCoupe.append(dicPartie)   
         self.__toothId__+=1
+# --------------------------------------------------------------------------------------------------
     def __addInsertByRotation__(self):
-        pass    
-        
-        
+        self.__generePartiesEtMaillageDents__()
+# --------------------------------------------------------------------------------------------------        
 # ==================================================================================================
 class MonoblocMill(Tool):
 # ==================================================================================================
@@ -314,7 +327,7 @@ class ToreMonoblocMill(MonoblocMill):
             dicoPartie["h_cut_max"] = 1.2*e
             dicoPartie["node"] = []
             dicoPartie["tri"] = []
-       ##<TODO>     # Calcul du maillage de la partie :
+            # Calcul du maillage de la partie :
             # D'abord les points (les nodes)
             for jp in range (self.nbCouchesFaceCoupe+1):
                 rc_mv = rc - jp*e/self.nbCouchesFaceCoupe
@@ -328,7 +341,7 @@ class ToreMonoblocMill(MonoblocMill):
                     pm = [r_mv* math.cos (theta_mv), r_mv* math.sin (theta_mv), z_mv]
                     
                     dicoPartie["node"].append(pm)
-         ## </TODO>  
+
             # ensuite les triangles (liste de tripplets indicant les 
             # indices des nodes dans le tableau des nodes)
             for jp in range (self.nbCouchesFaceCoupe):
