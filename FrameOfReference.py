@@ -100,7 +100,7 @@ class Frame:
             npMrotXp   = npRotAroundOxAxisMatrix (rotXp)
             npMrotYp   = npRotAroundOyAxisMatrix (rotYp)
             npMrotZp   = npRotAroundOzAxisMatrix (rotZp)
-            npMrotAlpha= npRotAroundOxAxisMatrix (alpha)
+            npMrotAlpha= npRotAroundOzAxisMatrix (alpha)
             
             npMatSelfToFather = np.dot(npMrotXp,npMrotYp)
             npMatSelfToFather = np.dot(npMrotZp,npMatSelfToFather)
@@ -129,7 +129,7 @@ class FrameOfReference:
         # Verifier que le père du repère ajouté existe bien dans le réferentiel
         # Ajouter le repère au dico des repères. Les clés sont les noms des repères
         if self.dic_frames.has_key(frame.fatherFrameName):
-            self.dic_frames[frame.name] = Frame
+            self.dic_frames[frame.name] = frame
         else: raise FatherFrameError("Pere inexistant")
 # --------------------------------------------------------------------------------------------------
     def givePointsInCanonicalFrame(self, frameName, points):
@@ -137,7 +137,11 @@ class FrameOfReference:
         points are given in the frame whose name is frameName. 
         return points coordinates expressed in Canonical Frame.
         """
-        _points_ = self.dic_frames[frameName].givePointsInFatherFrame(points)
+        print '<CGen> givePointsInCanonicalFrame()'
+        print type(self.dic_frames[frameName])
+        print type(points)
+        _points_ = Frame.givePointsInFatherFrame(self.dic_frames[frameName], points)
+        #_points_ = self.dic_frames[frameName].givePointsInFatherFrame(points)
         if self.dic_frames[frameName].fatherFrameName == "Canonical":
             return _points_
         else:

@@ -81,9 +81,10 @@ class Tool:
                     dicoPartie["node"].append (nouvPoint)
                 # Les triangles : on prend les meme que pour la dent 0
                 dicoPartie["tri"]= self.partiesEtMaillageFaceDeCoupe[idPartie]["tri"]
-                
-                dicoPartie["h_cut_max"] = 1.2*self.epaisseurFaceCoupe
-                
+                if isinstance (self, MonoblocMill):
+                    dicoPartie["h_cut_max"] = 1.2*self.epaisseurFaceCoupe
+                else :
+                    dicoPartie["h_cut_max"] = self.partiesEtMaillageFaceDeCoupe[0]["h_cut_max"]
                 self.partiesEtMaillageFaceDeCoupe.append (dicoPartie)
 # --------------------------------------------------------------------------------------------------
     def showyou(self):
@@ -122,13 +123,17 @@ class WithInsertsMill (Tool):
         # insert.partiesEtMaillageFaceDeCoupe est la liste des parties de la plaquette ajoutée
         dicPartie = {}
         dicPartie["tooth_id"] = self.__toothId__
+        print insert.partiesEtMaillageFaceDeCoupe
         for partie in insert.partiesEtMaillageFaceDeCoupe:
+            dicPartie = {}
+            dicPartie["tooth_id"] = self.__toothId__
             dicPartie["pnt_cut_edge"] = self.millFom.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
             dicPartie["pnt_in_cut_face"] = self.millFom.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
             dicPartie["h_cut_max"] = partie["h_cut_max"]
             dicPartie["node"] = self.millFom.givePointsInCanonicalFrame(frame.name, partie["node"])
             dicPartie["tri"] = partie["tri"]
-        self.partiesEtMaillageFaceDeCoupe.append(dicPartie)   
+            self.partiesEtMaillageFaceDeCoupe.append(dicPartie)
+        print self.partiesEtMaillageFaceDeCoupe
         self.__toothId__+=1
 # --------------------------------------------------------------------------------------------------
     def __addInsertByRotation__(self):

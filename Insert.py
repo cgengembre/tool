@@ -30,7 +30,7 @@ class Insert :
         On pourra en théorie mettre autant de segment que l'on veut. 
         S'il y a n segments il y aura n-1 arcs.
         """
-        # 1 : on trnsforme dic en une structure de données plus pratique pour l'algo :
+        # 1 : on transforme dic en une structure de données plus pratique pour l'algo :
         self.dic = {}
         self.dic["nom"]= dic["nom"]
         self.dic["distanceOrigine"] = dic["distanceOrigine"]

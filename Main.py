@@ -38,13 +38,26 @@ dic = {
       }
  
 # fraise = Tools.ToreMonoblocMill(dic)                # Parametres pour la structure de données
-fraise = Tools.MonoblocMillType1 (dic)
+##fraise = Tools.MonoblocMillType1 (dic)
  
 # 2: affichage de l'outil avec viewer3D
-fraise.showyou()
+## fraise.showyou()
 
 # Test de fraise à plaquette :
-
+dico1 = {
+    	    "nom" : "nomModelGeomPlaquette",
+            "longSegment1" : 6.0e-3, "nbPartieSeg1"   :  4,
+            "rayonArc1"    : 1.0e-3, "angleDegreArc1" : 45, "nbPartiesArc1":3,
+            "longSegment2" : 5.0e-3, "nbPartieSeg2"   :  5,
+            "rayonArc2"    : 2.0e-3, "angleDegreArc2" : 30, "nbPartiesArc2":3,
+            "longSegment3" : 8.0e-3, "nbPartieSeg3"   : 4,
+            "bissectriceArc" : 2,
+            # Numéro de l'arc pour definir axe x_p
+            # Utiliser 'mediatriceSeg' pour un segment
+            "distanceOrigine" : 4.0e-3,
+            "epaisseurFaceCoupe" : 3.e-3,
+            "nbCouchesFaceDeCoupe": 2
+            }
 dicPlaquette1Segment ={
     	    "nom" : "nomModelGeomPlaquette",
             "longSegment1" : 6.0e-3, "nbPartieSeg1"   :  4,
@@ -56,6 +69,18 @@ dicPlaquette1Segment ={
             "epaisseurFaceCoupe" : 3.e-3,
             "nbCouchesFaceDeCoupe": 2
            } 
+dicPlaquetteEquerre = {
+    	    "nom" : "nomModelGeomPlaquette",
+            "longSegment1" : 4.0e-3, "nbPartieSeg1"   :  16,
+            "rayonArc1"    : 1.0e-3, "angleDegreArc1" : 90, "nbPartiesArc1":3,
+            "longSegment2" : 1.4e-3, "nbPartieSeg2"   :  7,
+            "mediatriceSeg" : 1,
+            # Numéro de l'arc pour definir axe x_p
+            # Utiliser 'mediatriceSeg' pour un segment
+            "distanceOrigine" : 4.0e-3,
+            "epaisseurFaceCoupe" : 1.e-3,
+            "nbCouchesFaceDeCoupe": 2
+            }
 dicFramePlaquette = {
             "name"            : "repere plaquette ",
     	   "fatherFrameName" : "Canonical",
@@ -64,15 +89,20 @@ dicFramePlaquette = {
     	   "radius"             : 20.0E-3,
     	   "axialPosition"      : 5.0E-3,
     	   "rotDegreAutourNormale" : 0.,
-    	   "rotDegreAutourRadiale" : 10.,
+    	   "rotDegreAutourRadiale" : 20.,
     	   "rotDegreAutourAxiale"  : 0.
     	   }
     	   
 dicFraisePlaquettes = {
            "name" : "fraisePlaquette",
-           "insert" : dicPlaquette1Segment,
+           "insert" : dicPlaquetteEquerre,
            "insertFrame" : dicFramePlaquette,
-           "nbDents" : 3
+           "nbDents" : 8
           }
+          
+#def test():
+#    fraise_avec_plaquettes  = Tools.WithInsertsMill(dicFraisePlaquettes)
+#    fraise_avec_plaquettes.showyou()
+
 fraise_avec_plaquettes  = Tools.WithInsertsMill(dicFraisePlaquettes)
 fraise_avec_plaquettes.showyou()
