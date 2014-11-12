@@ -89,13 +89,13 @@ dicFramePlaquette = {
     	   "radius"             : 20.0E-3,
     	   "axialPosition"      : 5.0E-3,
     	   "rotDegreAutourNormale" : 0.,
-    	   "rotDegreAutourRadiale" : 20.,
+    	   "rotDegreAutourRadiale" : -20.,
     	   "rotDegreAutourAxiale"  : 0.
     	   }
     	   
 dicFraisePlaquettes = {
            "name" : "fraisePlaquette",
-           "insert" : dicPlaquetteEquerre,
+           "insert" : dico1, #dicPlaquetteEquerre,
            "insertFrame" : dicFramePlaquette,
            "nbDents" : 8
           }
