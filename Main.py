@@ -81,6 +81,20 @@ dicPlaquetteEquerre = {
             "epaisseurFaceCoupe" : 1.e-3,
             "nbCouchesFaceDeCoupe": 2
             }
+            
+            
+dico1_nouveau_1 = {   'name' : 'ma plaquette',
+             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                      'nb_elementary_tool': 4, 'nb_slices': 4},
+                                   {'radius'     : 1.0e-3, 'angle_degrees': 45, 'nb_elementary_tool': 3, 'nb_slices': 4},
+                                   {'seg_length' : 5.0e-3,                      'nb_elementary_tool': 5},
+                                   {'radius'     : 2.0e-3, 'angle_degrees': 30, 'nb_elementary_tool': 3, 'nb_slices': 3},
+                                   {'seg_length' : 8.0e-3,                      'nb_elementary_tool': 4, 'nb_slices': 1},
+                                  ],
+             'insert_location': {'bissectrice_arc_idx': 1, 'dist_from_origin':4.0e-3 },
+             'cut_face_thickness' : 3.E-3,
+             'cut_face_nb_layers' : 2
+         }
+
 dicFramePlaquette = {
             "name"            : "repere plaquette ",
     	   "fatherFrameName" : "Canonical",
@@ -95,7 +109,7 @@ dicFramePlaquette = {
     	   
 dicFraisePlaquettes = {
            "name" : "fraisePlaquette",
-           "insert" : dico1, #dicPlaquetteEquerre,
+           "insert" : dico1_nouveau_1, #dicPlaquetteEquerre,
            "insertFrame" : dicFramePlaquette,
            "nbDents" : 8
           }

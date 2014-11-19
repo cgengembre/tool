@@ -13,8 +13,8 @@ class Insert :
     def __init__(self, dic):
         """
         Structure de dic :
-    	{
-    	    "nom" : "nomModelGeomPlaquette",
+       {
+            "nom" : "nomModelGeomPlaquette",
             "longSegment1" : 6.0e-3, "nbPartieSeg1"   :  4,
             "rayonArc1"    : 1.0e-3, "angleDegreArc1" : 45, "nbPartiesArc1":3,
             "longSegment2" : 5.0e-3, "nbPartieSeg2"   :  5,
@@ -47,7 +47,7 @@ class Insert :
         
         self.dic = {}
         if dic.has_key('cutting_edge_geom'):
-        	# partie "commune" entre self.dic et dic :
+            # partie "commune" entre self.dic et dic :
             self.dic["name"]= dic["name"]
             self.dic["dist_from_origin"] = dic['insert_location']["dist_from_origin"]
             self.dic["cut_face_thickness"] = dic["cut_face_thickness"]
@@ -134,12 +134,13 @@ class Insert :
         if rayon > 0:
             #   Arête :
             cur_point_local = [current_point[0], current_point[1]]
+            cur_angle_local = current_angle
             deltaAlpha = alpha/nbPartiesArc
             sliceAngle = deltaAlpha/nbSlices
             for k in range (nbPartiesArc):
                 dicoPartie = {}
                 p1 = cur_point_local 
-                p2 = [rayon*math.cos (current_angle + deltaAlpha) + centreArc[0], rayon*math.sin (current_angle + deltaAlpha) + centreArc[1]]
+                p2 = [rayon*math.cos (cur_angle_local + deltaAlpha) + centreArc[0], rayon*math.sin (cur_angle_local + deltaAlpha) + centreArc[1]]
                 p3 = centreArc
                 dicoPartie["tooth_id"] = 0
                 dicoPartie["pnt_cut_edge"] = [[p1[1], 0., p1[0]], [p2[1], 0., p2[0]]]
@@ -148,26 +149,26 @@ class Insert :
                 dicoPartie["node"] = []
                 dicoPartie["tri"] = []
                 #   maillage :
-                
                 mesh_point = cur_point_local
-                mesh_angle = current_angle
+                mesh_angle = cur_angle_local
                 # Dans un premier temps, les triangles ont ttous pour sommet le centre de l'arc 
                 # Les points :
-                dicoPartie["node"].append([mesh_point[1],0,mesh_point[0]])
+                # dicoPartie["node"].append([mesh_point[1],0,mesh_point[0]])
                 nbCouchesReel = nbCouches
-                for j in range (nbCouches):
-                	distanceCentre = rayon - j*epCouche
-                	if distanceCentre > 0:
-                        for i in range (nbSlices):
-                            mesh_point = [distanceCentre*math.cos (mesh_angle + (i+1)*sliceAngle) + centreArc[0], distanceCentre*math.sin (mesh_angle + (i+1)*sliceAngle) + centreArc[1]]
+                for j in range (nbCouches+1):
+                    distanceCentre = rayon - j*epCouche
+                    if distanceCentre > 0:
+                        for i in range(nbSlices+1):
+                            mesh_point = [distanceCentre*math.cos (mesh_angle + i*sliceAngle) + centreArc[0], \
+                                          distanceCentre*math.sin (mesh_angle + i*sliceAngle) + centreArc[1]]
                             dicoPartie["node"].append([mesh_point[1],0,mesh_point[0]])
                     else:
                         dicoPartie["node"].append([centreArc[1],0,centreArc[0]])
-                        nbCouchesReel = j+1
+                        nbCouchesReel = j-1
                         break
                 # Les triangles :
                 for j in  range (nbCouchesReel):
-                    for i in range (self.dic["arc_nb_elementary_tools_list"][idxArc]):
+                    for i in range (nbSlices):
                         idxSommet1 = j*(nbSlices+1)+i
                         idxSommet2 = idxSommet1 + 1
                         idxSommet3 = idxSommet1 + nbSlices+1
@@ -176,11 +177,18 @@ class Insert :
                         idxSommet2 = idxSommet2
                         idxSommet3 = idxSommet1 + 1
                         dicoPartie["tri"].append([idxSommet1,idxSommet2,idxSommet3])
-                    dicoPartie["tri"].append([i,i+1,  nbPartiesArc +1])
+                if nbCouchesReel < nbCouches:
+                    for i in range (nbSlices):
+                        idxSommet1 = nbCouchesReel*(nbSlices+1)+i
+                        idxSommet2 = idxSommet1+1
+                        idxSommet3 = (nbCouchesReel+1)*(nbSlices+1)
+                        dicoPartie["tri"].append([idxSommet1,idxSommet2,idxSommet3])
                     
-                    self.partiesEtMaillageFaceDeCoupe.append (dicoPartie)
-                    next_point[0],next_point[1] = p2[0], p2[1]
-                    next_angle[0] = current_angle + alpha
+                self.partiesEtMaillageFaceDeCoupe.append (dicoPartie)
+                cur_point_local[0],cur_point_local[1] = p2[0], p2[1]
+                cur_angle_local = cur_angle_local + deltaAlpha
+            next_angle[0] = current_angle + alpha
+            next_point[0],next_point[1] = p2[0], p2[1]
         else:
             next_point[0],next_point[1] = current_point[0], current_point[1]
             next_angle[0] = current_angle + alpha
@@ -323,6 +331,9 @@ class Insert :
         ### derniere section segment :    
         self.__generePartiesEtMaillageSegment__(idxSeg, current_point, current_angle, next_point)
         
+        print '<CGen> self.partiesEtMaillageFaceDeCoupe :'
+        for ddd in self.partiesEtMaillageFaceDeCoupe:
+            print ddd
                             
     def showyou(self):
         bloc_util.view_bloc(self.partiesEtMaillageFaceDeCoupe)
@@ -332,7 +343,7 @@ class Insert :
         
 if __name__ == "__main__":
     dico1 = {
-    	    "nom" : "nomModelGeomPlaquette",
+            "nom" : "nomModelGeomPlaquette",
             "longSegment1" : 6.0e-3, "nbPartieSeg1"   :  4,
             "rayonArc1"    : 1.0e-3, "angleDegreArc1" : 45, "nbPartiesArc1":3,
             "longSegment2" : 5.0e-3, "nbPartieSeg2"   :  5,
@@ -345,22 +356,42 @@ if __name__ == "__main__":
             "epaisseurFaceCoupe" : 3.e-3,
             "nbCouchesFaceDeCoupe": 2
             }
-    dico1_nouveau = {   'name' : 'ma plaquette',
+    dico1_nouveau_1 = {   'name' : 'ma plaquette',
              'cutting_edge_geom': [{'seg_length' : 6.0e-3,                      'nb_elementary_tool': 4, 'nb_slices': 4},
-                                   {'radius'     : 1.0e-3, 'angle_degrees': 45, 'nb_elementary_tool': 3, 'nb_slices': 1},
+                                   {'radius'     : 1.0e-3, 'angle_degrees': 45, 'nb_elementary_tool': 3, 'nb_slices': 4},
                                    {'seg_length' : 5.0e-3,                      'nb_elementary_tool': 5},
-                                   {'radius'     : 2.0e-3, 'angle_degrees': 30, 'nb_elementary_tool': 3},
+                                   {'radius'     : 2.0e-3, 'angle_degrees': 30, 'nb_elementary_tool': 3, 'nb_slices': 3},
                                    {'seg_length' : 8.0e-3,                      'nb_elementary_tool': 4, 'nb_slices': 1},
                                   ],
              'insert_location': {'bissectrice_arc_idx': 1, 'dist_from_origin':4.0e-3 },
              'cut_face_thickness' : 3.E-3,
              'cut_face_nb_layers' : 2
          }
+    dico1_nouveau_3 = {   'name' : 'ma plaquette',
+             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                      'nb_elementary_tool': 4, 'nb_slices': 4},
+                                   {'radius'     : 0., 'angle_degrees': 45, 'nb_elementary_tool': 3, 'nb_slices': 1},
+                                   {'seg_length' : 5.0e-3,                      'nb_elementary_tool': 5},
+                                   {'radius'     : 0., 'angle_degrees': 30, 'nb_elementary_tool': 3},
+                                   {'seg_length' : 8.0e-3,                      'nb_elementary_tool': 4, 'nb_slices': 1},
+                                  ],
+             'insert_location': {'bissectrice_arc_idx': 1, 'dist_from_origin':4.0e-3 },
+             'cut_face_thickness' : 3.E-3,
+             'cut_face_nb_layers' : 2
+         }
+    dico1_nouveau_2 = {   'name' : 'ma plaquette',
+             'cutting_edge_geom': [{'seg_length' : 0.,                      'nb_elementary_tool': 4, 'nb_slices': 4},
+                                   {'radius'     : 2.8e-3, 'angle_degrees': 45, 'nb_elementary_tool': 4, 'nb_slices': 3},
+                                   {'seg_length' : 0.,                      'nb_elementary_tool': 5}
+                                                                     ],
+             'insert_location': {'bissectrice_arc_idx': 0, 'dist_from_origin':4.0e-3 },
+             'cut_face_thickness' : 3.E-3,
+             'cut_face_nb_layers' : 6
+         }
     #plaquette = Insert(dicPlaquette1Segment)
     #plaquette = Insert(dicPlaquette1Arc)
     #plaquette = Insert(dicPlaquette3seg)
     #plaquette = Insert(dicPlaquetteEquerre)
-    plaquette = Insert(dico1_nouveau)
+    plaquette = Insert(dico1_nouveau_1)
     
     print plaquette.dic
     plaquette.showyou()
