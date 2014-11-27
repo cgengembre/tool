@@ -5,9 +5,9 @@
 
 import math
 import numpy as np
-import bloc_util
+from Tooth import Tooth
 
-class Insert :
+class Insert(Tooth) :
 # ==================================================================================================
 # --------------------------------------------------------------------------------------------------
     def __init__(self, dic):
@@ -28,30 +28,38 @@ class Insert :
             "nbCouchesFaceDeCoupe" : 2
          }
          autre : 
-         {   'name' : 'ma plaquette',
-             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                'nb_elementary_tool': 4, 'nb_slices': 1}, # même nbSlices pour chaque el. tool
-                                   {'angle_degrees': 45, 'radius':1.0e-3, 'nb_elementary_tool': 4, 'nb_slices': 1},
-                                   {'seg_length' : 5.0e-3,                'nb_elementary_tool': 5, 'nb_slices': 1},
-                                   {'angle_degrees': 30, 'radius':2.0e-3, 'nb_elementary_tool': 4, 'nb_slices': 1},
-                                   ...
-                                   {'seg_length' : 8.0e-3,                'nb_elementary_tool': 4, 'nb_slices': 1},
-                                  ],
-             'insert_location': {'bissectrice_arc_idx'|'mediatrice_seg_idx': 2, 'dist_from_origin':4.0e-3 },
+         {   
+             'name' : 'ma plaquette',
+             'tooth_id': 0,
+             'storey_id': 0,
+             
              'cut_face_thickness' : 3.E-3,
-             'cut_face_nb_layers' : 2
+             'cut_face_nb_layers' : 2,
+
+             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                'nb_elementary_tools': 4, 'nb_slices': 1}, # même nbSlices pour chaque el. tool
+                                   {'angle_degrees': 45, 'radius':1.0e-3, 'nb_elementary_tools': 4, 'nb_slices': 1},
+                                   {'seg_length' : 5.0e-3,                'nb_elementary_tools': 5, 'nb_slices': 1},
+                                   {'angle_degrees': 30, 'radius':2.0e-3, 'nb_elementary_tools': 4, 'nb_slices': 1},
+                                   ...
+                                   {'seg_length' : 8.0e-3,                'nb_elementary_tools': 4, 'nb_slices': 1},
+                                  ],
+             'insert_location': {'bissectrice_arc_idx'|'mediatrice_seg_idx': 2, 'dist_from_origin':4.0e-3 }
          }
          On pourra en théorie mettre autant de segment que l'on veut. 
          S'il y a n segments il y aura n-1 arcs.
         """
+        Tooth.__init__(self, dic) 
+        ## On compte le nombre d'elementary_tools :
+        self.nb_elementary_tools = 0 # par prudence ...
+        for ceg_dic in dic['cutting_edge_geom']:
+            self.nb_elementary_tools += ceg_dic['nb_elementary_tools']
+
         # 1 : on transforme dic en une structure de données plus pratique pour l'algo :
         
-        self.dic = {}
         if dic.has_key('cutting_edge_geom'):
             # partie "commune" entre self.dic et dic :
-            self.dic["name"]= dic["name"]
+            
             self.dic["dist_from_origin"] = dic['insert_location']["dist_from_origin"]
-            self.dic["cut_face_thickness"] = dic["cut_face_thickness"]
-            self.dic["cut_face_nb_layers"] = dic["cut_face_nb_layers"]
             if dic["insert_location"].has_key("bissectrice_arc_idx"):
                 self.dic["bissectrice_arc_idx"] = dic["insert_location"]["bissectrice_arc_idx"]
             else : self.dic["mediatrice_seg_idx"] = dic["insert_location"]["mediatrice_seg_idx"]
@@ -64,21 +72,20 @@ class Insert :
             ## Controle du contenu de dic :
             for ceg_dic in dic['cutting_edge_geom']:
                 print ceg_dic
+
             # Construction des liste 
             self.dic['seg_length_list'] = [dic['cutting_edge_geom'][2*i]['seg_length'] for i in range (nbSeg)]
-            self.dic['seg_nb_elementary_tools_list'] = [dic['cutting_edge_geom'][2*i]['nb_elementary_tool'] for i in range (nbSeg)]
+            self.dic['seg_nb_elementary_tools_list'] = [dic['cutting_edge_geom'][2*i]['nb_elementary_tools'] for i in range (nbSeg)]
             self.dic['seg_nb_slices_list'] = [dic['cutting_edge_geom'][2*i]['nb_slices'] for i in range (nbSeg)]
             #self.dic['seg_length_list'] = [dic['cutting_edge_geom'][2*i]['seg_length'] for i in range (nbSeg)]
             ##
             self.dic['arc_angle_degrees_list'] = [dic['cutting_edge_geom'][2*i+1]['angle_degrees'] for i in range (nbSeg-1)]
-            self.dic['arc_nb_elementary_tools_list'] = [dic['cutting_edge_geom'][2*i+1]['nb_elementary_tool'] for i in range (nbSeg-1)]            
+            self.dic['arc_nb_elementary_tools_list'] = [dic['cutting_edge_geom'][2*i+1]['nb_elementary_tools'] for i in range (nbSeg-1)]            
             self.dic['radius_list'] = [dic['cutting_edge_geom'][2*i+1]['radius'] for i in range (nbSeg-1)]
             self.dic['arc_nb_slices_list'] = [dic['cutting_edge_geom'][2*i+1]['nb_slices'] for i in range (nbSeg-1)]
         else:
-            self.dic["name"]= dic["nom"]
+
             self.dic["dist_from_origin"] = dic["distanceOrigine"]
-            self.dic["cut_face_thickness"] = dic["epaisseurFaceCoupe"]
-            self.dic["cut_face_nb_layers"] = dic["nbCouchesFaceDeCoupe"]
             if dic.has_key("bissectriceArc"):
                 self.dic["bissectrice_arc_idx"] = dic["bissectriceArc"]-1
             else : self.dic["mediatrice_seg_idx"] = dic["mediatriceSeg"]-1
@@ -184,7 +191,7 @@ class Insert :
                         idxSommet3 = (nbCouchesReel+1)*(nbSlices+1)
                         dicoPartie["tri"].append([idxSommet1,idxSommet2,idxSommet3])
                     
-                self.partiesEtMaillageFaceDeCoupe.append (dicoPartie)
+                self.elementary_tools_list.append (dicoPartie)
                 cur_point_local[0],cur_point_local[1] = p2[0], p2[1]
                 cur_angle_local = cur_angle_local + deltaAlpha
             next_angle[0] = current_angle + alpha
@@ -248,7 +255,7 @@ class Insert :
                         idxSommet2 = idxSommet2
                         idxSommet3 = idxSommet1 + 1
                         dicoPartie["tri"].append([idxSommet1,idxSommet2,idxSommet3])
-                self.partiesEtMaillageFaceDeCoupe.append (dicoPartie)
+                self.elementary_tools_list.append (dicoPartie)
                 cur_point_local = p2
             next_point[0],next_point[1] = p2[0], p2[1]
         else:
@@ -303,7 +310,7 @@ class Insert :
     def __generePartiesEtMaillagePlaquette__(self):
         # On effectue  tous les calculs dans le repère (Op,zp,xp).
         # On ajoute yp lors de la creation des dictionnaires à passer en entrée de donnnées.
-        self.partiesEtMaillageFaceDeCoupe = []
+        self.elementary_tools_list = []
         e = self.dic["cut_face_thickness"]
         nbCouchesFaceDeCoupe = self.dic["cut_face_nb_layers"]
         pointEtAngle = [0.,0.,0.] # contiendra [z,x, alpha]
@@ -331,13 +338,66 @@ class Insert :
         ### derniere section segment :    
         self.__generePartiesEtMaillageSegment__(idxSeg, current_point, current_angle, next_point)
         
-        print '<CGen> self.partiesEtMaillageFaceDeCoupe :'
-        for ddd in self.partiesEtMaillageFaceDeCoupe:
+        print '<CGen> self.elementary_tools_list :'
+        for ddd in self.elementary_tools_list:
             print ddd
-                            
-    def showyou(self):
-        bloc_util.view_bloc(self.partiesEtMaillageFaceDeCoupe)
 
+class ToothForHelicoidalMillType2(Insert):
+    def __init__(self, dic):
+        """
+         example for dic : 
+         {
+         'name': 'dent de fraise hélicoïdale de type 2',
+         'tooth_id': 0,
+         'storey_id': 0,
+         
+         'cut_face_thickness': 2.3E-2,
+         'cut_face_nb_layers': 1,
+         
+         'dist_from_origin'      : 6.0D-3, # futur radiurs of the mill...
+         'rayonBec' : 3.D-3,
+         'longProlongAvant'    : 5.D-03,
+         'longProlongApres'    : 0.0,
+         'anglePointeOutil'    : 110.0, 'angleHelice' : -10.0,
+
+          
+         'nbPartiesFlancAvant' : 5, 'nbPartiesFlancApres' : 0, 'nbPartiesDisque' : 5,
+         'seg_nb_slice_before':1, 'seg_nb_slice_after': 1, 'nb_slices_disk': 2,
+         
+         'nbCouchesLiaison'    : 1, 'nbSweep' : 1
+         }
+        """
+        Tooth.__init__(self,dic)
+        #1 : preparer les donnees pour pouvoir appliquer la methode classe insert
+        # Construction des listes
+        self.dic['seg_length_list'] = [dic['longProlongApres'],dic['longProlongAvant']]
+        self.dic['seg_nb_elementary_tools_list'] = [dic['nbPartiesFlancApres'],dic['nbPartiesFlancAvant']]
+        self.dic['seg_nb_slices_list'] = [dic['seg_nb_slice_after'],dic['seg_nb_slice_before']]
+        
+        self.dic['arc_angle_degrees_list'] = [180-dic['anglePointeOutil']]
+        self.dic['arc_nb_elementary_tools_list'] = [dic['nbPartiesDisque']]
+        self.dic['radius_list'] = [dic['rayonBec']]
+        self.dic['arc_nb_slices_list'] = [dic['nb_slices_disk']]
+        
+        self.dic["mediatrice_seg_idx"]=1
+        self.dic["dist_from_origin"] = dic["dist_from_origin"]
+
+        
+        self.nb_elementary_tools = dic['nbPartiesFlancAvant'] + dic['nbPartiesFlancApres'] + dic['nbPartiesDisque']
+        ### rem. : self.nb_elementary_tools sera à priori calculé dans self.__generePartiesEtMaillagePlaquette__()
+        #2 : On génère le maillage :
+        self.__generePartiesEtMaillagePlaquette__()
+        #3 : On retourne la face de coupe et on remonte la dent sur l'axe x :
+        z_diff = self.dic['seg_length_list'][1]/2. +self.dic['radius_list'][0]
+        for i in range (self.nb_elementary_tools):
+        	for node in self.elementary_tools_list[i]['node']:
+        	    node [2] = -node[2] + z_diff
+        	self.elementary_tools_list[i]['pnt_cut_edge'][0][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][0][2] + z_diff
+        	self.elementary_tools_list[i]['pnt_cut_edge'][1][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][1][2] + z_diff
+        	self.elementary_tools_list[i]['pnt_in_cut_face'][2] = - self.elementary_tools_list[i]['pnt_in_cut_face'][2] + z_diff
+        	
+        
+        #4 : Application de la methode l'hélicoidalisation 
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
         
@@ -357,41 +417,66 @@ if __name__ == "__main__":
             "nbCouchesFaceDeCoupe": 2
             }
     dico1_nouveau_1 = {   'name' : 'ma plaquette',
-             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                      'nb_elementary_tool': 4, 'nb_slices': 4},
-                                   {'radius'     : 1.0e-3, 'angle_degrees': 45, 'nb_elementary_tool': 3, 'nb_slices': 4},
-                                   {'seg_length' : 5.0e-3,                      'nb_elementary_tool': 5},
-                                   {'radius'     : 2.0e-3, 'angle_degrees': 30, 'nb_elementary_tool': 3, 'nb_slices': 3},
-                                   {'seg_length' : 8.0e-3,                      'nb_elementary_tool': 4, 'nb_slices': 1},
+                          'tooth_id' : 0, 'storey_id': 0,
+             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                      'nb_elementary_tools': 4, 'nb_slices': 4},
+                                   {'radius'     : 4.0e-3, 'angle_degrees': 45, 'nb_elementary_tools': 3, 'nb_slices': 4},
+                                   {'seg_length' : 5.0e-3,                      'nb_elementary_tools': 5},
+                                   {'radius'     : 6.0e-3, 'angle_degrees': 30, 'nb_elementary_tools': 3, 'nb_slices': 3},
+                                   {'seg_length' : 8.0e-3,                      'nb_elementary_tools': 4, 'nb_slices': 1},
                                   ],
              'insert_location': {'bissectrice_arc_idx': 1, 'dist_from_origin':4.0e-3 },
              'cut_face_thickness' : 3.E-3,
-             'cut_face_nb_layers' : 2
+             'cut_face_nb_layers' : 3
          }
     dico1_nouveau_3 = {   'name' : 'ma plaquette',
-             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                      'nb_elementary_tool': 4, 'nb_slices': 4},
-                                   {'radius'     : 0., 'angle_degrees': 45, 'nb_elementary_tool': 3, 'nb_slices': 1},
-                                   {'seg_length' : 5.0e-3,                      'nb_elementary_tool': 5},
-                                   {'radius'     : 0., 'angle_degrees': 30, 'nb_elementary_tool': 3},
-                                   {'seg_length' : 8.0e-3,                      'nb_elementary_tool': 4, 'nb_slices': 1},
+                          'tooth_id' : 0, 'storey_id': 0,
+             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                      'nb_elementary_tools': 4, 'nb_slices': 4},
+                                   {'radius'     : 0., 'angle_degrees': 45, 'nb_elementary_tools': 3, 'nb_slices': 1},
+                                   {'seg_length' : 5.0e-3,                      'nb_elementary_tools': 5},
+                                   {'radius'     : 0., 'angle_degrees': 30, 'nb_elementary_tools': 3},
+                                   {'seg_length' : 8.0e-3,                      'nb_elementary_tools': 4, 'nb_slices': 1},
                                   ],
              'insert_location': {'bissectrice_arc_idx': 1, 'dist_from_origin':4.0e-3 },
              'cut_face_thickness' : 3.E-3,
              'cut_face_nb_layers' : 2
          }
     dico1_nouveau_2 = {   'name' : 'ma plaquette',
-             'cutting_edge_geom': [{'seg_length' : 0.,                      'nb_elementary_tool': 4, 'nb_slices': 4},
-                                   {'radius'     : 2.8e-3, 'angle_degrees': 45, 'nb_elementary_tool': 4, 'nb_slices': 3},
-                                   {'seg_length' : 0.,                      'nb_elementary_tool': 5}
+                          'tooth_id' : 0, 'storey_id': 0,
+             'cutting_edge_geom': [{'seg_length' : 0.,                      'nb_elementary_tools': 4, 'nb_slices': 4},
+                                   {'radius'     : 2.8e-3, 'angle_degrees': 45, 'nb_elementary_tools': 4, 'nb_slices': 3},
+                                   {'seg_length' : 0.,                      'nb_elementary_tools': 5}
                                                                      ],
              'insert_location': {'bissectrice_arc_idx': 0, 'dist_from_origin':4.0e-3 },
              'cut_face_thickness' : 3.E-3,
              'cut_face_nb_layers' : 6
          }
+         
+    tooth_helico_type2_dic = {
+         'name': 'dent de fraise hélicoïdale de type 2',
+         'tooth_id': 0,
+         'storey_id': 0,
+         
+         'cut_face_thickness': 2.3E-2,
+         'cut_face_nb_layers': 3,
+         
+         'dist_from_origin'      : 6.0E-3, # futur radiurs of the mill...
+         'rayonBec' : 3.E-3,
+         'longProlongAvant'    : 5.E-03,
+         'longProlongApres'    : 0.0,
+         'anglePointeOutil'    : 110.0, 'angleHelice' : -10.0,
+
+          
+         'nbPartiesFlancAvant' : 5, 'nbPartiesFlancApres' : 0, 'nbPartiesDisque' : 5,
+         'seg_nb_slice_before':1, 'seg_nb_slice_after': 1, 'nb_slices_disk': 2,
+         
+         'nbCouchesLiaison'    : 1, 'nbSweep' : 1
+         }
     #plaquette = Insert(dicPlaquette1Segment)
     #plaquette = Insert(dicPlaquette1Arc)
     #plaquette = Insert(dicPlaquette3seg)
     #plaquette = Insert(dicPlaquetteEquerre)
-    plaquette = Insert(dico1_nouveau_1)
+    # plaquette = Insert(dico1_nouveau_1)
     
-    print plaquette.dic
-    plaquette.showyou()
+    dent_helico_type2 = ToothForHelicoidalMillType2(tooth_helico_type2_dic)
+    #print plaquette.dic
+    dent_helico_type2.showyou()

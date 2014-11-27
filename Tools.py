@@ -19,7 +19,7 @@ class InconcistentDataError(Exception):
     pass
 
 # ==================================================================================================
-class Tool:
+class Mill:
 # ==================================================================================================
 # --------------------------------------------------------------------------------------------------
     def __init__(self,  dic):
@@ -39,7 +39,7 @@ class Tool:
         self.idNoeudMaitre      = dic["idNoeudMaitre"] if dic.has_key("idNoeudMaitre") else None
         self.nbDents            = dic["nbDents"] if dic.has_key("nbDents") else 1
 # --------------------------------------------------------------------------------------------------        
-    def __generePartiesEtMaillageDents__(self):
+    def addTeethByRotation(self):
         """
         genere face de coupe et maillage des autres dents par rotations des 
         points des parties et des nodes. 
@@ -92,7 +92,7 @@ class Tool:
         bloc_util.view_bloc(self.partiesEtMaillageFaceDeCoupe)
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
-class WithInsertsMill (Tool):
+class WithInsertsMill (Mill):
 # ==================================================================================================
 # --------------------------------------------------------------------------------------------------
     def __init__(self, dic):
@@ -100,11 +100,11 @@ class WithInsertsMill (Tool):
         Fraise à plaquettes de base : composee de self.nbDents plaquettes identiques.
         On définit une plaquette et calcule ses aretes faces de coupe et maillage. 
         Ensuite, on calcule les autres dents par rotation.
-        structure de dic attendue : (en plus des cles de la classe de base Tool)
+        structure de dic attendue : (en plus des cles de la classe de base Mill)
         'insert': dic de la classe Insert
         'frameInsert' : dic de la classe Frame.
         """
-        Tool.__init__(self, dic)
+        Mill.__init__(self, dic)
         self.millFom = fom.FrameOfReference(dic)
         self.listInserts = []
         self.__toothId__ = 0
@@ -137,14 +137,14 @@ class WithInsertsMill (Tool):
         self.__toothId__+=1
 # --------------------------------------------------------------------------------------------------
     def __addInsertByRotation__(self):
-        self.__generePartiesEtMaillageDents__()
+        self.addTeethByRotation()
 # --------------------------------------------------------------------------------------------------        
 # ==================================================================================================
-class MonoblocMill(Tool):
+class MonoblocMill(Mill):
 # ==================================================================================================
 # --------------------------------------------------------------------------------------------------
     def __init__(self,  dic):
-        Tool.__init__(self, dic)
+        Mill.__init__(self, dic)
 
         self.nbDents            = dic["nbDents"] if dic.has_key("nbDents") else 2
         self.diametreFraise     = dic["diametreFraise"] if dic.has_key("diametreFraise") else 6.0E-3
@@ -183,7 +183,7 @@ class MonoblocMillType1(MonoblocMill):
         ###   }
         
         self.__generePartiesEtMaillageDent0__()
-        self.__generePartiesEtMaillageDents__()
+        self.addTeethByRotation()
 # --------------------------------------------------------------------------------------------------
     def __generePartiesEtMaillageDent0__(self):
         alpha = self.angleAxialInitial
@@ -265,9 +265,9 @@ class ToreMonoblocMill(MonoblocMill):
         ###     "maillagePoints":[[x,y,z],["],...],
         ###     "maillageTiangles":[[i1,i2,i3],["],...]
         ###   }
-        self.__prepareDonnees__()
+        
         self.__generePartiesEtMaillageDent0__()
-        self.__generePartiesEtMaillageDents__()
+        self.addTeethByRotation()
 
 # --------------------------------------------------------------------------------------------------
     def __prepareDonnees__(self):
@@ -293,6 +293,7 @@ class ToreMonoblocMill(MonoblocMill):
         
 # --------------------------------------------------------------------------------------------------
     def __generePartiesEtMaillageDent0__(self):
+        self.__prepareDonnees__()
         alpha = self.angleAxialInitial
         r     = self.diametreFraise / 2.
         nb    = self.nbParties
@@ -347,7 +348,7 @@ class ToreMonoblocMill(MonoblocMill):
                     
                     dicoPartie["node"].append(pm)
 
-            # ensuite les triangles (liste de tripplets indicant les 
+            # ensuite les triangles (liste de tripplets indiquant les 
             # indices des nodes dans le tableau des nodes)
             for jp in range (self.nbCouchesFaceCoupe):
                 for ip in range (self.nbTranches):
