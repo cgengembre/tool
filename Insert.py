@@ -390,14 +390,19 @@ class ToothForHelicoidalMillType2(Insert):
         #3 : On retourne la face de coupe et on remonte la dent sur l'axe x :
         z_diff = self.dic['seg_length_list'][1]/2. +self.dic['radius_list'][0]
         for i in range (self.nb_elementary_tools):
-        	for node in self.elementary_tools_list[i]['node']:
-        	    node [2] = -node[2] + z_diff
-        	self.elementary_tools_list[i]['pnt_cut_edge'][0][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][0][2] + z_diff
-        	self.elementary_tools_list[i]['pnt_cut_edge'][1][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][1][2] + z_diff
-        	self.elementary_tools_list[i]['pnt_in_cut_face'][2] = - self.elementary_tools_list[i]['pnt_in_cut_face'][2] + z_diff
-        	
+            for node in self.elementary_tools_list[i]['node']:
+                node [2] = -node[2] + z_diff
+            self.elementary_tools_list[i]['pnt_cut_edge'][0][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][0][2] + z_diff
+            self.elementary_tools_list[i]['pnt_cut_edge'][1][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][1][2] + z_diff
+            self.elementary_tools_list[i]['pnt_in_cut_face'][2] = - self.elementary_tools_list[i]['pnt_in_cut_face'][2] + z_diff
+            
         
         #4 : Application de la methode l'hélicoidalisation 
+        # self.radius, self.height, et self.helix_angle ou self.torsion_angle doivent exister.
+        self.radius = self.dic['dist_from_origin']
+        self.helix_angle = dic['angleHelice']
+        self.height = dic['rayonBec']+dic['longProlongAvant']
+        self.torsion_transformation()
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
         

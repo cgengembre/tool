@@ -17,6 +17,38 @@ import Insert
 
 class InconcistentDataError(Exception):
     pass
+# ==================================================================================================
+class Storey:
+# ==================================================================================================
+    def __init__(self, **dic):
+        """
+        structure de dic :
+        {
+            'name' : "nom de l'etage"
+            'frame_dic' :  # dictionnaire en parametre du constructeur de fom.Frame
+            
+        }
+        """
+        self.name = dic['name']
+        if dic.has_key('dic_frame'):
+            self.frame = fom.Frame(**dic['frame_dic'])
+        else :
+            self.frame = None # dans ce cas le repere de l'étage et le repere canonique de fom
+        self.tooth_list = []
+        self.tooth_counter = 0
+    
+    def addTooth(self,**dic):
+        """
+        structure de dic attendue :
+        {
+            'tooth_class' : classe de la dent, ex :Insert.Insert
+            'tooth_param' : dictionnaire attendu par le constructeur de la classe dic['tooth_class'] 
+        }
+        """
+        tooth = dic['tooth_type'](**dic['tooth_param'])
+        self.tooth_list.append(tooth)
+        
+
 
 # ==================================================================================================
 class Mill:
@@ -38,8 +70,15 @@ class Mill:
         self.nbCouchesLiaison   = dic["nbCouchesLiaison"] if dic.has_key("nbCouchesLiaison") else 1
         self.idNoeudMaitre      = dic["idNoeudMaitre"] if dic.has_key("idNoeudMaitre") else None
         self.nbDents            = dic["nbDents"] if dic.has_key("nbDents") else 1
+        
+        self.storey_list = []
+        self.elementary_tools_list = []
+        
+# --------------------------------------------------------------------------------------------------
+    def addTooth (self, dico_tooth, dico_frame):
+        pass        
 # --------------------------------------------------------------------------------------------------        
-    def addTeethByRotation(self):
+    def addTeethByRotation(self, nbPartiesModel):
         """
         genere face de coupe et maillage des autres dents par rotations des 
         points des parties et des nodes. 
@@ -56,7 +95,7 @@ class Mill:
             # A : matrice de rotation.
             Anp = np.array([cosAlpha, -sinAlpha, 0, sinAlpha, cosAlpha, 0, 0,0,1]).reshape((3,3))
             # On parcourt les parties de la face de coupe de la dent 0 (tooth_id = 0)
-            for idPartie in range (self.nbParties):
+            for idPartie in range (nbPartiesModel): ## self.nbParties
                 
                 dicoPartie = {}
                 
@@ -113,7 +152,7 @@ class WithInsertsMill (Mill):
 # --------------------------------------------------------------------------------------------------
     def __computeTeeth__(self, dic):
         self.__addInsert__(dic['insert'], dic['insertFrame'])
-        self.__addInsertByRotation__()
+        self.__addInsertByRotation__(len(self.partiesEtMaillageFaceDeCoupe))
 # --------------------------------------------------------------------------------------------------
     def __addInsert__(self, dicInsert, dicFrame):
         insert = Insert.Insert(dicInsert)
@@ -123,8 +162,8 @@ class WithInsertsMill (Mill):
         # insert.partiesEtMaillageFaceDeCoupe est la liste des parties de la plaquette ajoutée
         dicPartie = {}
         dicPartie["tooth_id"] = self.__toothId__
-        print insert.partiesEtMaillageFaceDeCoupe
-        for partie in insert.partiesEtMaillageFaceDeCoupe:
+        print insert.elementary_tools_list
+        for partie in insert.elementary_tools_list:
             dicPartie = {}
             dicPartie["tooth_id"] = self.__toothId__
             dicPartie["pnt_cut_edge"] = self.millFom.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
@@ -136,8 +175,8 @@ class WithInsertsMill (Mill):
         print self.partiesEtMaillageFaceDeCoupe
         self.__toothId__+=1
 # --------------------------------------------------------------------------------------------------
-    def __addInsertByRotation__(self):
-        self.addTeethByRotation()
+    def __addInsertByRotation__(self, nbParties):
+        self.addTeethByRotation(nbParties)
 # --------------------------------------------------------------------------------------------------        
 # ==================================================================================================
 class MonoblocMill(Mill):

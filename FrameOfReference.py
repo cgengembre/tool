@@ -132,8 +132,38 @@ class FrameOfReference:
             self.dic_frames[frame.name] = frame
         else: raise FatherFrameError("Pere inexistant")
 # --------------------------------------------------------------------------------------------------
-    def givePointsInCanonicalFrame(self, frameName, points):
+    def computeRotMatAndTransVect(self, frameName):
         """
+        compute self.dic_frames[frameName].npMatRot2Canonical (say M) and 
+                self.dic_frames[frameName].npVectTrans2Canonical (say T).
+        Let P be a point expressed in the frame named frameName, 
+        M.P + T expresses P in Canonical frame.
+        """
+        name = frameName
+        M = self.dic_frames[name].npMatSelfToFather
+        T = self.dic_frames[name].npVectSelfToFather
+        name = self.dic_frames[name].fatherFrameName
+        while name != 'Canonical':
+            M = np.dot(self.dic_frames[name].npMatSelfToFather,M)
+            T = np.dot(self.dic_frames[name].npMatSelfToFather,T) + self.dic_frames[name].npVectSelfToFather
+            name = self.dic_frames[name].fatherFrameName
+        self.dic_frames[frameName].npMatRot2Canonical = M
+        self.dic_frames[frameName].npVectTrans2Canonical = T
+            
+    def givePointsInCanonicalFrame(self, frameName, points):
+        if hasattr(self.dic_frames[frameName], 'npMatRot2Canonical'):
+            ret_points = []
+            for p in points:
+                npPoint = np.array(p)
+                npPointInCan = np.dot(self.dic_frames[frameName].npMatRot2Canonical,npPoint) + self.dic_frames[frameName].npVectTrans2Canonical
+                ret_points.append (npPointInCan.tolist())
+            return ret_points
+        else:
+            return self.givePointsInCanonicalFrameR(frameName, points)
+# --------------------------------------------------------------------------------------------------
+    def givePointsInCanonicalFrameR(self, frameName, points):
+        """
+        Recurcive version.
         points are given in the frame whose name is frameName. 
         return points coordinates expressed in Canonical Frame.
         """
@@ -145,6 +175,6 @@ class FrameOfReference:
         if self.dic_frames[frameName].fatherFrameName == "Canonical":
             return _points_
         else:
-            return self.givePointsInCanonicalFrame(self.dic_frames[frameName].fatherFrameName ,_points_)
+            return self.givePointsInCanonicalFrameR(self.dic_frames[frameName].fatherFrameName ,_points_)
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
