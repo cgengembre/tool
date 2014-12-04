@@ -120,7 +120,13 @@ dicFraisePlaquettes = {
 #    fraise_avec_plaquettes  = Tools.WithInsertsMill(dicFraisePlaquettes)
 #    fraise_avec_plaquettes.showyou()
 
-fraise_avec_plaquettes  = Tools.WithInsertsMill(dicFraisePlaquettes)
+# Exemple 1 :
+# fraise_avec_plaquettes  = Tools.WithInsertsMill(dicFraisePlaquettes)
+# fraise_avec_plaquettes.showyou()
 
+# Exemple 2 :
 
-fraise_avec_plaquettes.showyou()
+fraise  = Mill()
+fraise.addInsert(dico1_nouveau_1)
+# plaquette = Insert.Insert (dico1_nouveau_1)
+# fraise.addInsert (plaquette)
