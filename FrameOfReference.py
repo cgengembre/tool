@@ -35,7 +35,7 @@ INSERT_FRAME_AROUND_A_MILL = 2
 # ==================================================================================================
 class Frame:
 # --------------------------------------------------------------------------------------------------
-    def __init__(self, dic):
+    def __init__(self, **dic):
         """
     	Structures possibles pour dic :
         --> clés communes à tous les types de reperes :
@@ -76,14 +76,14 @@ class Frame:
         self.name             = dic["name"]
         self.fatherFrameName = dic["fatherFrameName"]
         self.frameType        = dic["frameType"]
-        self.__computeRotationMatAndTanslationVect__(dic)
+        self.__computeRotationMatAndTanslationVect__(**dic)
         #self.name
         #self.FrameOfReference
         #self.FatherFrameName
         #self.rotMatrix
         #self.origin
 # --------------------------------------------------------------------------------------------------
-    def __computeRotationMatAndTanslationVect__(self,dic):
+    def __computeRotationMatAndTanslationVect__(self,**dic):
         """
         Compute the matrix self.MatSelfToFather and the vector self.VectSelfToFather.
         Let P be a point expressed in self,
@@ -120,8 +120,9 @@ class Frame:
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
 class FrameOfReference:
+# ==================================================================================================
 # --------------------------------------------------------------------------------------------------
-    def __init__(self, dic):
+    def __init__(self, **dic):
         self.name = dic["name"]
         self.dic_frames = {"Canonical": None}
 # --------------------------------------------------------------------------------------------------
@@ -149,7 +150,7 @@ class FrameOfReference:
             name = self.dic_frames[name].fatherFrameName
         self.dic_frames[frameName].npMatRot2Canonical = M
         self.dic_frames[frameName].npVectTrans2Canonical = T
-            
+# --------------------------------------------------------------------------------------------------
     def givePointsInCanonicalFrame(self, frameName, points):
         if hasattr(self.dic_frames[frameName], 'npMatRot2Canonical'):
             ret_points = []

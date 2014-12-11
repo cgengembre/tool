@@ -103,11 +103,22 @@ dicFramePlaquette = {
     	   "frameType"       : Fom.INSERT_FRAME_AROUND_A_MILL,
     	   "axialAngleDegrees"  : 90.,
     	   "radius"             : 20.0E-3,
-    	   "axialPosition"      : 5.0E-3,
+    	   "axialPosition"      : 3.0E-3,
     	   "rotDegreAutourNormale" : 0.,
     	   "rotDegreAutourRadiale" : -20.,
     	   "rotDegreAutourAxiale"  : 0.
     	   }
+dicFrameEtage = {
+            "name"            : "repere etage1",
+           "fatherFrameName" : "Canonical",
+           "frameType"       : Fom.INSERT_FRAME_AROUND_A_MILL,
+           "axialAngleDegrees"  : 0.,
+           "radius"             : 0.,
+           "axialPosition"      : 7.0E-3,
+           "rotDegreAutourNormale" : 0.,
+           "rotDegreAutourRadiale" : 0.,
+           "rotDegreAutourAxiale"  : 0.
+           }
     	   
 dicFraisePlaquettes = {
            "name" : "fraisePlaquette",
@@ -126,7 +137,25 @@ dicFraisePlaquettes = {
 
 # Exemple 2 :
 
-fraise  = Mill()
-fraise.addInsert(dico1_nouveau_1)
+# Fraise à plaquettes
+fraise  = Tools.Tool()
+plaquette = Insert.Insert(**dico1_nouveau_1)
+angles = [0,10, 90, 100, 180, 190, 270, 280  ]
+for alpha in angles :
+    dicFramePlaquette['axialAngleDegrees'] = alpha 
+    frame = Fom.Frame(**dicFramePlaquette)
+    fraise.addTooth(plaquette, frame)
+# Outil à étages
+outil = Tools.Tool()
+etage = Tools.Storey()
+for alpha in angles :
+    dicFramePlaquette['axialAngleDegrees'] = alpha 
+    frame = Fom.Frame(**dicFramePlaquette)
+    etage.addTooth(plaquette, frame)
+for z in [3.0E-3, 9.0E-3]:
+    dicFrameEtage['axialPosition'] = z
+    frame = Fom.Frame(**dicFrameEtage)
+    outil.addStorey(etage, frame)
+    
 # plaquette = Insert.Insert (dico1_nouveau_1)
 # fraise.addInsert (plaquette)

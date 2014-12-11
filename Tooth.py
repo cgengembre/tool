@@ -11,7 +11,7 @@ import math
 import bloc_util
 
 
-class Tooth:
+class ToothModel:
     """
     Classe abstraite, mère de toutes les dents. Attentions aux dents de la mer !
     Cette classe ne doit être jamais instentiée.
@@ -61,7 +61,7 @@ class Tooth:
         bloc_util.view_bloc(self.elementary_tools_list)
 
 
-class ToothForHelicoidalMillType1(Tooth):
+class ToothForHelicoidalMillType1(ToothModel):
     pass
-class ToothForHelicoidalMillTore(Tooth):
+class ToothForHelicoidalMillTore(ToothModel):
     pass
