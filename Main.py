@@ -119,7 +119,6 @@ dicFrameEtage = {
            "rotDegreAutourRadiale" : 0.,
            "rotDegreAutourAxiale"  : 0.
            }
-    	   
 dicFraisePlaquettes = {
            "name" : "fraisePlaquette",
            "insert" : dico1_nouveau_1, #dicPlaquetteEquerre,
@@ -137,25 +136,30 @@ dicFraisePlaquettes = {
 
 # Exemple 2 :
 
-# Fraise à plaquettes
-fraise  = Tools.Tool()
-plaquette = Insert.Insert(**dico1_nouveau_1)
+### Fraise à plaquettes
+#fraise  = Tools.Tool(name='fraise')
+#plaquette = Insert.Insert(**dico1_nouveau_1)
+#angles = [0,10, 90, 100, 180, 190, 270, 280  ]
+#for alpha in angles :
+#    dicFramePlaquette['axialAngleDegrees'] = alpha
+#    dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
+#    frame = fraise.tool_fom.create_frame(**dicFramePlaquette)
+#    fraise.addTooth(plaquette, frame)
+#fraise.draw()
+### Outil à étages
 angles = [0,10, 90, 100, 180, 190, 270, 280  ]
+plaquette = Insert.Insert(**dico1_nouveau_1)
+outil = Tools.Tool(name = 'storey_tool1')
+etage = Tools.StoreyModel()
 for alpha in angles :
-    dicFramePlaquette['axialAngleDegrees'] = alpha 
-    frame = Fom.Frame(**dicFramePlaquette)
-    fraise.addTooth(plaquette, frame)
-# Outil à étages
-outil = Tools.Tool()
-etage = Tools.Storey()
-for alpha in angles :
-    dicFramePlaquette['axialAngleDegrees'] = alpha 
-    frame = Fom.Frame(**dicFramePlaquette)
+    dicFramePlaquette['axialAngleDegrees'] = alpha
+    dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
+    frame = outil.tool_fom.create_frame(**dicFramePlaquette)
     etage.addTooth(plaquette, frame)
 for z in [3.0E-3, 9.0E-3]:
     dicFrameEtage['axialPosition'] = z
-    frame = Fom.Frame(**dicFrameEtage)
-    outil.addStorey(etage, frame)
+    dicFrameEtage['name'] = 'pour z = %f'%(z)
+    frame = outil.tool_fom.create_frame(**dicFrameEtage)
+    outil.addStorey(name = 'z=%f'%z, storey = etage, frame = frame)
+outil.draw()    
     
-# plaquette = Insert.Insert (dico1_nouveau_1)
-# fraise.addInsert (plaquette)

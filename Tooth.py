@@ -14,7 +14,6 @@ import bloc_util
 class ToothModel:
     """
     Classe abstraite, mère de toutes les dents. Attentions aux dents de la mer !
-    Cette classe ne doit être jamais instentiée.
     """
     def __init__(self, dic):
         self.dic = {}

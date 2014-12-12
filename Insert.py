@@ -5,12 +5,12 @@
 
 import math
 import numpy as np
-from Tooth import Tooth
+from Tooth import ToothModel
 
 class Insert(ToothModel) :
 # ==================================================================================================
 # --------------------------------------------------------------------------------------------------
-    def __init__(self, dic):
+    def __init__(self, **dic):
         """
         Structure de dic :
        {
@@ -48,7 +48,7 @@ class Insert(ToothModel) :
          On pourra en théorie mettre autant de segment que l'on veut. 
          S'il y a n segments il y aura n-1 arcs.
         """
-        Tooth.__init__(self, dic) 
+        ToothModel.__init__(self, dic) 
         ## On compte le nombre d'elementary_tools :
         self.nb_elementary_tools = 0 # par prudence ...
         for ceg_dic in dic['cutting_edge_geom']:
@@ -367,7 +367,7 @@ class ToothForHelicoidalMillType2(Insert):
          'nbCouchesLiaison'    : 1, 'nbSweep' : 1
          }
         """
-        Tooth.__init__(self,dic)
+        ToothModel.__init__(self,dic)
         #1 : preparer les donnees pour pouvoir appliquer la methode classe insert
         # Construction des listes
         self.dic['seg_length_list'] = [dic['longProlongApres'],dic['longProlongAvant']]
