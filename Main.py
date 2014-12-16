@@ -4,10 +4,11 @@
 
 # Outil, piece, trajectoire.
 # 1: création de l'outil
-import Tools
-import Insert
-import FrameOfReference as Fom
-#fraise = Tools.FraiseMonoblocType1 (idNoeudMaitre      = 1,    # Champ facultatif
+#from Tool import *
+import Tool.Tool as Tool
+import Tool.Tooth as Tooth
+import FrameOfReference as FoR
+#fraise = Tool.FraiseMonoblocType1 (idNoeudMaitre      = 1,    # Champ facultatif
 #  loiDeCoupe         = "nomLoiCoupe",
 #  angleAxialInitial  = 0.0,
 #  diametreFraise     = 6.0e-3,
@@ -37,8 +38,8 @@ dic = {
                                            # 0<rayonTore<diametreFraise/2 => fraise torique.
       }
  
-# fraise = Tools.ToreMonoblocMill(dic)                # Parametres pour la structure de données
-##fraise = Tools.MonoblocMillType1 (dic)
+# fraise = Tool.ToreMonoblocMill(dic)                # Parametres pour la structure de données
+##fraise = Tool.MonoblocMillType1 (dic)
  
 # 2: affichage de l'outil avec viewer3D
 ## fraise.showyou()
@@ -83,7 +84,7 @@ dicPlaquetteEquerre = {
             }
             
             
-dico1_nouveau_1 = {   'name' : 'ma plaquette',
+dicInsert1 = {   'name' : 'ma plaquette',
              'cutting_edge_geom': [{'seg_length' : 6.0e-3,                      'nb_elementary_tools': 4, 'nb_slices': 4},
                                    {'radius'     : 1.0e-3, 'angle_degrees': 45, 'nb_elementary_tools': 3, 'nb_slices': 4},
                                    {'seg_length' : 5.0e-3,                      'nb_elementary_tools': 5},
@@ -94,13 +95,13 @@ dico1_nouveau_1 = {   'name' : 'ma plaquette',
              'cut_face_thickness' : 3.E-3,
              'cut_face_nb_layers' : 2,
              'tooth_id': 0,
-             'storey_id': 0
+             'toolstep_id': 0
          }
 
 dicFramePlaquette = {
             "name"            : "repere plaquette ",
     	   "fatherFrameName" : "Canonical",
-    	   "frameType"       : Fom.INSERT_FRAME_AROUND_A_MILL,
+    	   "frameType"       : FoR.INSERT_FRAME_AROUND_A_MILL,
     	   "axialAngleDegrees"  : 90.,
     	   "radius"             : 20.0E-3,
     	   "axialPosition"      : 3.0E-3,
@@ -111,7 +112,7 @@ dicFramePlaquette = {
 dicFrameEtage = {
             "name"            : "repere etage1",
            "fatherFrameName" : "Canonical",
-           "frameType"       : Fom.INSERT_FRAME_AROUND_A_MILL,
+           "frameType"       : FoR.INSERT_FRAME_AROUND_A_MILL,
            "axialAngleDegrees"  : 0.,
            "radius"             : 0.,
            "axialPosition"      : 7.0E-3,
@@ -121,45 +122,45 @@ dicFrameEtage = {
            }
 dicFraisePlaquettes = {
            "name" : "fraisePlaquette",
-           "insert" : dico1_nouveau_1, #dicPlaquetteEquerre,
+           "insert" : dicInsert1, #dicPlaquetteEquerre,
            "insertFrame" : dicFramePlaquette,
            "nbDents" : 8
           }
           
 #def test():
-#    fraise_avec_plaquettes  = Tools.WithInsertsMill(dicFraisePlaquettes)
+#    fraise_avec_plaquettes  = Tool.WithInsertsMill(dicFraisePlaquettes)
 #    fraise_avec_plaquettes.showyou()
 
 # Exemple 1 :
-# fraise_avec_plaquettes  = Tools.WithInsertsMill(dicFraisePlaquettes)
+# fraise_avec_plaquettes  = Tool.WithInsertsMill(dicFraisePlaquettes)
 # fraise_avec_plaquettes.showyou()
 
 # Exemple 2 :
 
 ### Fraise à plaquettes
-#fraise  = Tools.Tool(name='fraise')
+#fraise  = Tool.Tool(name='fraise')
 #plaquette = Insert.Insert(**dico1_nouveau_1)
 #angles = [0,10, 90, 100, 180, 190, 270, 280  ]
 #for alpha in angles :
 #    dicFramePlaquette['axialAngleDegrees'] = alpha
 #    dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
-#    frame = fraise.tool_fom.create_frame(**dicFramePlaquette)
+#    frame = fraise.tool_for.create_frame(**dicFramePlaquette)
 #    fraise.addTooth(plaquette, frame)
 #fraise.draw()
 ### Outil à étages
 angles = [0,10, 90, 100, 180, 190, 270, 280  ]
-plaquette = Insert.Insert(**dico1_nouveau_1)
-outil = Tools.Tool(name = 'storey_tool1')
-etage = Tools.StoreyModel()
+plaquette = Tooth.Insert(**dicInsert1)
+outil = Tool.Tool(name = 'toolstep_tool1')
+etage = Tool.ToolstepModel()
 for alpha in angles :
     dicFramePlaquette['axialAngleDegrees'] = alpha
     dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
-    frame = outil.tool_fom.create_frame(**dicFramePlaquette)
+    frame = outil.tool_for.create_frame(**dicFramePlaquette)
     etage.addTooth(plaquette, frame)
-for z in [3.0E-3, 9.0E-3]:
+for z in [3.0E-3, 1.6E-2]:
     dicFrameEtage['axialPosition'] = z
     dicFrameEtage['name'] = 'pour z = %f'%(z)
-    frame = outil.tool_fom.create_frame(**dicFrameEtage)
-    outil.addStorey(name = 'z=%f'%z, storey = etage, frame = frame)
+    frame = outil.tool_for.create_frame(**dicFrameEtage)
+    outil.addToolstep(name = 'z=%f'%z, toolstep = etage, frame = frame)
 outil.draw()    
     

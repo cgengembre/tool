@@ -12,9 +12,9 @@ import math
 import numpy as np
 
 import bloc_util
-import FrameOfReference as fom
-import Insert
-from FrameOfReference import FrameOfReference
+import FrameOfReference as FoR
+import Tooth
+import FrameOfReference
 # from Carbon.QuickDraw import frame
 # from json import tool
 
@@ -22,25 +22,33 @@ class InconcistentDataError(Exception):
     pass
 
 # ==================================================================================================
-class StoreyModel:
+class ToolstepModel:
 # ==================================================================================================
+    __instance_counter__ = 0
 # --------------------------------------------------------------------------------------------------
-    def __init__(self):
+    def __init__(self, **dic):
         """
         
         """
+        
+        if dic.has_key('name'):
+            self.name = dic['name']
+        else:
+            self.name = 'Toolstep_'+str(ToolstepModel.__instance_counter__)
         
         #self.name = dic['name']
         #if dic.has_key('dic_frame'):
-        #    self.frame = fom.Frame(**dic['frame_dic'])
+        #    self.frame = FoR.Frame(**dic['frame_dic'])
         #else :
         #   self.frame = None # dans ce cas le repere de l'étage et le repere canonique de fom
         self.tif_list = []
         self.repeated_teeth_list = []
-        self.elementary_tools_obj = ElemToolList()
-        self.elementary_tools_list = self.elementary_tools_obj.elementary_tools_list
+        #self.elementary_tools_obj = ElemToolList()
+        #self.elementary_tools_list = self.elementary_tools_obj.elementary_tools_list
+        self.elementary_tools_list = []
         self.range_in_etl_list = []
         self.__tooth_id__ = 0
+        ToolstepModel.__instance_counter__ += 1 
 # --------------------------------------------------------------------------------------------------
     def addTooth(self, tooth, frame):
         """
@@ -63,9 +71,10 @@ class StoreyModel:
         self.__tooth_id__+=1
 # --------------------------------------------------------------------------------------------------
     def draw(self):
-        self.elementary_tools_obj.draw()
+        bloc_util.view_bloc(self.elementary_tools_list)
+        
 # ==================================================================================================
-class StoreyInFrame:
+class ToolstepInFrame:
 # ==================================================================================================
     def __init__(self, **dic):
         """
@@ -73,11 +82,11 @@ class StoreyInFrame:
         {
             'name'  : "nom de l'etage"
             'frame' : le repere pour placer l'étage dans un outil
-            'storey': l'étage  
+            'toolstep': l'étage  
         }
         """
         self.name = dic['name']
-        self.storey = dic ['storey']
+        self.toolstep = dic ['toolstep']
         self.frame = dic ['frame']
         
 # ==================================================================================================
@@ -89,47 +98,41 @@ class ToothInFrame:
         self.tooth_id = dic['tooth_id']
 
 # ==================================================================================================
-class ElemToolList:
-# ==================================================================================================
-    def __init__(self):
-        self.elementary_tools_list = []
-        
-    def addTeethByRotation(self):
-        pass
-    def draw(self):
-        bloc_util.view_bloc(self.elementary_tools_list)
-# ==================================================================================================
 class Tool:
 # ==================================================================================================
 # --------------------------------------------------------------------------------------------------
+    __instance_counter__ = 0
     def __init__(self, **dic):
-        self.elementary_tools_obj = ElemToolList()
-        self.elementary_tools_list = self.elementary_tools_obj.elementary_tools_list
-        self.range_in_etl_dic = {'base_storey' : []}
         
-        self.sif_dic = {}
-        self.name = dic['name']
-        self.tool_fom = fom.FrameOfReference(name = 'fom_' + self.name)
-        storey0 = StoreyModel()
-        base_sif = StoreyInFrame(name = 'base_storey', storey = storey0, frame = None )
-        self.sif_dic['base_storey'] = base_sif
-        self.__storey_id__ = 0
+        self.elementary_tools_list = [] 
+        self.range_in_etl_dic = {'base_toolstep' : []}
+        self.toolstep_dic = {}
+        if dic.has_key('name'):
+            self.name = dic['name']
+        else:
+            self.name = 'Tool_'+str(Tool.__instance_counter__)
+        self.tool_for = FoR.FrameOfReference(name = 'for_' + self.name)
+        toolstep0 = ToolstepModel()
+        base_sif = ToolstepInFrame(name = 'base_toolstep', toolstep = toolstep0, frame = None )
+        self.toolstep_dic['base_toolstep'] = base_sif
+        self.__toolstep_id__ = 0
+        Tool.__instance_counter__ += 1
 # --------------------------------------------------------------------------------------------------        
-    def addTooth(self, tooth, frame, sif_name ='base_storey' ):
-        self.sif_dic[sif_name].storey.addTooth(tooth, frame)#,self.sif_dic[sif_name].storey.__tooth_id__)
-        # self.tool_fom.add(frame)
+    def addTooth(self, tooth, frame, sif_name ='base_toolstep' ):
+        self.toolstep_dic[sif_name].toolstep.addTooth(tooth, frame)#,self.toolstep_dic[sif_name].toolstep.__tooth_id__)
+        # self.tool_for.add(frame)
         # calculer les points de la dent dans le repere canonique de la fraise
         # insert.elementary_tools_list est la liste des parties de la plaquette ajoutée
         print tooth.elementary_tools_list
         idx_in_etl_begin = len(self.elementary_tools_list)
         for partie in tooth.elementary_tools_list:
             dicPartie = {}
-            dicPartie["tooth_id"] = self.sif_dic[sif_name].storey
-            dicPartie["storey_id"] = sif_name
-            dicPartie["pnt_cut_edge"] = self.tool_fom.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
-            dicPartie["pnt_in_cut_face"] = self.tool_fom.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
+            dicPartie["tooth_id"] = self.toolstep_dic[sif_name].toolstep
+            dicPartie["toolstep_id"] = sif_name
+            dicPartie["pnt_cut_edge"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
+            dicPartie["pnt_in_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
             dicPartie["h_cut_max"] = partie["h_cut_max"]
-            dicPartie["node"] = self.tool_fom.givePointsInCanonicalFrame(frame.name, partie["node"])
+            dicPartie["node"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node"])
             dicPartie["tri"] = partie["tri"]
             self.elementary_tools_list.append(dicPartie)
         idx_in_etl_end = len(self.elementary_tools_list)-1
@@ -137,26 +140,26 @@ class Tool:
         # Calculer arrete et maillage dans le repere canonique de la fraise et l'ajouter
         # dans la liste des parties
 # --------------------------------------------------------------------------------------------------
-    def addStorey(self, name, storey, frame ):
+    def addToolstep(self, name, toolstep, frame ):
         if self.range_in_etl_dic.has_key(name):
             print name, " : attention - nom déjà choisi pour l'etage !!" 
         else:
-            sif = StoreyInFrame(name = name, storey = storey, frame = frame)
-            self.sif_dic[name] = sif
-            self.range_in_etl_dic[name] = [[i+len(self.elementary_tools_list) for i in storey.range_in_etl_list[j]] for j in range(len(storey.range_in_etl_list))]
-            for partie in storey.elementary_tools_list:
+            tsif = ToolstepInFrame(name = name, toolstep = toolstep, frame = frame)
+            self.toolstep_dic[name] = tsif
+            self.range_in_etl_dic[name] = [[i+len(self.elementary_tools_list) for i in toolstep.range_in_etl_list[j]] for j in range(len(toolstep.range_in_etl_list))]
+            for partie in toolstep.elementary_tools_list:
                 dicPartie = {}
                 dicPartie["tooth_id"] = partie['tooth_id']
-                dicPartie['storey_id'] = name
-                dicPartie["pnt_cut_edge"] = self.tool_fom.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
-                dicPartie["pnt_in_cut_face"] = self.tool_fom.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
+                dicPartie['toolstep_id'] = name
+                dicPartie["pnt_cut_edge"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
+                dicPartie["pnt_in_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
                 dicPartie["h_cut_max"] = partie["h_cut_max"]
-                dicPartie["node"] = self.tool_fom.givePointsInCanonicalFrame(frame.name, partie["node"])
+                dicPartie["node"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node"])
                 dicPartie["tri"] = partie["tri"]
                 self.elementary_tools_list.append(dicPartie)
 # --------------------------------------------------------------------------------------------------
-    def draw (self):
-        self.elementary_tools_obj.draw()
+    def draw(self):
+        bloc_util.view_bloc(self.elementary_tools_list)
 # --------------------------------------------------------------------------------------------------                
 # ==================================================================================================
 class Mill(Tool):
@@ -183,9 +186,10 @@ class Mill(Tool):
 # --------------------------------------------------------------------------------------------------        
     def addTeethByRotation(self, nbPartiesModel):
         """
+        OBSOLETE
         genere face de coupe et maillage des autres dents par rotations des 
         points des parties et des nodes. 
-        creer les dents manquantes 
+        creer les dents manquantes
         """
         listeAngles = []
         if self.nbDents > 1:
@@ -228,11 +232,6 @@ class Mill(Tool):
                 else :
                     dicoPartie["h_cut_max"] = self.elementary_tools_list[0]["h_cut_max"]
                 self.elementary_tools_list.append (dicoPartie)
-# --------------------------------------------------------------------------------------------------
-    def draw(self):
-        #print self.elementary_tools_list
-        bloc_util.view_bloc(self.elementary_tools_list)
-# --------------------------------------------------------------------------------------------------
 # ==================================================================================================
 class WithInsertsMill (Mill):
 # ==================================================================================================
@@ -247,7 +246,6 @@ class WithInsertsMill (Mill):
         'frameInsert' : dic de la classe Frame.
         """
         Mill.__init__(self, dic)
-        self.millFom = fom.FrameOfReference(dic)
         self.listInserts = []
         self.__toothId__ = 0
         self.elementary_tools_list = []
