@@ -149,7 +149,7 @@ dicFraisePlaquettes = {
 #fraise.draw()
 ### Outil à étages
 angles = [0,10, 90, 100, 180, 190, 270, 280  ]
-plaquette = Tooth.Insert(**dicInsert1)
+plaquette = Tooth.ToothInsert(**dicInsert1)
 outil = Tool.Tool(name = 'toolstep_tool1')
 etage = Tool.ToolstepModel()
 for alpha in angles :
