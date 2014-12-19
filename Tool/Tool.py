@@ -14,88 +14,14 @@ import numpy as np
 import bloc_util
 import FrameOfReference as FoR
 import Tooth
-import FrameOfReference
+import Toolstep
 # from Carbon.QuickDraw import frame
 # from json import tool
 
 class InconcistentDataError(Exception):
     pass
 
-# ==================================================================================================
-class ToolstepModel:
-# ==================================================================================================
-    __instance_counter__ = 0
-# --------------------------------------------------------------------------------------------------
-    def __init__(self, **dic):
-        """
-        
-        """
-        
-        if dic.has_key('name'):
-            self.name = dic['name']
-        else:
-            self.name = 'Toolstep_'+str(ToolstepModel.__instance_counter__)
-        
-        #self.name = dic['name']
-        #if dic.has_key('dic_frame'):
-        #    self.frame = FoR.Frame(**dic['frame_dic'])
-        #else :
-        #   self.frame = None # dans ce cas le repere de l'étage et le repere canonique de fom
-        self.tif_list = []
-        self.repeated_teeth_list = []
-        #self.elementary_tools_obj = ElemToolList()
-        #self.elementary_tools_list = self.elementary_tools_obj.elementary_tools_list
-        self.elementary_tools_list = []
-        self.range_in_etl_list = []
-        self.__tooth_id__ = 0
-        ToolstepModel.__instance_counter__ += 1 
-# --------------------------------------------------------------------------------------------------
-    def addTooth(self, tooth, frame):
-        """
-        """
-        tif = ToothInFrame(tooth = tooth, frame = frame, tooth_id= self.__tooth_id__)
-        self.tif_list.append(tif)
-        idx_in_elt_begin = len(self.elementary_tools_list)
-        for partie in tooth.elementary_tools_list:
-            dicPartie = {}
-            dicPartie["tooth_id"] = self.__tooth_id__
-            dicPartie["pnt_cut_edge"] = frame.givePointsInFatherFrame( partie["pnt_cut_edge"])
-            dicPartie["pnt_in_cut_face"] = frame.givePointsInFatherFrame( [partie["pnt_in_cut_face"]])[0]
-            dicPartie["h_cut_max"] = partie["h_cut_max"]
-            dicPartie["node"] = frame.givePointsInFatherFrame( partie["node"])
-            dicPartie["tri"] = partie["tri"]
-            self.elementary_tools_list.append(dicPartie)
-        idx_in_etl_end = len(self.elementary_tools_list)-1
-        self.range_in_etl_list.append([idx_in_elt_begin, idx_in_etl_end])
-        self.repeated_teeth_list.append(0)
-        self.__tooth_id__+=1
-# --------------------------------------------------------------------------------------------------
-    def draw(self):
-        bloc_util.view_bloc(self.elementary_tools_list)
-        
-# ==================================================================================================
-class ToolstepInFrame:
-# ==================================================================================================
-    def __init__(self, **dic):
-        """
-        structure de dic :
-        {
-            'name'  : "nom de l'etage"
-            'frame' : le repere pour placer l'étage dans un outil
-            'toolstep': l'étage  
-        }
-        """
-        self.name = dic['name']
-        self.toolstep = dic ['toolstep']
-        self.frame = dic ['frame']
-        
-# ==================================================================================================
-class ToothInFrame:
-# ==================================================================================================
-    def __init__(self, **dic):
-        self.tooth = dic['tooth']
-        self.frame = dic['frame']
-        self.tooth_id = dic['tooth_id']
+
 
 # ==================================================================================================
 class Tool:
@@ -112,8 +38,8 @@ class Tool:
         else:
             self.name = 'Tool_'+str(Tool.__instance_counter__)
         self.tool_for = FoR.FrameOfReference(name = 'for_' + self.name)
-        toolstep0 = ToolstepModel()
-        base_sif = ToolstepInFrame(name = 'base_toolstep', toolstep = toolstep0, frame = None )
+        toolstep0 = Toolstep.ToolstepModel()
+        base_sif = Toolstep.ToolstepInFrame(name = 'base_toolstep', toolstep = toolstep0, frame = None )
         self.toolstep_dic['base_toolstep'] = base_sif
         self.__toolstep_id__ = 0
         Tool.__instance_counter__ += 1
@@ -132,8 +58,8 @@ class Tool:
             dicPartie["pnt_cut_edge"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
             dicPartie["pnt_in_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
             dicPartie["h_cut_max"] = partie["h_cut_max"]
-            dicPartie["node"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node"])
-            dicPartie["tri"] = partie["tri"]
+            dicPartie["node_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node_cut_face"])
+            dicPartie["tri_cut_face"] = partie["tri_cut_face"]
             self.elementary_tools_list.append(dicPartie)
         idx_in_etl_end = len(self.elementary_tools_list)-1
         self.range_in_etl_dic[sif_name].append([idx_in_etl_begin, idx_in_etl_end])
@@ -144,7 +70,7 @@ class Tool:
         if self.range_in_etl_dic.has_key(name):
             print name, " : attention - nom déjà choisi pour l'etage !!" 
         else:
-            tsif = ToolstepInFrame(name = name, toolstep = toolstep, frame = frame)
+            tsif = Toolstep.ToolstepInFrame(name = name, toolstep = toolstep, frame = frame)
             self.toolstep_dic[name] = tsif
             self.range_in_etl_dic[name] = [[i+len(self.elementary_tools_list) for i in toolstep.range_in_etl_list[j]] for j in range(len(toolstep.range_in_etl_list))]
             for partie in toolstep.elementary_tools_list:
@@ -154,8 +80,8 @@ class Tool:
                 dicPartie["pnt_cut_edge"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
                 dicPartie["pnt_in_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
                 dicPartie["h_cut_max"] = partie["h_cut_max"]
-                dicPartie["node"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node"])
-                dicPartie["tri"] = partie["tri"]
+                dicPartie["node_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node_cut_face"])
+                dicPartie["tri_cut_face"] = partie["tri_cut_face"]
                 self.elementary_tools_list.append(dicPartie)
 # --------------------------------------------------------------------------------------------------
     def draw(self):
@@ -220,13 +146,13 @@ class Mill(Tool):
                 dicoPartie["pnt_in_cut_face"] = nouvPoint
                 
                 # Les points du maillage :
-                dicoPartie["node"] = []
-                for point in self.elementary_tools_list[idPartie]["node"]: 
+                dicoPartie["node_cut_face"] = []
+                for point in self.elementary_tools_list[idPartie]["node_cut_face"]: 
                     Pnp = np.array(point)
                     nouvPoint = np.dot(Anp, Pnp).tolist()
-                    dicoPartie["node"].append (nouvPoint)
+                    dicoPartie["node_cut_face"].append (nouvPoint)
                 # Les triangles : on prend les meme que pour la dent 0
-                dicoPartie["tri"]= self.elementary_tools_list[idPartie]["tri"]
+                dicoPartie["tri_cut_face"]= self.elementary_tools_list[idPartie]["tri_cut_face"]
                 if isinstance (self, MonoblocMill):
                     dicoPartie["h_cut_max"] = 1.2*self.epaisseurFaceCoupe
                 else :
@@ -270,8 +196,8 @@ class WithInsertsMill (Mill):
             dicPartie["pnt_cut_edge"] = self.millFom.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
             dicPartie["pnt_in_cut_face"] = self.millFom.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
             dicPartie["h_cut_max"] = partie["h_cut_max"]
-            dicPartie["node"] = self.millFom.givePointsInCanonicalFrame(frame.name, partie["node"])
-            dicPartie["tri"] = partie["tri"]
+            dicPartie["node_cut_face"] = self.millFom.givePointsInCanonicalFrame(frame.name, partie["node_cut_face"])
+            dicPartie["tri_cut_face"] = partie["tri_cut_face"]
             self.elementary_tools_list.append(dicPartie)
         print self.elementary_tools_list
         self.__toothId__+=1
@@ -351,8 +277,8 @@ class MonoblocMillType1(MonoblocMill):
             dicoPartie["pnt_cut_edge"] = [p1, p2]
             dicoPartie["pnt_in_cut_face"] = p3
             dicoPartie["h_cut_max"] = 1.2*e
-            dicoPartie["node"] = []
-            dicoPartie["tri"] = []
+            dicoPartie["node_cut_face"] = []
+            dicoPartie["tri_cut_face"] = []
             # Calcul du maillage de la partie :
             # D'abord les points (les nodes)
             for jp in range (self.nbCouchesFaceCoupe+1):
@@ -363,7 +289,7 @@ class MonoblocMillType1(MonoblocMill):
                     
                     pm = [rm* math.cos (thetam), rm* math.sin (thetam), zm]
                     
-                    dicoPartie["node"].append(pm)
+                    dicoPartie["node_cut_face"].append(pm)
             # ensuite les triangles (liste de tripplets indicant les 
             # indices des nodes dans le tableau des nodes)
             for jp in range (self.nbCouchesFaceCoupe):
@@ -371,10 +297,10 @@ class MonoblocMillType1(MonoblocMill):
                     idsommet1 = ip + jp*(self.nbTranches+1)
                     idsommet2 = ip + jp*(self.nbTranches+1)+1
                     idsommet3 = ip + (jp+1)*(self.nbTranches+1)
-                    dicoPartie["tri"].append([idsommet1,idsommet2,idsommet3])
+                    dicoPartie["tri_cut_face"].append([idsommet1,idsommet2,idsommet3])
                     idsommet1 = idsommet3
                     idsommet3 = idsommet3+1   
-                    dicoPartie["tri"].append([idsommet1,idsommet2,idsommet3])
+                    dicoPartie["tri_cut_face"].append([idsommet1,idsommet2,idsommet3])
             
             dicoPartie["cutlaw_names"] = ["LC_mat1","LC2_mat2","LC3_mat3"]
             self.elementary_tools_list.append(dicoPartie)
@@ -471,8 +397,8 @@ class ToreMonoblocMill(MonoblocMill):
             dicoPartie["pnt_cut_edge"] = [p1, p2]
             dicoPartie["pnt_in_cut_face"] = p3
             dicoPartie["h_cut_max"] = 1.2*e
-            dicoPartie["node"] = []
-            dicoPartie["tri"] = []
+            dicoPartie["node_cut_face"] = []
+            dicoPartie["tri_cut_face"] = []
             # Calcul du maillage de la partie :
             # D'abord les points (les nodes)
             for jp in range (self.nbCouchesFaceCoupe+1):
@@ -486,7 +412,7 @@ class ToreMonoblocMill(MonoblocMill):
                                         
                     pm = [r_mv* math.cos (theta_mv), r_mv* math.sin (theta_mv), z_mv]
                     
-                    dicoPartie["node"].append(pm)
+                    dicoPartie["node_cut_face"].append(pm)
 
             # ensuite les triangles (liste de tripplets indiquant les 
             # indices des nodes dans le tableau des nodes)
@@ -495,10 +421,10 @@ class ToreMonoblocMill(MonoblocMill):
                     idsommet1 = ip + jp*(self.nbTranches+1)
                     idsommet2 = ip + jp*(self.nbTranches+1)+1
                     idsommet3 = ip + (jp+1)*(self.nbTranches+1)
-                    dicoPartie["tri"].append([idsommet1,idsommet2,idsommet3])
+                    dicoPartie["tri_cut_face"].append([idsommet1,idsommet2,idsommet3])
                     idsommet1 = idsommet3
                     idsommet3 = idsommet3+1   
-                    dicoPartie["tri"].append([idsommet1,idsommet2,idsommet3])
+                    dicoPartie["tri_cut_face"].append([idsommet1,idsommet2,idsommet3])
          
             dicoPartie["cutlaw_names"] = ["LC_mat1","LC2_mat2","LC3_mat3"]
             self.elementary_tools_list.append(dicoPartie)

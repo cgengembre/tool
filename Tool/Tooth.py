@@ -9,6 +9,14 @@
 #
 import math
 import bloc_util
+        
+# ==================================================================================================
+class ToothInFrame:
+# ==================================================================================================
+    def __init__(self, **dic):
+        self.tooth = dic['tooth']
+        self.frame = dic['frame']
+        self.tooth_id = dic['tooth_id']
 
 # ==================================================================================================
 class ToothModel:
@@ -47,7 +55,7 @@ class ToothModel:
         ## Transformation des points de self.elementary_tools_list.
         for et in self.elementary_tools_list:
             # transformation des nodes
-            for node in et['node']:
+            for node in et['node_cut_face']:
                 beta = node[2]*self.torsion_angle/self.height
                 radius = node[0]
                 node[0] = radius*math.cos(beta)
@@ -212,14 +220,14 @@ class ToothInsert(ToothModel) :
                 dicoPartie["pnt_cut_edge"] = [[p1[1], 0., p1[0]], [p2[1], 0., p2[0]]]
                 dicoPartie["pnt_in_cut_face"] = [p3[1], 0., p3[0]]
                 dicoPartie["h_cut_max"] = 1.2*e
-                dicoPartie["node"] = []
-                dicoPartie["tri"] = []
+                dicoPartie["node_cut_face"] = []
+                dicoPartie["tri_cut_face"] = []
                 #   maillage :
                 mesh_point = cur_point_local
                 mesh_angle = cur_angle_local
                 # Dans un premier temps, les triangles ont ttous pour sommet le centre de l'arc 
                 # Les points :
-                # dicoPartie["node"].append([mesh_point[1],0,mesh_point[0]])
+                # dicoPartie["node_cut_face"].append([mesh_point[1],0,mesh_point[0]])
                 nbCouchesReel = nbCouches
                 for j in range (nbCouches+1):
                     distanceCentre = rayon - j*epCouche
@@ -227,9 +235,9 @@ class ToothInsert(ToothModel) :
                         for i in range(nbSlices+1):
                             mesh_point = [distanceCentre*math.cos (mesh_angle + i*sliceAngle) + centreArc[0], \
                                           distanceCentre*math.sin (mesh_angle + i*sliceAngle) + centreArc[1]]
-                            dicoPartie["node"].append([mesh_point[1],0,mesh_point[0]])
+                            dicoPartie["node_cut_face"].append([mesh_point[1],0,mesh_point[0]])
                     else:
-                        dicoPartie["node"].append([centreArc[1],0,centreArc[0]])
+                        dicoPartie["node_cut_face"].append([centreArc[1],0,centreArc[0]])
                         nbCouchesReel = j-1
                         break
                 # Les triangles :
@@ -238,17 +246,17 @@ class ToothInsert(ToothModel) :
                         idxSommet1 = j*(nbSlices+1)+i
                         idxSommet2 = idxSommet1 + 1
                         idxSommet3 = idxSommet1 + nbSlices+1
-                        dicoPartie["tri"].append([idxSommet1,idxSommet2,idxSommet3])
+                        dicoPartie["tri_cut_face"].append([idxSommet1,idxSommet2,idxSommet3])
                         idxSommet1 = idxSommet3
                         idxSommet2 = idxSommet2
                         idxSommet3 = idxSommet1 + 1
-                        dicoPartie["tri"].append([idxSommet1,idxSommet2,idxSommet3])
+                        dicoPartie["tri_cut_face"].append([idxSommet1,idxSommet2,idxSommet3])
                 if nbCouchesReel < nbCouches:
                     for i in range (nbSlices):
                         idxSommet1 = nbCouchesReel*(nbSlices+1)+i
                         idxSommet2 = idxSommet1+1
                         idxSommet3 = (nbCouchesReel+1)*(nbSlices+1)
-                        dicoPartie["tri"].append([idxSommet1,idxSommet2,idxSommet3])
+                        dicoPartie["tri_cut_face"].append([idxSommet1,idxSommet2,idxSommet3])
                     
                 self.elementary_tools_list.append (dicoPartie)
                 cur_point_local[0],cur_point_local[1] = p2[0], p2[1]
@@ -287,8 +295,8 @@ class ToothInsert(ToothModel) :
                 dicoPartie["pnt_cut_edge"] = [[p1[1], 0., p1[0]], [p2[1], 0., p2[0]]]
                 dicoPartie["pnt_in_cut_face"] = [p3[1], 0., p3[0]]
                 dicoPartie["h_cut_max"] = 1.2*e
-                dicoPartie["node"] = []
-                dicoPartie["tri"] = []
+                dicoPartie["node_cut_face"] = []
+                dicoPartie["tri_cut_face"] = []
                 # Maillage :
             
                 # Les points :
@@ -297,22 +305,22 @@ class ToothInsert(ToothModel) :
                     # on décale de j couches :
                     mesh_point_dep = [p1[0]-j*deltaEpaisseur*math.cos(current_angle), \
                                       p1[1]-j*deltaEpaisseur*math.sin(current_angle) ]
-                    dicoPartie["node"].append([mesh_point_dep[1], 0., mesh_point_dep[0]])
+                    dicoPartie["node_cut_face"].append([mesh_point_dep[1], 0., mesh_point_dep[0]])
                     for i in range(nbSlices):
                         next_mesh_point = [mesh_point_dep[0] - (i+1)*deltaLongET*math.cos(current_angle - math.pi/2), \
                                            mesh_point_dep[1] - (i+1)*deltaLongET*math.sin(current_angle - math.pi/2)]
-                        dicoPartie["node"].append([next_mesh_point[1], 0., next_mesh_point[0]])
+                        dicoPartie["node_cut_face"].append([next_mesh_point[1], 0., next_mesh_point[0]])
                 # Les triangles =
                 for j in range (nbCouchesFaceDeCoupe):
                     for i in range (nbSlices):
                         idxSommet1 = j*(nbSlices+1)+i
                         idxSommet2 = idxSommet1 + 1
                         idxSommet3 = idxSommet1 + nbSlices+1
-                        dicoPartie["tri"].append([idxSommet1,idxSommet2,idxSommet3])
+                        dicoPartie["tri_cut_face"].append([idxSommet1,idxSommet2,idxSommet3])
                         idxSommet1 = idxSommet3
                         idxSommet2 = idxSommet2
                         idxSommet3 = idxSommet1 + 1
-                        dicoPartie["tri"].append([idxSommet1,idxSommet2,idxSommet3])
+                        dicoPartie["tri_cut_face"].append([idxSommet1,idxSommet2,idxSommet3])
                 self.elementary_tools_list.append (dicoPartie)
                 cur_point_local = p2
             next_point[0],next_point[1] = p2[0], p2[1]
@@ -446,7 +454,7 @@ class ToothForHelicoidalMillType2(ToothInsert):
         #3 : On retourne la face de coupe et on remonte la dent sur l'axe x :
         z_diff = self.dic['seg_length_list'][1]/2. +self.dic['radius_list'][0]
         for i in range (self.nb_elementary_tools):
-            for node in self.elementary_tools_list[i]['node']:
+            for node in self.elementary_tools_list[i]['node_cut_face']:
                 node [2] = -node[2] + z_diff
             self.elementary_tools_list[i]['pnt_cut_edge'][0][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][0][2] + z_diff
             self.elementary_tools_list[i]['pnt_cut_edge'][1][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][1][2] + z_diff
@@ -478,7 +486,7 @@ class ToothSliced(ToothModel):
                                ...
                               ]
         """
-        ToothModel.__init__(**dic)
+        ToothModel.__init__(self, **dic)
         self.cutting_edge_geom = dic['cutting_edge_geom']
         self.nb_elementary_tools = dic['nb_elementary_tools']
         self.nb_slices_per_elt = dic['nb_slices_per_elt']
@@ -492,8 +500,8 @@ class ToothSliced(ToothModel):
         epsilon = 1.E-7 * (last_z - first_z)/len(self.cutting_edge_geom)
         
         # 1 : interpolation des data en fonction des elem_tools et des slices pour le maillage   
-        slices_elt_geom_list = []
-        slices_elt_geom_list.append(self.cutting_edge_geom[0])
+        cutting_edge_geom_interpolated = []
+        cutting_edge_geom_interpolated.append(self.cutting_edge_geom[0])
         idx_tool_geom = 0 
         for k in range (self.nb_elementary_tools):
             curr_z_et = first_z + (k)*delta_z_et
@@ -505,76 +513,103 @@ class ToothSliced(ToothModel):
                 xi = (next_z_slices - self.cutting_edge_geom[idx_tool_geom-1]['z'])/ \
                     (self.cutting_edge_geom[idx_tool_geom]['z'] - self.cutting_edge_geom[idx_tool_geom -1]['z'])
                 # calcul des coef. 
-                dic_slice_geom = {key : (1- xi)*self.cutting_edge_geom[idx_tool_geom-1][key]+xi*self.cutting_edge_geom[idx_tool_geom][key] \
+                dic_slice_geom = {key : (1- xi)*self.cutting_edge_geom[idx_tool_geom-1][key] + xi*self.cutting_edge_geom[idx_tool_geom][key] \
                                    for key in self.cutting_edge_geom[idx_tool_geom].keys()}
-                slices_elt_geom_list.append(self.cutting_edge_geom[0]).append(dic_slice_geom)
+                cutting_edge_geom_interpolated.append(dic_slice_geom)
         # petit print pour controle ... à supprimer par la suite :
-        for i in range(len(slices_elt_geom_list)): print slices_elt_geom_list[i]
+        for i in range(len(cutting_edge_geom_interpolated)): print i, ' : ', cutting_edge_geom_interpolated[i]
         
         # 2 : Calcul des points
         slices_points = []
+        idx_in_interp_list = -1
         for k in range (self.nb_elementary_tools):
-            j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1  
+            j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1
+            
             for j in range (j_max):
-                
-                slice_dic = slices_elt_geom_list[(k+1)*j]
-                points_dic = {}
-                points_dic['P_gamma'] = []
-                points_dic['P_gamma'].append([slice_dic[coord] for coord in ['x','y','z']]) # slices_elt_geom_list[]
+                idx_in_interp_list+=1
+                slice_geom_dic = cutting_edge_geom_interpolated[idx_in_interp_list]
+                slice_points_dic = {}
+                slice_points_dic['P_gamma'] = []
+                slice_points_dic['P_gamma'].append([slice_geom_dic[coord] for coord in ['x','y','z']]) # cutting_edge_geom_interpolated[]
                 
                 ## calcul de l'angle util à partir de gamma :
                 
-                gamma = math.radians(slice_dic['gamma'])
-                radius = math.sqrt(slice_dic['x']**2 + slice_dic['y']**2)
-                rho =  math.acos(slice_dic['x']/radius)
+                gamma = math.radians(slice_geom_dic['gamma'])
+                radius = math.sqrt(slice_geom_dic['x']**2 + slice_geom_dic['y']**2)
+                rho =  math.acos(slice_geom_dic['x']/radius)
                 gamma_util = math.pi -(rho - gamma)
-                l_gamma = slice_dic['L_gamma']
+                l_gamma = slice_geom_dic['L_gamma']
                 increment_l_gamma = l_gamma /self.cut_face_nb_layers
                 
                 for i in range(self.cut_face_nb_layers):
                     radius_gamma = (i+1)*increment_l_gamma
-                    points_dic['P_gamma'].append([slice_dic['x']+radius_gamma*math.cos(gamma_util), \
-                                              slice_dic['y']+radius_gamma*math.sin(gamma_util), \
-                                              slice_dic['z']])
+                    slice_points_dic['P_gamma'].append([slice_geom_dic['x']+radius_gamma*math.cos(gamma_util), \
+                                              slice_geom_dic['y']+radius_gamma*math.sin(gamma_util), \
+                                              slice_geom_dic['z']])
                 
-                points_dic['P_alpha1'] = []
-                points_dic['P_alpha1'].append([slice_dic[coord] for coord in ['x','y','z']])
+                slice_points_dic['P_alpha1'] = []
+                slice_points_dic['P_alpha1'].append([slice_geom_dic[coord] for coord in ['x','y','z']])
                 
-                alpha1_util = gamma_util - math.pi/2  + math.radians(slice_dic['alpha1'])
-                l_alpha1 = slice_dic['L_alpha1']
+                alpha1_util = gamma_util - math.pi/2  + math.radians(slice_geom_dic['alpha1'])
+                l_alpha1 = slice_geom_dic['L1']
                 increment_l_alpha1 = l_alpha1/self.cut_face_nb_layers
                 for i in range(self.cut_face_nb_layers):
                     radius_alpha1 = (i+1)*increment_l_alpha1
-                    points_dic['P_alpha1'].append([slice_dic['x']+radius_alpha1*math.cos(alpha1_util), \
-                                              slice_dic['y']+radius_alpha1*math.sin(alpha1_util), \
-                                              slice_dic['z']])
-                points_dic['P_alpha2'] = []
-                points_dic['P_alpha1'].append(points_dic['P_alpha1'][self.cut_face_nb_layers])
-                alpha2_util = gamma_util - math.pi/2  + math.radians(slice_dic['alpha2'])
-                increment_l_alpha2 = slice_dic['L_alpha2']/self.cut_face_nb_layers
+                    slice_points_dic['P_alpha1'].append([slice_geom_dic['x']+radius_alpha1*math.cos(alpha1_util), \
+                                              slice_geom_dic['y']+radius_alpha1*math.sin(alpha1_util), \
+                                              slice_geom_dic['z']])
+                slice_points_dic['P_alpha2'] = []
+                slice_points_dic['P_alpha1'].append(slice_points_dic['P_alpha1'][self.cut_face_nb_layers])
+                alpha2_util = gamma_util - math.pi/2  + math.radians(slice_geom_dic['alpha2'])
+                increment_l_alpha2 = slice_geom_dic['L2']/self.cut_face_nb_layers
                 for i in range(self.cut_face_nb_layers):
                     radius_alpha2 = (i+1)*increment_l_alpha2
-                    points_dic['P_alpha1'].append([points_dic['P_alpha1'][self.cut_face_nb_layers][0]+radius_alpha2*math.cos(alpha2_util), \
-                                              points_dic['P_alpha1'][self.cut_face_nb_layers][1]+radius_alpha2*math.sin(alpha2_util), \
-                                              points_dic['P_alpha1'][self.cut_face_nb_layers][2]])
-                slices_points.append[points_dic]
+                    slice_points_dic['P_alpha1'].append([slice_points_dic['P_alpha1'][self.cut_face_nb_layers][0]+radius_alpha2*math.cos(alpha2_util), \
+                                              slice_points_dic['P_alpha1'][self.cut_face_nb_layers][1]+radius_alpha2*math.sin(alpha2_util), \
+                                              slice_points_dic['P_alpha1'][self.cut_face_nb_layers][2]])
+                slices_points.append(slice_points_dic)
+        for i in range(self.nb_elementary_tools): print i, ' : ', slices_points[i]
         # arrêtes, nodes et maillages :
+        ## Liste 
+        # self.elementary_tools_list
+        # Face de coupe :
         for k in range (self.nb_elementary_tools):
             #j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1
             elem_tool = {}
             idx_pnt1_cut_edge =k*self.nb_slices_per_elt
             idx_pnt2_cut_edge =(k+1)*self.nb_slices_per_elt
             elem_tool ['pnt_cut_edge'] = [slices_points[idx_pnt1_cut_edge]['P_gamma'][0], slices_points[idx_pnt2_cut_edge]['P_gamma'][0]]
+            elem_tool ['pnt_in_cut_face'] = slices_points[idx_pnt1_cut_edge]['P_gamma'][1]
             elem_tool ['node_cut_face'] = []
             elem_tool['tri_cut_face'] = []
             
             elem_tool['node_cut_face']+=slices_points[idx_pnt1_cut_edge]['P_gamma']
+            
             for j in range (self.nb_slices_per_elt):
                 elem_tool['node_cut_face']+=slices_points[idx_pnt1_cut_edge+j+1]['P_gamma']
                 for i in range(self.cut_face_nb_layers):
                     elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, j*(self.cut_face_nb_layers+1)+i,     (j+1)*(self.cut_face_nb_layers+1)+i ])
                     elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, (j+1)*(self.cut_face_nb_layers+1)+i, (j+1)*(self.cut_face_nb_layers+1)+i +1 ])
-                    
+            self.elementary_tools_list.append(elem_tool)
+        print "Nombre d'outils elementaires  : ", len(self.elementary_tools_list)
+        for tool_elementaire in self.elementary_tools_list : print tool_elementaire
+        # Faces en dépouille :
+        for k in range (self.nb_elementary_tools):
+            #j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1
+            elem_tool = self.elementary_tools_list[k]
+            idx_pnt1_cut_edge =k*self.nb_slices_per_elt
+
+            # elem_tool ['pnt_cut_edge'] = [slices_points[idx_pnt1_cut_edge]['P_gamma'][0], slices_points[idx_pnt2_cut_edge]['P_gamma'][0]]
+            elem_tool['node_clearance_bnd'] = []
+            elem_tool['tri_clearance_bnd'] = []
+            elem_tool['node_clearance_bnd']+=slices_points[idx_pnt1_cut_edge]['P_alpha1']
+            for j in range (self.nb_slices_per_elt):
+                elem_tool['node_clearance_bnd']+=slices_points[idx_pnt1_cut_edge+j+1]['P_alpha1']
+                for i in range(self.cut_face_nb_layers):
+                    elem_tool['tri_clearance_bnd'].append([j*(self.cut_face_nb_layers+1)+i+1, j*(self.cut_face_nb_layers+1)+i,     (j+1)*(self.cut_face_nb_layers+1)+i ])
+                    elem_tool['tri_clearance_bnd'].append([j*(self.cut_face_nb_layers+1)+i+1, (j+1)*(self.cut_face_nb_layers+1)+i, (j+1)*(self.cut_face_nb_layers+1)+i +1 ])
+        
+        
                 
                 
         
@@ -590,7 +625,7 @@ class ToothSliced(ToothModel):
                 
                 
                      
-                     
+            """         
             next_point = [self.cutting_edge_geom[k][coord] for coord in ['x','y','z']]
             increment_coord = [[(next_point[ii]-current_point[ii])*1./self.nb_et_per_slice] for ii in range (3)]
             increment_L_gamma = (self.cutting_edge_geom[k+1]['L_gamma'] - self.cutting_edge_geom[k]['L_gamma'])/self.nb_et_per_slice
@@ -636,7 +671,7 @@ class ToothSliced(ToothModel):
                             inter_point_next[1]+radius_i_next*math.sin(gamma_util_next), \
                             inter_point_next[2]]
                     elem_tool['node_cut_face'].append(node)
-                
+            """    
                 
         
         
@@ -678,8 +713,8 @@ class ToothForHelicoidalMillType1(ToothInsert):
             dicoPartie["pnt_cut_edge"] = [p1, p2]
             dicoPartie["pnt_in_cut_face"] = p3
             dicoPartie["h_cut_max"] = 1.2*e
-            dicoPartie["node"] = []
-            dicoPartie["tri"] = []
+            dicoPartie["node_cut_face"] = []
+            dicoPartie["tri_cut_face"] = []
             # Calcul du maillage de la partie :
             # D'abord les points (les nodes)
             for jp in range (self.nbCouchesFaceCoupe+1):
@@ -690,7 +725,7 @@ class ToothForHelicoidalMillType1(ToothInsert):
                     
                     pm = [rm* math.cos (thetam), rm* math.sin (thetam), zm]
                     
-                    dicoPartie["node"].append(pm)
+                    dicoPartie["node_cut_face"].append(pm)
             # ensuite les triangles (liste de tripplets indicant les 
             # indices des nodes dans le tableau des nodes)
             for jp in range (self.nbCouchesFaceCoupe):
@@ -698,10 +733,10 @@ class ToothForHelicoidalMillType1(ToothInsert):
                     idsommet1 = ip + jp*(self.nbTranches+1)
                     idsommet2 = ip + jp*(self.nbTranches+1)+1
                     idsommet3 = ip + (jp+1)*(self.nbTranches+1)
-                    dicoPartie["tri"].append([idsommet1,idsommet2,idsommet3])
+                    dicoPartie["tri_cut_face"].append([idsommet1,idsommet2,idsommet3])
                     idsommet1 = idsommet3
                     idsommet3 = idsommet3+1   
-                    dicoPartie["tri"].append([idsommet1,idsommet2,idsommet3])
+                    dicoPartie["tri_cut_face"].append([idsommet1,idsommet2,idsommet3])
             
             dicoPartie["cutlaw_names"] = ["LC_mat1","LC2_mat2","LC3_mat3"]
             self.elementary_tools_list.append(dicoPartie)

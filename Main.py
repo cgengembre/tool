@@ -4,9 +4,8 @@
 
 # Outil, piece, trajectoire.
 # 1: création de l'outil
-#from Tool import *
-import Tool.Tool as Tool
-import Tool.Tooth as Tooth
+
+from Tool import Tool, Toolstep, Tooth
 import FrameOfReference as FoR
 #fraise = Tool.FraiseMonoblocType1 (idNoeudMaitre      = 1,    # Champ facultatif
 #  loiDeCoupe         = "nomLoiCoupe",
@@ -151,7 +150,7 @@ dicFraisePlaquettes = {
 angles = [0,10, 90, 100, 180, 190, 270, 280  ]
 plaquette = Tooth.ToothInsert(**dicInsert1)
 outil = Tool.Tool(name = 'toolstep_tool1')
-etage = Tool.ToolstepModel()
+etage = Toolstep.ToolstepModel(name = 'Un modele d etage')
 for alpha in angles :
     dicFramePlaquette['axialAngleDegrees'] = alpha
     dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
@@ -162,5 +161,5 @@ for z in [3.0E-3, 1.6E-2]:
     dicFrameEtage['name'] = 'pour z = %f'%(z)
     frame = outil.tool_for.create_frame(**dicFrameEtage)
     outil.addToolstep(name = 'z=%f'%z, toolstep = etage, frame = frame)
-outil.draw()    
+outil.draw()
     

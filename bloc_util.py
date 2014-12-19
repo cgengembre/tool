@@ -15,8 +15,8 @@ def view_bloc(Bloc):
     I=0
     for bloc in Bloc:
         
-        node=bloc['node']
-        tri=bloc['tri']
+        node=bloc['node_cut_face']
+        tri=bloc['tri_cut_face']
         pnt_cut_edge=bloc['pnt_cut_edge']
         pnt_in_cut_face=bloc['pnt_in_cut_face']
 
