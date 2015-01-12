@@ -478,6 +478,8 @@ class ToothSliced(ToothModel):
         'name' : 'name for th tooth' # Optional
         'cut_face_thickness' : 1.2E-3
         'cut_face_nb_layers' : 1
+        'clearance_face1_nb_layers' : 1  # clearance face 1 defined by alpha1 and L1
+        'clearance_face2_nb_layers' : 1  # clearance face 2 defined by alpha2 and L2
         'nb_slices_per_elt': 1
         --> Clés propres à ToothForMonoblocMillType3
         'nb_elementary_tools' : 50
@@ -490,6 +492,8 @@ class ToothSliced(ToothModel):
         self.cutting_edge_geom = dic['cutting_edge_geom']
         self.nb_elementary_tools = dic['nb_elementary_tools']
         self.nb_slices_per_elt = dic['nb_slices_per_elt']
+        self.clearance_face1_nb_layers = dic['clearance_face1_nb_layers']
+        self.clearance_face2_nb_layers = dic['clearance_face2_nb_layers']
         ## Calcule des arrête et du maillage :
         # Initialisation - premier plan :
         current_point = [self.cutting_edge_geom[0][coord] for coord in ['x','y','z']]
@@ -499,7 +503,8 @@ class ToothSliced(ToothModel):
         delta_z_slice_et = delta_z_et/self.nb_slices_per_elt
         epsilon = 1.E-7 * (last_z - first_z)/len(self.cutting_edge_geom)
         
-        # 1 : interpolation des data en fonction des elem_tools et des slices pour le maillage   
+        # 1 : interpolation des data en fonction des elem_tools et des slices pour le maillage
+        # ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
         cutting_edge_geom_interpolated = []
         cutting_edge_geom_interpolated.append(self.cutting_edge_geom[0])
         idx_tool_geom = 0 
@@ -520,112 +525,111 @@ class ToothSliced(ToothModel):
         for i in range(len(cutting_edge_geom_interpolated)): print i, ' : ', cutting_edge_geom_interpolated[i]
         
         # 2 : Calcul des points
-        slices_points = []
-        idx_in_interp_list = -1
+        # ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+        elem_tools_slices_points_list = [] # tableau de self.nb_elementary_tools tableaux de slices
+        idx_in_interp_list = 0
         for k in range (self.nb_elementary_tools):
-            j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1
-            
-            for j in range (j_max):
+            #j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1
+            slices_points_list = []
+            idx_in_interp_list-=1
+            for j in range (self.nb_slices_per_elt+1):
                 idx_in_interp_list+=1
                 slice_geom_dic = cutting_edge_geom_interpolated[idx_in_interp_list]
-                slice_points_dic = {}
-                slice_points_dic['P_gamma'] = []
-                slice_points_dic['P_gamma'].append([slice_geom_dic[coord] for coord in ['x','y','z']]) # cutting_edge_geom_interpolated[]
-                
+                slices_points = [] # les points d'un slice dans un meme plan.
+            
                 ## calcul de l'angle util à partir de gamma :
-                
                 gamma = math.radians(slice_geom_dic['gamma'])
                 radius = math.sqrt(slice_geom_dic['x']**2 + slice_geom_dic['y']**2)
                 rho =  math.acos(slice_geom_dic['x']/radius)
                 gamma_util = math.pi -(rho - gamma)
-                l_gamma = slice_geom_dic['L_gamma']
-                increment_l_gamma = l_gamma /self.cut_face_nb_layers
-                
-                for i in range(self.cut_face_nb_layers):
-                    radius_gamma = (i+1)*increment_l_gamma
-                    slice_points_dic['P_gamma'].append([slice_geom_dic['x']+radius_gamma*math.cos(gamma_util), \
-                                              slice_geom_dic['y']+radius_gamma*math.sin(gamma_util), \
-                                              slice_geom_dic['z']])
-                
-                slice_points_dic['P_alpha1'] = []
-                slice_points_dic['P_alpha1'].append([slice_geom_dic[coord] for coord in ['x','y','z']])
+                increment_l_gamma = slice_geom_dic['L_gamma'] /self.cut_face_nb_layers
                 
                 alpha1_util = gamma_util - math.pi/2  + math.radians(slice_geom_dic['alpha1'])
-                l_alpha1 = slice_geom_dic['L1']
-                increment_l_alpha1 = l_alpha1/self.cut_face_nb_layers
-                for i in range(self.cut_face_nb_layers):
-                    radius_alpha1 = (i+1)*increment_l_alpha1
-                    slice_points_dic['P_alpha1'].append([slice_geom_dic['x']+radius_alpha1*math.cos(alpha1_util), \
-                                              slice_geom_dic['y']+radius_alpha1*math.sin(alpha1_util), \
-                                              slice_geom_dic['z']])
-                slice_points_dic['P_alpha2'] = []
-                slice_points_dic['P_alpha1'].append(slice_points_dic['P_alpha1'][self.cut_face_nb_layers])
+                increment_l_alpha1 = slice_geom_dic['L1']/self.clearance_face1_nb_layers
+                
                 alpha2_util = gamma_util - math.pi/2  + math.radians(slice_geom_dic['alpha2'])
-                increment_l_alpha2 = slice_geom_dic['L2']/self.cut_face_nb_layers
-                for i in range(self.cut_face_nb_layers):
-                    radius_alpha2 = (i+1)*increment_l_alpha2
-                    slice_points_dic['P_alpha1'].append([slice_points_dic['P_alpha1'][self.cut_face_nb_layers][0]+radius_alpha2*math.cos(alpha2_util), \
-                                              slice_points_dic['P_alpha1'][self.cut_face_nb_layers][1]+radius_alpha2*math.sin(alpha2_util), \
-                                              slice_points_dic['P_alpha1'][self.cut_face_nb_layers][2]])
-                slices_points.append(slice_points_dic)
-        for i in range(self.nb_elementary_tools): print i, ' : ', slices_points[i]
-        # arrêtes, nodes et maillages :
-        ## Liste 
+                increment_l_alpha2 = slice_geom_dic['L2']/self.clearance_face2_nb_layers
+                
+                
+                # première face en depouille
+                cut_edge_point = [slice_geom_dic[coord] for coord in ['x','y','z']]
+                for i in range(self.clearance_face1_nb_layers+1):
+                    first_point_curr = [cut_edge_point[0]+i*increment_l_alpha1*math.cos(alpha1_util), \
+                                       cut_edge_point[1]+i*increment_l_alpha1*math.sin(alpha1_util), \
+                                       cut_edge_point[2]]
+                    slices_points.append(first_point_curr)
+                    for h in range(self.cut_face_nb_layers):
+                        slices_points.append([first_point_curr[0]+(h+1)*increment_l_gamma*math.cos(gamma_util), \
+                                       first_point_curr[1]+(h+1)*increment_l_gamma*math.sin(gamma_util), \
+                                       slice_geom_dic['z']])
+                # deuxième face en depouille
+                first_point = [cut_edge_point[0]+slice_geom_dic['L1']*math.cos(alpha1_util), \
+                               cut_edge_point[1]+slice_geom_dic['L1']*math.sin(alpha1_util), \
+                               cut_edge_point[2]]
+                for i in range(self.clearance_face2_nb_layers):
+                    first_point_curr = [first_point[0]+(i+1)*increment_l_alpha2*math.cos(alpha2_util), \
+                                        first_point[1]+(i+1)*increment_l_alpha2*math.sin(alpha2_util), \
+                                        cut_edge_point[2]]
+                    slices_points.append(first_point_curr)
+                    for h in range(self.cut_face_nb_layers):
+                        slices_points.append([first_point_curr[0]+(h+1)*increment_l_gamma*math.cos(gamma_util), \
+                                       first_point_curr[1]+(h+1)*increment_l_gamma*math.sin(gamma_util), \
+                                       slice_geom_dic['z']])
+                  
+                ###
+                
+                slices_points_list.append(slices_points)
+            elem_tools_slices_points_list.append(slices_points_list)
+            ###
+        # for i in range(self.nb_elementary_tools): print i, ' : ', elem_tools_slices_points_list[i]
+        
+        # 3 : arrêtes, nodes et maillages :
+        # ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ 
         # self.elementary_tools_list
         # Face de coupe :
         for k in range (self.nb_elementary_tools):
             #j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1
             elem_tool = {}
-            idx_pnt1_cut_edge =k*self.nb_slices_per_elt
-            idx_pnt2_cut_edge =(k+1)*self.nb_slices_per_elt
-            elem_tool ['pnt_cut_edge'] = [slices_points[idx_pnt1_cut_edge]['P_gamma'][0], slices_points[idx_pnt2_cut_edge]['P_gamma'][0]]
-            elem_tool ['pnt_in_cut_face'] = slices_points[idx_pnt1_cut_edge]['P_gamma'][1]
+            ## revoir suite
+            elem_tool ['pnt_cut_edge'] = [elem_tools_slices_points_list[k][0][0], elem_tools_slices_points_list[k][self.nb_slices_per_elt][0]]
+            elem_tool ['pnt_in_cut_face'] = elem_tools_slices_points_list[k][0][self.cut_face_nb_layers]
             elem_tool ['node_cut_face'] = []
             elem_tool['tri_cut_face'] = []
             
-            elem_tool['node_cut_face']+=slices_points[idx_pnt1_cut_edge]['P_gamma']
             
-            for j in range (self.nb_slices_per_elt):
-                elem_tool['node_cut_face']+=slices_points[idx_pnt1_cut_edge+j+1]['P_gamma']
+            
+            for j in range (self.nb_slices_per_elt+1):
+                elem_tool['node_cut_face']+=elem_tools_slices_points_list[k][j][0:self.cut_face_nb_layers+1]
+            for j in range (self.nb_slices_per_elt):    
                 for i in range(self.cut_face_nb_layers):
                     elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, j*(self.cut_face_nb_layers+1)+i,     (j+1)*(self.cut_face_nb_layers+1)+i ])
                     elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, (j+1)*(self.cut_face_nb_layers+1)+i, (j+1)*(self.cut_face_nb_layers+1)+i +1 ])
             self.elementary_tools_list.append(elem_tool)
         print "Nombre d'outils elementaires  : ", len(self.elementary_tools_list)
         for tool_elementaire in self.elementary_tools_list : print tool_elementaire
+        
         # Faces en dépouille :
+        """
         for k in range (self.nb_elementary_tools):
             #j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1
             elem_tool = self.elementary_tools_list[k]
             idx_pnt1_cut_edge =k*self.nb_slices_per_elt
 
-            # elem_tool ['pnt_cut_edge'] = [slices_points[idx_pnt1_cut_edge]['P_gamma'][0], slices_points[idx_pnt2_cut_edge]['P_gamma'][0]]
+            # elem_tool ['pnt_cut_edge'] = [elem_tools_slices_points_list[idx_pnt1_cut_edge]['P_gamma'][0], elem_tools_slices_points_list[idx_pnt2_cut_edge]['P_gamma'][0]]
             elem_tool['node_clearance_bnd'] = []
             elem_tool['tri_clearance_bnd'] = []
-            elem_tool['node_clearance_bnd']+=slices_points[idx_pnt1_cut_edge]['P_alpha1']
+            elem_tool['node_clearance_bnd']+=elem_tools_slices_points_list[idx_pnt1_cut_edge]['P_alpha1']
             for j in range (self.nb_slices_per_elt):
-                elem_tool['node_clearance_bnd']+=slices_points[idx_pnt1_cut_edge+j+1]['P_alpha1']
+                elem_tool['node_clearance_bnd']+=elem_tools_slices_points_list[idx_pnt1_cut_edge+j+1]['P_alpha1']
                 for i in range(self.cut_face_nb_layers):
                     elem_tool['tri_clearance_bnd'].append([j*(self.cut_face_nb_layers+1)+i+1, j*(self.cut_face_nb_layers+1)+i,     (j+1)*(self.cut_face_nb_layers+1)+i ])
                     elem_tool['tri_clearance_bnd'].append([j*(self.cut_face_nb_layers+1)+i+1, (j+1)*(self.cut_face_nb_layers+1)+i, (j+1)*(self.cut_face_nb_layers+1)+i +1 ])
         
         
-                
-                
-        
-                
-                
-                    
-                
-                
-                
-        
-        
-                
-                
+        """        
                 
                      
-            """         
+        """         
             next_point = [self.cutting_edge_geom[k][coord] for coord in ['x','y','z']]
             increment_coord = [[(next_point[ii]-current_point[ii])*1./self.nb_et_per_slice] for ii in range (3)]
             increment_L_gamma = (self.cutting_edge_geom[k+1]['L_gamma'] - self.cutting_edge_geom[k]['L_gamma'])/self.nb_et_per_slice

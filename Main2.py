@@ -51,6 +51,8 @@ print 'nombre de slices dans donnees : ', nb_data_slice
 dent = Tooth.ToothSliced(name = 'dent en slices', 
                          cut_face_thickness= 1.2E-3, 
                          cut_face_nb_layers = 3, 
+                         clearance_face1_nb_layers = 4,
+                         clearance_face2_nb_layers = 5,
                          nb_slices_per_elt = 3,
                          nb_elementary_tools = 500,
                          cutting_edge_geom = from_data_dic_list)
