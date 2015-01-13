@@ -15,10 +15,13 @@ def view_bloc(Bloc):
     I=0
     for bloc in Bloc:
         
-        node=bloc['node_cut_face']
-        tri=bloc['tri_cut_face']
+        node_cut_face=bloc['node_cut_face']
+        tri_cut_face=bloc['tri_cut_face']
         pnt_cut_edge=bloc['pnt_cut_edge']
         pnt_in_cut_face=bloc['pnt_in_cut_face']
+        
+        node_clearance_bnd = bloc['node_clearance_bnd']
+        tri_clearance_bnd  = bloc['tri_clearance_bnd']
 
         file_name=Mesh_IO.OUT_PNT_V3D(pnt_in_cut_face,(1,0,0),10,'pnt_in_cut_face_'+str(I))
         lf_file.write(file_name+'\n')
@@ -27,9 +30,15 @@ def view_bloc(Bloc):
         lf_file.write(file_name+'\n')
 
         color=(random.random(),random.random(),random.random(),0.5)
-        file_name=Mesh_IO.OUT_TRI_V3D([[item for sl in node for item in sl],\
-                                       [item for sl in tri for item in sl]],\
-                                       (color,(1,1,0)),'node_tri_'+str(I),False)
+        file_name=Mesh_IO.OUT_TRI_V3D([[item for sl in node_cut_face for item in sl],\
+                                       [item for sl in tri_cut_face for item in sl]],\
+                                       (color,(1,1,0)),'node_tri_cut_face_'+str(I),False)
+        lf_file.write(file_name+'\n')
+        
+        color=(random.random(),random.random(),random.random(),1.) #0.5)
+        file_name=Mesh_IO.OUT_TRI_V3D([[item for sl in node_clearance_bnd for item in sl],\
+                                       [item for sl in tri_clearance_bnd for item in sl]],\
+                                       (color,(1,1,0)),'node_tri_clearance_bnd_'+str(I),False)
         lf_file.write(file_name+'\n')
         
         I+=1

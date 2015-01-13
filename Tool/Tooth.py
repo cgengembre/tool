@@ -71,6 +71,24 @@ class ToothModel:
             radius = et['pnt_in_cut_face'][0]
             et['pnt_in_cut_face'][0] = radius*math.cos(beta)
             et['pnt_in_cut_face'][1] = radius*math.sin(beta)
+    def give_mesh_rect_patch(self, tri, dim1, dim2, offset=0):
+        """
+        Maillage d'une zone rectangulaire de dim1*dim2 points rangés dans un tableau unidimensionel.   
+        Ajoute le maillage (indices dans le tableau de nodes des sommets des triangles) au tableau tri
+        
+            *--*--*-- ...--*\
+            *--*--*-- ...--* \
+            ...               dim2 
+            *--*--*-- ...--* /
+            *--*--*-- ...--*/
+            \_____dim1_____/
+        """
+        for j in range (dim2):    
+                for i in range(dim1):
+                    tri.append([offset + j*(dim1+1)+i+1, offset + j*(dim1+1)+i,     offset + (j+1)*(dim1+1)+i ])
+                    tri.append([offset + j*(dim1+1)+i+1, offset + (j+1)*(dim1+1)+i, offset + (j+1)*(dim1+1)+i +1 ])
+            
+        
 # --------------------------------------------------------------------------------------------------
     def draw(self):
         bloc_util.view_bloc(self.elementary_tools_list)
@@ -600,33 +618,65 @@ class ToothSliced(ToothModel):
             
             for j in range (self.nb_slices_per_elt+1):
                 elem_tool['node_cut_face']+=elem_tools_slices_points_list[k][j][0:self.cut_face_nb_layers+1]
-            for j in range (self.nb_slices_per_elt):    
-                for i in range(self.cut_face_nb_layers):
-                    elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, j*(self.cut_face_nb_layers+1)+i,     (j+1)*(self.cut_face_nb_layers+1)+i ])
-                    elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, (j+1)*(self.cut_face_nb_layers+1)+i, (j+1)*(self.cut_face_nb_layers+1)+i +1 ])
+            self.give_mesh_rect_patch( tri = elem_tool['tri_cut_face'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt)
+            #for j in range (self.nb_slices_per_elt):    
+            #    for i in range(self.cut_face_nb_layers):
+            #        elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, j*(self.cut_face_nb_layers+1)+i,     (j+1)*(self.cut_face_nb_layers+1)+i ])
+            #        elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, (j+1)*(self.cut_face_nb_layers+1)+i, (j+1)*(self.cut_face_nb_layers+1)+i +1 ])
             self.elementary_tools_list.append(elem_tool)
         print "Nombre d'outils elementaires  : ", len(self.elementary_tools_list)
         for tool_elementaire in self.elementary_tools_list : print tool_elementaire
         
-        # Faces en dépouille :
-        """
+        # Volume en dépouille :
+        
+        # Faces en dépouilles
         for k in range (self.nb_elementary_tools):
+            
             #j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1
             elem_tool = self.elementary_tools_list[k]
-            idx_pnt1_cut_edge =k*self.nb_slices_per_elt
-
-            # elem_tool ['pnt_cut_edge'] = [elem_tools_slices_points_list[idx_pnt1_cut_edge]['P_gamma'][0], elem_tools_slices_points_list[idx_pnt2_cut_edge]['P_gamma'][0]]
             elem_tool['node_clearance_bnd'] = []
             elem_tool['tri_clearance_bnd'] = []
-            elem_tool['node_clearance_bnd']+=elem_tools_slices_points_list[idx_pnt1_cut_edge]['P_alpha1']
-            for j in range (self.nb_slices_per_elt):
-                elem_tool['node_clearance_bnd']+=elem_tools_slices_points_list[idx_pnt1_cut_edge+j+1]['P_alpha1']
-                for i in range(self.cut_face_nb_layers):
-                    elem_tool['tri_clearance_bnd'].append([j*(self.cut_face_nb_layers+1)+i+1, j*(self.cut_face_nb_layers+1)+i,     (j+1)*(self.cut_face_nb_layers+1)+i ])
-                    elem_tool['tri_clearance_bnd'].append([j*(self.cut_face_nb_layers+1)+i+1, (j+1)*(self.cut_face_nb_layers+1)+i, (j+1)*(self.cut_face_nb_layers+1)+i +1 ])
+            for j in range(self.nb_slices_per_elt+1):
+                elem_tool['node_clearance_bnd']+=[elem_tools_slices_points_list[k][j][i*(self.cut_face_nb_layers+1)] for i in range(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1)]
+            self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, dim2 = self.nb_slices_per_elt)
+        print 'self.elementary_tools_list : ', self.elementary_tools_list
+        # Faces opposées 
+        for k in range (self.nb_elementary_tools):
+            
+            #j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1
+            elem_tool = self.elementary_tools_list[k]
+            for j in range(self.nb_slices_per_elt+1):
+                elem_tool['node_clearance_bnd']+=[elem_tools_slices_points_list[k][j][(i+1)*(self.cut_face_nb_layers)-1] for i in range(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1)]
+            self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, dim2 = self.nb_slices_per_elt, \
+                                   offset=(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1))
+        
+        print 'self.elementary_tools_list After : ', self.elementary_tools_list
+        
+        # Face arriere :
+        for k in range (self.nb_elementary_tools):
+            elem_tool = self.elementary_tools_list[k]
+            for j in range(self.nb_slices_per_elt+1):
+                elem_tool['node_clearance_bnd']+=elem_tools_slices_points_list[k][j][-self.cut_face_nb_layers-1:]
+            self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt, \
+                                   offset=2*(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1))
+        # Face dessous et face dessus :
+        for k in range (self.nb_elementary_tools):
+            elem_tool = self.elementary_tools_list[k]
+            elem_tool['node_clearance_bnd']+=elem_tools_slices_points_list[k][0]
+            elem_tool['node_clearance_bnd']+=elem_tools_slices_points_list[k][self.nb_slices_per_elt]
+            self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, \
+                                   offset=2*(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1)+(self.cut_face_nb_layers+1)*(self.nb_slices_per_elt+1))
+            self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], \
+                                       dim1 = self.cut_face_nb_layers, \
+                                       dim2 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, \
+                                       offset=2*(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1) + \
+                                              (self.cut_face_nb_layers+1)*(self.nb_slices_per_elt+1) + \
+                                              (self.cut_face_nb_layers+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1))
+
+
         
         
-        """        
+        
                 
                      
         """         
