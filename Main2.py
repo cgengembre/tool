@@ -53,7 +53,7 @@ dent = Tooth.ToothSliced(name = 'dent en slices',
                          cut_face_nb_layers = 1, 
                          clearance_face1_nb_layers = 1,
                          clearance_face2_nb_layers = 1,
-                         nb_slices_per_elt = 1,
-                         nb_elementary_tools = 1,
+                         nb_slices_per_elt = 5,
+                         nb_elementary_tools = 4,
                          cutting_edge_geom = from_data_dic_list)
 dent.draw()

@@ -54,23 +54,13 @@ class ToothModel:
             self.torsion_angle = self.height*math.tan(self.helix_angle)/self.radius
         ## Transformation des points de self.elementary_tools_list.
         for et in self.elementary_tools_list:
-            # transformation des nodes
-            for node in et['node_cut_face']:
+            # transformation de l'arrete, des nodes de face de coute et de volume en dépouille, des point sur la cutface et sur la clearance face :
+            for node in et['pnt_cut_edge'] + et['node_cut_face']+et['node_clearance_bnd'] + [et['pnt_in_cut_face'], et['pnt_in_clearance_bnd']]:
                 beta = node[2]*self.torsion_angle/self.height
                 radius = node[0]
                 node[0] = radius*math.cos(beta)
                 node[1] = radius*math.sin(beta)
-            # transformation de l'arrête :
-            for pnt in et['pnt_cut_edge']:
-                beta = pnt[2]*self.torsion_angle/self.height
-                radius = pnt[0]
-                pnt[0] = radius*math.cos(beta)
-                pnt[1] = radius*math.sin(beta)
-            # Transformation du point sur la cut_face :
-            beta = et['pnt_in_cut_face'][2]*self.torsion_angle/self.height
-            radius = et['pnt_in_cut_face'][0]
-            et['pnt_in_cut_face'][0] = radius*math.cos(beta)
-            et['pnt_in_cut_face'][1] = radius*math.sin(beta)
+            
     def give_mesh_rect_patch(self, tri, dim1, dim2, offset=0):
         """
         Maillage d'une zone rectangulaire de dim1*dim2 points rangés dans un tableau unidimensionel.   
@@ -120,6 +110,8 @@ class ToothInsert(ToothModel) :
              
              'cut_face_thickness' : 3.E-3,
              'cut_face_nb_layers' : 2,
+             'clearance_face_thickness' : 2.E-3,
+             'clearance_face_nb_layers' : 2,
 
              'cutting_edge_geom': [{'seg_length' : 6.0e-3,                'nb_elementary_tools': 4, 'nb_slices': 1}, # même nbSlices pour chaque el. tool
                                    {'angle_degrees': 45, 'radius':1.0e-3, 'nb_elementary_tools': 4, 'nb_slices': 3},
@@ -610,7 +602,7 @@ class ToothSliced(ToothModel):
             elem_tool = {}
             ## revoir suite
             elem_tool ['pnt_cut_edge'] = [elem_tools_slices_points_list[k][0][0], elem_tools_slices_points_list[k][self.nb_slices_per_elt][0]]
-            elem_tool ['pnt_in_cut_face'] = elem_tools_slices_points_list[k][0][self.cut_face_nb_layers]
+            elem_tool ['pnt_in_cut_face'] = [(elem_tools_slices_points_list[k][0][self.cut_face_nb_layers][idx]+elem_tools_slices_points_list[k][self.nb_slices_per_elt][self.cut_face_nb_layers][idx])/2. for idx in [0,1,2]]
             elem_tool ['node_cut_face'] = []
             elem_tool['tri_cut_face'] = []
             
@@ -636,9 +628,13 @@ class ToothSliced(ToothModel):
             elem_tool = self.elementary_tools_list[k]
             elem_tool['node_clearance_bnd'] = []
             elem_tool['tri_clearance_bnd'] = []
+            elem_tool['pnt_in_clearance_face'] = [((elem_tools_slices_points_list[k][0][self.clearance_face1_nb_layers*(self.cut_face_nb_layers+1)][idx]) + \
+                                                   (elem_tools_slices_points_list[k][self.nb_slices_per_elt][self.clearance_face1_nb_layers*(self.cut_face_nb_layers+1)][idx]))/2. for idx in [0,1,2]]
             for j in range(self.nb_slices_per_elt+1):
                 elem_tool['node_clearance_bnd']+=[elem_tools_slices_points_list[k][j][i*(self.cut_face_nb_layers+1)] for i in range(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1)]
             self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, dim2 = self.nb_slices_per_elt)
+            
+             
         print 'self.elementary_tools_list : ', self.elementary_tools_list
         # Faces opposées 
         for k in range (self.nb_elementary_tools):
@@ -646,7 +642,7 @@ class ToothSliced(ToothModel):
             #j_max = self.nb_slices_per_elt if k < self.nb_elementary_tools-1 else self.nb_slices_per_elt+1
             elem_tool = self.elementary_tools_list[k]
             for j in range(self.nb_slices_per_elt+1):
-                elem_tool['node_clearance_bnd']+=[elem_tools_slices_points_list[k][j][(i+1)*(self.cut_face_nb_layers)-1] for i in range(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1)]
+                elem_tool['node_clearance_bnd']+=[elem_tools_slices_points_list[k][j][(i+1)*(self.cut_face_nb_layers+1)-1] for i in range(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1)]
             self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, dim2 = self.nb_slices_per_elt, \
                                    offset=(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1))
         
@@ -672,62 +668,6 @@ class ToothSliced(ToothModel):
                                        offset=2*(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1) + \
                                               (self.cut_face_nb_layers+1)*(self.nb_slices_per_elt+1) + \
                                               (self.cut_face_nb_layers+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1))
-
-
-        
-        
-        
-                
-                     
-        """         
-            next_point = [self.cutting_edge_geom[k][coord] for coord in ['x','y','z']]
-            increment_coord = [[(next_point[ii]-current_point[ii])*1./self.nb_et_per_slice] for ii in range (3)]
-            increment_L_gamma = (self.cutting_edge_geom[k+1]['L_gamma'] - self.cutting_edge_geom[k]['L_gamma'])/self.nb_et_per_slice
-            increment_gamma =  (self.cutting_edge_geom[k+1]['gamma'] - self.cutting_edge_geom[k]['gamma'])/self.nb_et_per_slice
-            for j in range(self.nb_et_per_slice):
-                elem_tool ={}
-                
-                inter_point_curr = [self.current_point[ii]+(j)*increment_coord[ii] for ii in range(3)]
-                inter_point_next = [self.current_point[ii]+(j+1)*increment_coord[ii] for ii in range(3)]
-                elem_tool['pnt_cut_edge'] = [inter_point_curr,inter_point_next]
-                
-                L_gamma_curr = self.cutting_edge_geom[k]['L_gamma']+j*increment_L_gamma
-                gamma_curr = self.cutting_edge_geom[k]['gamma']+j*increment_gamma
-                inter_point_curr_radius = math.sqrt(inter_point_curr[0]**2 + inter_point_curr[1]**2)
-                rho_curr = math.acos(inter_point_curr[0]/inter_point_curr_radius)
-                
-                gamma_util_curr = math.pi - (gamma_curr - rho_curr)
-                p_gamma_curr = [inter_point_curr[0]+L_gamma_curr*math.cos(gamma_util_curr), \
-                                inter_point_curr[1]+L_gamma_curr*math.sin(gamma_util_curr), \
-                                inter_point_curr[2]]
-                
-                L_gamma_next = self.cutting_edge_geom[k]['L_gamma']+(j+1)*increment_L_gamma
-                gamma_next = self.cutting_edge_geom[k]['gamma']+(j+1)*increment_gamma
-                inter_point_next_radius = math.sqrt(inter_point_next[0]**2 + inter_point_next[1]**2)
-                rho_next   = math.acos(inter_point_next[0]/inter_point_next_radius)
-                
-                gamma_util_next = math.pi - (gamma_next - rho_next)
-                p_gamma_next = [inter_point_next[0]+L_gamma_next*math.cos(gamma_util_next), \
-                                inter_point_next[1]+L_gamma_curr*math.sin(gamma_util_next), \
-                                inter_point_next[2]]
-                ## integrer ici les couches
-                elem_tool['node_cut_face'] = []
-                elem_tool['node_cut_face'].append(inter_point_curr)
-                elem_tool['node_cut_face'].append(inter_point_next)
-                for i in range(self.cut_face_nb_layers):
-                    radius_i_curr = L_gamma_curr*(i+1.)/self.cut_face_nb_layers
-                    node = [inter_point_curr[0]+radius_i_curr*math.cos(gamma_util_curr), \
-                            inter_point_curr[1]+radius_i_curr*math.sin(gamma_util_curr), \
-                            inter_point_curr[2]]
-                    elem_tool['node_cut_face'].append(node)
-                    radius_i_next = L_gamma_next*(i+1.)/self.cut_face_nb_layers
-                    node = [inter_point_next[0]+radius_i_next*math.cos(gamma_util_next), \
-                            inter_point_next[1]+radius_i_next*math.sin(gamma_util_next), \
-                            inter_point_next[2]]
-                    elem_tool['node_cut_face'].append(node)
-            """    
-                
-        
         
 # ==================================================================================================
 class ToothForHelicoidalMillType1(ToothInsert):
