@@ -93,6 +93,10 @@ dicInsert1 = {   'name' : 'ma plaquette',
              'insert_location': {'bissectrice_arc_idx': 1, 'dist_from_origin':4.0e-3 },
              'cut_face_thickness' : 3.E-3,
              'cut_face_nb_layers' : 2,
+             'clearance_face_thickness' : 2.E-3,
+             'clearance_face_nb_layers' : 2,
+             'clearance_face_angle_degrees' : 45.,
+
              'tooth_id': 0,
              'toolstep_id': 0
          }
@@ -149,6 +153,7 @@ dicFraisePlaquettes = {
 ### Outil à étages
 angles = [0,10, 90, 100, 180, 190, 270, 280  ]
 plaquette = Tooth.ToothInsert(**dicInsert1)
+plaquette.draw()
 outil = Tool.Tool(name = 'toolstep_tool1')
 etage = Toolstep.ToolstepModel(name = 'Un modele d etage')
 for alpha in angles :
