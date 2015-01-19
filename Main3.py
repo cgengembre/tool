@@ -29,7 +29,7 @@ dicInsert1Arc = {   'name' : 'ma plaquette',
              'cut_face_thickness' : 3.E-3,
              'cut_face_nb_layers' : 2,
              'clearance_face_thickness' : 2.E-3,
-             'clearance_face_nb_layers' : 2,
+             'clearance_face_nb_layers' : 1,
              'clearance_face_angle_degrees' : 45.,
 
              'tooth_id': 0,
