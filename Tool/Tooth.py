@@ -152,8 +152,8 @@ class ToothInsert(ToothModel) :
                 if not ceg_dic.has_key('nb_slices'): # tous les dico de dic['cutting_edge_geom']
                     ceg_dic['nb_slices'] = 1         # on maintenant une clé 'nb_slices'
             ## Controle du contenu de dic :
-            for ceg_dic in dic['cutting_edge_geom']:
-                print ceg_dic
+            #for ceg_dic in dic['cutting_edge_geom']:
+            #    print ceg_dic
 
             # Construction des liste 
             self.dic['seg_length_list'] = [dic['cutting_edge_geom'][2*i]['seg_length'] for i in range (nbSeg)]
@@ -203,12 +203,12 @@ class ToothInsert(ToothModel) :
                 if key[0:-1] == "nbPartiesArc" :
                     self.dic["arc_nb_elementary_tools_list"][int(key[-1])-1] = dic[key]
         # Calcul des points dans le plan (Op, zp, xp):
-        print self.dic
+        # print self.dic
         self.__generePartiesEtMaillagePlaquette__()
 # --------------------------------------------------------------------------------------------------
     def __generePartiesEtMaillageArc__(self, idxArc, current_point, current_angle, next_point, next_angle):
         dicoPartie = {}
-        print "__generePartiesEtMaillageArc__  -  idxArc = %d\n"%(idxArc) 
+        # print "__generePartiesEtMaillageArc__  -  idxArc = %d\n"%(idxArc) 
         nbPartiesArc = self.dic["arc_nb_elementary_tools_list"][idxArc]
         rayon = self.dic["radius_list"][idxArc]
         alpha = math.radians(self.dic["arc_angle_degrees_list"][idxArc])
@@ -283,13 +283,15 @@ class ToothInsert(ToothModel) :
                         
             lastIdxElemTool = len (self.elementary_tools_list)
 
-            self.__genereVolumeDepouilleArc__(current_angle, deltaAlpha, sliceAngle, nbSlices, firstIdxElemTool, lastIdxElemTool)
+            self.__genereVolumeDepouilleArc__([centreArc[1],0,centreArc[0]], rayon, current_angle, deltaAlpha, sliceAngle, nbSlices, nbCouchesReel, firstIdxElemTool, lastIdxElemTool)
         else:
             next_point[0],next_point[1] = current_point[0], current_point[1]
             next_angle[0] = current_angle + alpha
 # --------------------------------------------------------------------------------------------------        
-    def __genereVolumeDepouilleArc__ (self, current_angle, et_angle, slice_angle, nb_slices, firstIdx, lastIdx):
+    def __genereVolumeDepouilleArc__ (self, center, radius, current_angle, et_angle, slice_angle, nb_slices, cutf_nb_layers,  firstIdx, lastIdx):
         delta_cf_thickness = self.clearance_face_thickness/self.clearance_face_nb_layers
+        l_limit_on_clearance_face = max(0.,(radius - self.cut_face_thickness)/math.sin(self.clearance_face_angle))
+        l_max_on_clearance_face = radius/math.sin(self.clearance_face_angle)
         for k in range(firstIdx, lastIdx):
             
             elem_tool_dic =  self.elementary_tools_list[k]
@@ -304,53 +306,102 @@ class ToothInsert(ToothModel) :
             pointe = False
             for j in range(self.clearance_face_nb_layers+1):
                 clearance_layer_points = []
-                local_nb_slice = 0
+                local_num_slice = 0
                 cut_face_arc_nb_layers = 0
-                for node in elem_tool_dic['node_cut_face']:
-                    point = [node [0] - math.sin(curr_et_angle+local_nb_slice*slice_angle) * j*delta_cf_thickness * math.cos(self.clearance_face_angle),\
-                             - j*delta_cf_thickness * math.sin(self.clearance_face_angle),\
-                             node[2] - math.cos(curr_et_angle+local_nb_slice*slice_angle)* j*delta_cf_thickness* math.cos(self.clearance_face_angle)]
-                    clearance_layer_points.append(point) 
-                    local_nb_slice+=1
-                    if local_nb_slice == nb_slices+1: 
-                        local_nb_slice = 0
-                        cut_face_arc_nb_layers+=1
-                cut_face_arc_nb_layers-=1    
-                # Si le quartier de tarte a une pointe, il faut corriger le dernier point :
-                if local_nb_slice == 1 :
-                    pointe = True
-                    node = elem_tool_dic['node_cut_face'][-1]
-                    clearance_layer_points[-1] = [node [0] - math.sin(curr_et_angle+et_angle/2) * j*delta_cf_thickness * math.cos(self.clearance_face_angle),\
-                             - j*delta_cf_thickness * math.sin(self.clearance_face_angle),\
-                             node[2] - math.cos(curr_et_angle+et_angle/2)* j*delta_cf_thickness* math.cos(self.clearance_face_angle)]
+                if j*delta_cf_thickness < l_max_on_clearance_face:
+                    if j*delta_cf_thickness < l_limit_on_clearance_face:
+                        for node in elem_tool_dic['node_cut_face']:
+                            point = [node [0] - math.sin(curr_et_angle+local_num_slice*slice_angle) * j*delta_cf_thickness * math.sin(self.clearance_face_angle),\
+                                     - j*delta_cf_thickness * math.cos(self.clearance_face_angle),\
+                                     node[2] - math.cos(curr_et_angle+local_num_slice*slice_angle)* j*delta_cf_thickness* math.sin(self.clearance_face_angle)]
+                            clearance_layer_points.append(point) 
+                            local_num_slice+=1
+                            if local_num_slice == nb_slices+1: 
+                                local_num_slice = 0
+                                cut_face_arc_nb_layers+=1
+                        cut_face_arc_nb_layers-=1    
+                    else :    # Le secteur de disque contient le centre :
+                        if not pointe:
+                            pointe = True
+                            idx_first_peaked_clearance_face_layer = j
+                        angle_decalage = self.clearance_face_angle
+                        for node in elem_tool_dic['node_cut_face']:
+                            
+                            point = [node [0] - math.sin(curr_et_angle+local_num_slice*slice_angle) * j*delta_cf_thickness * math.sin(angle_decalage),\
+                                     - j*delta_cf_thickness * math.cos(self.clearance_face_angle),\
+                                     node[2] - math.cos(curr_et_angle+local_num_slice*slice_angle)* j*delta_cf_thickness* math.sin(angle_decalage)]
+                            clearance_layer_points.append(point) 
+                            local_num_slice+=1
+                            if local_num_slice == nb_slices+1: 
+                                local_num_slice = 0
+                                cut_face_arc_nb_layers+=1
+                                if cutf_nb_layers > 0:
+                                    angle_decalage = (cutf_nb_layers - cut_face_arc_nb_layers) * self.clearance_face_angle /cutf_nb_layers
+                                else: angle_decalage = 0
+                        cut_face_arc_nb_layers-=1
+                        if local_num_slice == 1 :
+                            print '<CGen> Pointe ...'
+                            pointe = True
+                            node = elem_tool_dic['node_cut_face'][-1]
+                            clearance_layer_points[-1] = [center[0],\
+                                                          - j*delta_cf_thickness * math.cos(self.clearance_face_angle),\
+                                                          center[2]]
+                
+                            #cut_face_arc_nb_layers+=1
+                else : 
+                    clearance_layer_points.append([center[0], radius*math.cos(self.clearance_face_angle)/math.sin(self.clearance_face_angle), center[2]])
+                    
                 clearance_layers_points_list.append(clearance_layer_points)
+            
+            actual_clearance_face_nb_layers = len(clearance_layers_points_list)-1
             # nodes et maillage du volume en dépouille :
             # --> La face en dépouille :
-            for j in range(self.clearance_face_nb_layers+1):
+            for j in range(actual_clearance_face_nb_layers):
                 elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[j][0:nb_slices+1]
-            self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.clearance_face_nb_layers)
-            offset = (nb_slices+1) * (self.clearance_face_nb_layers+1) 
+            if len(clearance_layers_points_list[actual_clearance_face_nb_layers]) == 1:
+                elem_tool_dic['node_clearance_bnd'].append(clearance_layers_points_list[j][0])
+                self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, actual_clearance_face_nb_layers-1)
+                offset = (nb_slices+1) * (self.clearance_face_nb_layers) ## TODO : Ajouter ici le maillage de la pointe ... 
+            else : 
+                elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[actual_clearance_face_nb_layers][0:nb_slices+1]
+                self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, actual_clearance_face_nb_layers)
+                offset = (nb_slices+1) * (self.clearance_face_nb_layers+1) 
+            """
             # --> La face en dessous :
             elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[self.clearance_face_nb_layers]
             elem_tool_dic['tri_clearance_bnd']+=[[tri[0]+offset,tri[1]+offset,tri[2]+offset ] for tri in elem_tool_dic['tri_cut_face']]
-            offset += len (elem_tool_dic['tri_cut_face'])
-            # --> La face arrière optionnelle (si pas de pointe !)
+            offset += len (elem_tool_dic['node_cut_face'])
+            ## --> La face arrière optionnelle (si pas de pointe !)
             if (not pointe):
                 
                 for j in range(self.clearance_face_nb_layers+1):
                     elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[j][-nb_slices-1:]
                 self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.clearance_face_nb_layers, offset)
                 offset+=(nb_slices+1)*(self.clearance_face_nb_layers+1)
+         
+                     
             # --> Les couvercles :
             for j in range(self.clearance_face_nb_layers+1):
                 elem_tool_dic['node_clearance_bnd']+=[clearance_layers_points_list[j][i*(nb_slices+1)] for i in range(cut_face_arc_nb_layers+1) ]
-            self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cut_face_arc_nb_layers, self.clearance_face_nb_layers, offset)
+                if pointe :
+                    elem_tool_dic['node_clearance_bnd'].append(clearance_layers_points_list[j][-1])
+            if pointe:
+                self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cut_face_arc_nb_layers+1, self.clearance_face_nb_layers, offset)
+            else :
+                self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cut_face_arc_nb_layers, self.clearance_face_nb_layers, offset)
             offset += (self.clearance_face_nb_layers+1)*(cut_face_arc_nb_layers+1)
+            if pointe : 
+                offset += self.clearance_face_nb_layers+1
             for j in range(self.clearance_face_nb_layers+1):
                 elem_tool_dic['node_clearance_bnd']+=[clearance_layers_points_list[j][(i+1)*(nb_slices+1)-1] for i in range(cut_face_arc_nb_layers+1) ]
-            self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cut_face_arc_nb_layers, self.clearance_face_nb_layers, offset)
+                if pointe :
+                    elem_tool_dic['node_clearance_bnd'].append(clearance_layers_points_list[j][-1])
+            if pointe :
+                self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cut_face_arc_nb_layers+1, self.clearance_face_nb_layers, offset)
+            else :
+                self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cut_face_arc_nb_layers, self.clearance_face_nb_layers, offset)
             
-            
+            """
                 
                 
             
@@ -412,11 +463,12 @@ class ToothInsert(ToothModel) :
                 self.elementary_tools_list.append (dicoPartie)
                 cur_point_local = p2
             next_point[0],next_point[1] = p2[0], p2[1]
+            lastIdxElemTools = len(self.elementary_tools_list)
+
             self.__genereVolumeDepouilleSegment__(current_angle, nbSlices, firstIdxElemTool, lastIdxElemTools)
         else:
             next_point[0],next_point[1] = current_point[0], current_point[1]
         
-        lastIdxElemTools = len(self.elementary_tools_list)
         
 # --------------------------------------------------------------------------------------------------
     def __genereVolumeDepouilleSegment__(self, current_angle, nb_slices, firstIdx, lastIdx):
@@ -541,9 +593,9 @@ class ToothInsert(ToothModel) :
         ### derniere section segment :    
         self.__generePartiesEtMaillageSegment__(idxSeg, current_point, current_angle, next_point)
         
-        print '<CGen> self.elementary_tools_list :'
-        for ddd in self.elementary_tools_list:
-            print ddd
+        #print '<CGen> self.elementary_tools_list :'
+        #for ddd in self.elementary_tools_list:
+        #    print ddd
 
 class ToothForHelicoidalMillType2(ToothInsert):
     def __init__(self, dic):
@@ -659,7 +711,7 @@ class ToothSliced(ToothModel):
                                    for key in self.cutting_edge_geom[idx_tool_geom].keys()}
                 cutting_edge_geom_interpolated.append(dic_slice_geom)
         # petit print pour controle ... à supprimer par la suite :
-        for i in range(len(cutting_edge_geom_interpolated)): print i, ' : ', cutting_edge_geom_interpolated[i]
+        # for i in range(len(cutting_edge_geom_interpolated)): print i, ' : ', cutting_edge_geom_interpolated[i]
         
         # 2 : Calcul des points
         # ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
@@ -743,8 +795,8 @@ class ToothSliced(ToothModel):
             #        elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, j*(self.cut_face_nb_layers+1)+i,     (j+1)*(self.cut_face_nb_layers+1)+i ])
             #        elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, (j+1)*(self.cut_face_nb_layers+1)+i, (j+1)*(self.cut_face_nb_layers+1)+i +1 ])
             self.elementary_tools_list.append(elem_tool)
-        print "Nombre d'outils elementaires  : ", len(self.elementary_tools_list)
-        for tool_elementaire in self.elementary_tools_list : print tool_elementaire
+        #print "Nombre d'outils elementaires  : ", len(self.elementary_tools_list)
+        #for tool_elementaire in self.elementary_tools_list : print tool_elementaire
         
         # Volume en dépouille :
         
@@ -762,7 +814,7 @@ class ToothSliced(ToothModel):
             self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, dim2 = self.nb_slices_per_elt)
             
              
-        print 'self.elementary_tools_list : ', self.elementary_tools_list
+        # print 'self.elementary_tools_list : ', self.elementary_tools_list
         # Faces opposées 
         for k in range (self.nb_elementary_tools):
             
@@ -773,7 +825,7 @@ class ToothSliced(ToothModel):
             self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, dim2 = self.nb_slices_per_elt, \
                                    offset=(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1))
         
-        print 'self.elementary_tools_list After : ', self.elementary_tools_list
+        # print 'self.elementary_tools_list After : ', self.elementary_tools_list
         
         # Face arriere :
         for k in range (self.nb_elementary_tools):
