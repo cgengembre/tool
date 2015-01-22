@@ -28,9 +28,9 @@ dicInsert1Arc = {   'name' : 'ma plaquette',
              'insert_location': {'bissectrice_arc_idx':0 , 'dist_from_origin':2.0e-3 }, 
              'cut_face_thickness' : .25E-2,
              'cut_face_nb_layers' : 4,
-             'clearance_face_thickness' : 3.E-2,
-             'clearance_face_nb_layers' : 5,
-             'clearance_face_angle_degrees' : 30.,
+             'clearance_face_thickness' : 12.E-3,
+             'clearance_face_nb_layers' :6,
+             'clearance_face_angle_degrees' : 50.,
 
              'tooth_id': 0,
              'toolstep_id': 0
