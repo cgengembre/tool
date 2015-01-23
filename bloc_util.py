@@ -49,7 +49,7 @@ def view_bloc(Bloc):
             
             zz= 0
             for node in node_clearance_bnd:
-                file_name=Mesh_IO.OUT_PNT_V3D(node,(1,0,0),10,'node_%d_'%(zz,)+str(I))
+                file_name=Mesh_IO.OUT_PNT_V3D(node,(0,1,0),10,'node_%d_'%(zz,)+str(I))
                 zz+=1
                 lf_file.write(file_name+'\n')
  
