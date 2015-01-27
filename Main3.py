@@ -40,5 +40,5 @@ dicInsert1Arc['clearance_face_thickness'] = 2.E-2 # pour tester la pointe en des
 dicInsert1Arc['cut_face_thickness'] = .25E-2 # Maillage face arrière
 #dicInsert1Arc['clearance_face_thickness'] = 0.5E-2 # pas de pointe en dessous
 
-plaquette = Tooth.ToothInsert(**dicInsert1Arc)
+plaquette = Tooth.ToothInsert(**dicInsert1)
 plaquette.draw()
