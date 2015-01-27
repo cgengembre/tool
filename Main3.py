@@ -22,13 +22,13 @@ dicInsert1 = {   'name' : 'ma plaquette',
          }
 dicInsert1Arc = {   'name' : 'ma plaquette',
              'cutting_edge_geom': [{'seg_length' : .0e-3,                      'nb_elementary_tools': 1, 'nb_slices': 1},
-                                   {'radius'     : 1.0e-2, 'angle_degrees': 45, 'nb_elementary_tools': 1, 'nb_slices': 3},
+                                   {'radius'     : 1.0e-2, 'angle_degrees': 45, 'nb_elementary_tools': 3, 'nb_slices': 3},
                                    {'seg_length' : 0.e-3,                      'nb_elementary_tools': 5},
                                   ],
              'insert_location': {'bissectrice_arc_idx':0 , 'dist_from_origin':2.0e-3 }, 
-             'cut_face_thickness' : .25E-2,
+             'cut_face_thickness' :.65E-2,
              'cut_face_nb_layers' : 4,
-             'clearance_face_thickness' : 13.E-3,
+             'clearance_face_thickness' :1.E-2,
              'clearance_face_nb_layers' :6,
              'clearance_face_angle_degrees' : 40.,
 
@@ -36,6 +36,9 @@ dicInsert1Arc = {   'name' : 'ma plaquette',
              'toolstep_id': 0
          }
 
+dicInsert1Arc['clearance_face_thickness'] = 2.E-2 # pour tester la pointe en dessous
+dicInsert1Arc['cut_face_thickness'] = .25E-2 # Maillage face arrière
+#dicInsert1Arc['clearance_face_thickness'] = 0.5E-2 # pas de pointe en dessous
 
 plaquette = Tooth.ToothInsert(**dicInsert1Arc)
 plaquette.draw()
