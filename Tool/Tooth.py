@@ -101,6 +101,44 @@ class ToothModel:
                 tri.append([offset + j*(dim1+1)+i+1, offset + (j+1)*(dim1+1)+i, offset + (j+1)*(dim1+1)+i +1 ])
         for i in range(dim1):
             tri.append([offset+(dim1+1)*(dim2+1),offset+(dim1+1)*(dim2+1)-1-i, offset+(dim1+1)*(dim2+1)-2-i])
+    
+    def __clearance_bnd_mesh_mng__(self):
+        for elem_tool in self.elementary_tools_list :
+            initial_node_count = len (elem_tool['node_clearance_bnd'])
+            tuplon_list = [[] for idx in range(initial_node_count)]
+            for j in range(initial_node_count):
+                for i in range(j+1, initial_node_count):
+                    if elem_tool['node_clearance_bnd'][i]==elem_tool['node_clearance_bnd'][j]:
+                        if len (tuplon_list[i]) == 0:
+                            tuplon_list[i].append(-1)
+                        if len (tuplon_list[j]) == 0 or len (tuplon_list[j]) > 0 and tuplon_list[j][0] != -1:
+                            tuplon_list[j].append(i)
+            # print 'tuplon list : ', tuplon_list
+            for i in range(initial_node_count):
+                if len(tuplon_list[i]) == 0 or tuplon_list[i][0] != -1 :
+                    tuplon_list[i].append(i)
+            # print 'tuplon list 2: ', tuplon_list
+            i = 0
+            while i < len (tuplon_list):
+                while i < len (tuplon_list) and tuplon_list[i][0] == -1:
+                    del tuplon_list[i]
+                    del elem_tool['node_clearance_bnd'][i]
+                i+=1
+            old2new_list = [-1 for i in range(initial_node_count)]
+            for j  in range (len(tuplon_list)):
+                for i in tuplon_list[j]:
+                    old2new_list[i]=j
+                    
+            for tri in elem_tool['tri_clearance_bnd']:
+                for i in range(3):
+                    tri[i]=old2new_list[tri[i]]
+            # print 'elem tool : %d nodes --> %d nodes'%(initial_node_count, len (elem_tool['node_clearance_bnd']))
+                
+                
+                
+             
+                        
+                    
 # --------------------------------------------------------------------------------------------------
     def draw(self):
         bloc_util.view_bloc(self.elementary_tools_list)
@@ -227,7 +265,7 @@ class ToothInsert(ToothModel) :
         # Calcul des points dans le plan (Op, zp, xp):
         # print self.dic
         self.__generePartiesEtMaillagePlaquette__()
-        print 'Elementary tools list : ',self.elementary_tools_list
+        # print 'Elementary tools list : ',self.elementary_tools_list
 # --------------------------------------------------------------------------------------------------
     def __generePartiesEtMaillageArc__(self, idxArc, current_point, current_angle, next_point, next_angle):
         dicoPartie = {}
@@ -307,6 +345,7 @@ class ToothInsert(ToothModel) :
             lastIdxElemTool = len (self.elementary_tools_list)
 
             self.__genereVolumeDepouilleArc__([centreArc[1],0,centreArc[0]], rayon, current_angle, deltaAlpha, sliceAngle, nbSlices, nbCouchesReel, firstIdxElemTool, lastIdxElemTool)
+            self.__clearance_bnd_mesh_mng__()
         else:
             next_point[0],next_point[1] = current_point[0], current_point[1]
             next_angle[0] = current_angle + alpha
@@ -324,7 +363,7 @@ class ToothInsert(ToothModel) :
             elem_tool_dic =  self.elementary_tools_list[k]
             elem_tool_dic['node_clearance_bnd'] = []
             elem_tool_dic['tri_clearance_bnd'] = []
-            elem_tool_dic['pnt_in_clearance_face'] = [0.,0., 0.]
+            elem_tool_dic['pnt_in_clearance_face'] = [center[0], - radius*math.cos(self.clearance_face_angle)/math.sin(self.clearance_face_angle), center[2]]
             
             # calcul des points :
             curr_et_angle = current_angle + (k - firstIdx)*et_angle
@@ -487,6 +526,7 @@ class ToothInsert(ToothModel) :
                 self.give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'],   nb_slices, cutf_nb_layers - 1, offset)
             else :
                 self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'],   nb_slices, cutf_nb_layers, offset)
+        
                     
             ## """
 # --------------------------------------------------------------------------------------------------               
@@ -550,6 +590,7 @@ class ToothInsert(ToothModel) :
             lastIdxElemTools = len(self.elementary_tools_list)
 
             self.__genereVolumeDepouilleSegment__(current_angle, nbSlices, firstIdxElemTool, lastIdxElemTools)
+            self.__clearance_bnd_mesh_mng__()
         else:
             next_point[0],next_point[1] = current_point[0], current_point[1]
         
@@ -561,7 +602,11 @@ class ToothInsert(ToothModel) :
             elem_tool_dic =  self.elementary_tools_list[k]
             elem_tool_dic['node_clearance_bnd'] = []
             elem_tool_dic['tri_clearance_bnd'] = []
-            elem_tool_dic['pnt_in_clearance_face'] = [0.,0., 0.]
+            
+            cut_edge_middle = [0.5*elem_tool_dic['pnt_cut_edge'][0][idx]+0.5*elem_tool_dic['pnt_cut_edge'][1][idx] for idx in range(3)]
+            elem_tool_dic['pnt_in_clearance_face'] = [cut_edge_middle [0] - math.sin(current_angle) * delta_clearance_face_thickness * math.cos(self.clearance_face_angle),\
+                             - delta_clearance_face_thickness * math.sin(self.clearance_face_angle),\
+                             cut_edge_middle[2] - math.cos(current_angle)* delta_clearance_face_thickness* math.cos(self.clearance_face_angle)]
             
             # 1: calcul des points :
             clearance_layers_points_list = []
@@ -933,6 +978,13 @@ class ToothSliced(ToothModel):
                                               (self.cut_face_nb_layers+1)*(self.nb_slices_per_elt+1) + \
                                               (self.cut_face_nb_layers+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1))
         
+        # On ajoute la face de coupe pour fermer le volume en dépouille :
+        for k in range (self.nb_elementary_tools):
+            elem_tool = self.elementary_tools_list[k]
+            offset = len(elem_tool['node_clearance_bnd'])
+            elem_tool['node_clearance_bnd']+=elem_tool['node_cut_face']
+            self.give_mesh_rect_patch(tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt, offset = offset)
+        self.__clearance_bnd_mesh_mng__()
 # ==================================================================================================
 class ToothForHelicoidalMillType1(ToothInsert):
     def __init__(self, **dic):

@@ -41,4 +41,5 @@ dicInsert1Arc = {   'name' : 'ma plaquette',
 #dicInsert1Arc['clearance_face_thickness'] = 0.5E-2 # pas de pointe en dessous
 
 plaquette = Tooth.ToothInsert(**dicInsert1) #Arc)
+
 plaquette.draw()

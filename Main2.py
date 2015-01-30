@@ -56,4 +56,5 @@ dent = Tooth.ToothSliced(name = 'dent en slices',
                          nb_slices_per_elt = 5,
                          nb_elementary_tools = 4,
                          cutting_edge_geom = from_data_dic_list)
+
 dent.draw()
