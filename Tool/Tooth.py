@@ -58,9 +58,8 @@ class ToothModel:
             # transformation de l'arrete, des nodes de face de coute et de volume en dépouille, des point sur la cutface et sur la clearance face :
             for node in et['pnt_cut_edge'] + et['node_cut_face']+et['node_clearance_bnd'] + [et['pnt_in_cut_face'],]+ et['pnt_clearance_face']:
                 beta = node[2]*self.torsion_angle/self.height
-                radius = node[0]
-                node[0] = radius*math.cos(beta)
-                node[1] = radius*math.sin(beta)
+                node[0] = node[0]*math.cos(beta) - node[1]*math.sin(beta)
+                node[1] = node[0]*math.sin(beta) + node[1]*math.cos(beta)
             
     def give_mesh_rect_patch(self, tri, dim1, dim2, offset=0):
         """
@@ -606,7 +605,7 @@ class ToothInsert(ToothModel) :
             elem_tool_dic['tri_clearance_bnd'] = []
             
             cut_edge_middle = [0.5*elem_tool_dic['pnt_cut_edge'][0][idx]+0.5*elem_tool_dic['pnt_cut_edge'][1][idx] for idx in range(3)]
-            elem_tool_dic['pnt_clearance_face'] =elem_tool_dic['pnt_cut_edge'] + \
+            elem_tool_dic['pnt_clearance_face'] =copy.deepcopy(elem_tool_dic['pnt_cut_edge']) + \
                    [[cut_edge_middle [0] - math.sin(current_angle) * delta_clearance_face_thickness * math.cos(self.clearance_face_angle),\
                              - delta_clearance_face_thickness * math.sin(self.clearance_face_angle),\
                              cut_edge_middle[2] - math.cos(current_angle)* delta_clearance_face_thickness* math.cos(self.clearance_face_angle)],]
@@ -646,7 +645,7 @@ class ToothInsert(ToothModel) :
             self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], self.cut_face_nb_layers, self.clearance_face_nb_layers, offset)
             offset = len(elem_tool_dic['node_clearance_bnd'])
             # --> face de coupe pour fermer le volume
-            elem_tool_dic['node_clearance_bnd']+=elem_tool_dic['node_cut_face']
+            elem_tool_dic['node_clearance_bnd']+=copy.deepcopy(elem_tool_dic['node_cut_face'])
             self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.cut_face_nb_layers, offset)
 # --------------------------------------------------------------------------------------------------
 
@@ -1035,7 +1034,7 @@ class ToothForHelicoidalMillType1(ToothInsert):
         params['clearance_face_thickness'] = dic['clearance_face_thickness']
         params['clearance_face_nb_layers'] = dic['clearance_face_nb_layers']
         params['clearance_face_angle_degrees'] = dic['clearance_face_angle_degrees']
-        
+        ## TODO : Controler que radius > cut_face_thickness + debordement volume en depouille /!\
         params['radius'] = dic['radius']
         params['torsion_angle_degrees'] = dic['torsion_angle_degrees']
         
@@ -1051,17 +1050,16 @@ class ToothForHelicoidalMillType1(ToothInsert):
         
         for elem_tool in self.elementary_tools_list:
             for key in ['node_cut_face','pnt_cut_edge','node_clearance_bnd','pnt_clearance_face']:
-                print key + ' before : ', elem_tool[key] 
+                 
                 for node in elem_tool[key]:
                     node[2]+=dic['height']/2.
-                print key + ' after : ', elem_tool[key]
+                
             elem_tool['pnt_in_cut_face'][2]+=.5*dic['height']
             
         # 4: application de la torsion transformation. 
-        #self.torsion_transformation()
+        self.torsion_transformation()
         
-        for elem_tool in self.elementary_tools_list:
-            print "Finalement : ", elem_tool
+        
 # --------------------------------------------------------------------------------------------------
     def __generePartiesEtMaillageDent0__(self):
         alpha = self.angleAxialInitial
@@ -1119,8 +1117,6 @@ class ToothForHelicoidalMillType1(ToothInsert):
             theta = next_theta
             z = next_z
 # --------------------------------------------------------------------------------------------------
-
-    pass
 # ==================================================================================================
 class ToothForHelicoidalMillTore(ToothModel):
     pass

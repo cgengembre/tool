@@ -37,7 +37,7 @@ def view_bloc(Bloc):
                                        (color,(1,1,0)),'node_tri_cut_face_'+str(I),False)
         lf_file.write(file_name+'\n')
         
-        if (bloc.has_key('node_clearance_bnd__')):
+        if (bloc.has_key('node_clearance_bnd')):
             #file_name=Mesh_IO.OUT_PNT_V3D(pnt_clearance_face,(0,0,1),10,'pnt_clearance_face_'+str(I))
             #lf_file.write(file_name+'\n')
             
