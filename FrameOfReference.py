@@ -132,7 +132,7 @@ class FrameOfReference:
         if self.dic_frames.has_key(dic['fatherFrameName']):
             ## creer le frame :
             if self.dic_frames.has_key(dic['name']):
-                print self.dic_frames
+                # print self.dic_frames
                 raise FrameError('Un frame de ce nom existe déjà')
             self.dic_frames[dic['name']] = Frame(**dic)
             self.dic_frames[dic['name']].fom = self
@@ -174,9 +174,9 @@ class FrameOfReference:
         points are given in the frame whose name is frameName. 
         return points coordinates expressed in Canonical Frame.
         """
-        print '<CGen> givePointsInCanonicalFrame()'
-        print type(self.dic_frames[frameName])
-        print type(points)
+        # print '<CGen> givePointsInCanonicalFrame()'
+        # print type(self.dic_frames[frameName])
+        # print type(points)
         _points_ = Frame.givePointsInFatherFrame(self.dic_frames[frameName], points)
         #_points_ = self.dic_frames[frameName].givePointsInFatherFrame(points)
         if self.dic_frames[frameName].fatherFrameName == "Canonical":

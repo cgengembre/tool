@@ -22,7 +22,7 @@ dicInsert1 = {   'name' : 'ma plaquette',
          }
 dicInsert1Arc = {   'name' : 'ma plaquette',
              'cutting_edge_geom': [{'seg_length' : .0e-3,                      'nb_elementary_tools': 1, 'nb_slices': 1},
-                                   {'radius'     : 2.0e-3, 'angle_degrees': 45, 'nb_elementary_tools': 1, 'nb_slices': 3},
+                                   {'radius'     : 2.0e-3, 'angle_degrees': 180, 'nb_elementary_tools': 1, 'nb_slices': 10},
                                    {'seg_length' : 0.e-3,                      'nb_elementary_tools': 5},
                                   ],
              'insert_location': {'bissectrice_arc_idx':0 , 'dist_from_origin':2.0e-3 }, 
@@ -40,6 +40,6 @@ dicInsert1Arc = {   'name' : 'ma plaquette',
 #dicInsert1Arc['cut_face_thickness'] = .25E-2 # Maillage face arrière
 #dicInsert1Arc['clearance_face_thickness'] = 0.5E-2 # pas de pointe en dessous
 
-plaquette = Tooth.ToothInsert(**dicInsert1) #Arc)
+plaquette = Tooth.ToothInsert(**dicInsert1Arc) #Arc)
 
 plaquette.draw()

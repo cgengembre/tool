@@ -100,6 +100,21 @@ dicInsert1 = {   'name' : 'ma plaquette',
              'tooth_id': 0,
              'toolstep_id': 0
          }
+dicInsert1Arc = {   'name' : 'ma plaquette',
+             'cutting_edge_geom': [{'seg_length' : .0e-3,                      'nb_elementary_tools': 1, 'nb_slices': 1},
+                                   {'radius'     : 2.0e-3, 'angle_degrees': 180, 'nb_elementary_tools': 5, 'nb_slices': 2},
+                                   {'seg_length' : 0.e-3,                      'nb_elementary_tools': 5},
+                                  ],
+             'insert_location': {'bissectrice_arc_idx':0 , 'dist_from_origin':2.0e-3 }, 
+             'cut_face_thickness' :0.75E-3,
+             'cut_face_nb_layers' : 3   ,
+             'clearance_face_thickness' :3.12E-3,
+             'clearance_face_nb_layers' :4,
+             'clearance_face_angle_degrees' : 40.,
+
+             'tooth_id': 0,
+             'toolstep_id': 0
+         }
 
 dicFramePlaquette = {
             "name"            : "repere plaquette ",
@@ -151,9 +166,13 @@ dicFraisePlaquettes = {
 #    fraise.addTooth(plaquette, frame)
 #fraise.draw()
 ### Outil à étages
-angles = [0,10, 90, 100, 180, 190, 270, 280  ]
+angles = [0, 90,  180,  270  ]
+angles2 = [10, 100,  190, 280  ]
 plaquette = Tooth.ToothInsert(**dicInsert1)
 plaquette.draw()
+plaquetteArc = Tooth.ToothInsert(**dicInsert1Arc)
+plaquette.draw()
+
 outil = Tool.Tool(name = 'toolstep_tool1')
 etage = Toolstep.ToolstepModel(name = 'Un modele d etage')
 for alpha in angles :
@@ -161,6 +180,11 @@ for alpha in angles :
     dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
     frame = outil.tool_for.create_frame(**dicFramePlaquette)
     etage.addTooth(plaquette, frame)
+for alpha in angles2 :
+    dicFramePlaquette['axialAngleDegrees'] = alpha
+    dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
+    frame = outil.tool_for.create_frame(**dicFramePlaquette)
+    etage.addTooth(plaquetteArc, frame)
 for z in [3.0E-3, 1.6E-2]:
     dicFrameEtage['axialPosition'] = z
     dicFrameEtage['name'] = 'pour z = %f'%(z)

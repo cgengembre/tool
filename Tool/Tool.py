@@ -49,7 +49,7 @@ class Tool:
         # self.tool_for.add(frame)
         # calculer les points de la dent dans le repere canonique de la fraise
         # insert.elementary_tools_list est la liste des parties de la plaquette ajoutée
-        print tooth.elementary_tools_list
+        # print tooth.elementary_tools_list
         idx_in_etl_begin = len(self.elementary_tools_list)
         for partie in tooth.elementary_tools_list:
             dicPartie = {}
@@ -60,6 +60,10 @@ class Tool:
             dicPartie["h_cut_max"] = partie["h_cut_max"]
             dicPartie["node_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node_cut_face"])
             dicPartie["tri_cut_face"] = partie["tri_cut_face"]
+            # On ajoute le volume en dépouille, et les points de la face en dépouille :
+            dicPartie["node_clearance_bnd"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node_clearance_bnd"])
+            dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
+            dicPartie["pnt_clearance_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
             self.elementary_tools_list.append(dicPartie)
         idx_in_etl_end = len(self.elementary_tools_list)-1
         self.range_in_etl_dic[sif_name].append([idx_in_etl_begin, idx_in_etl_end])
@@ -82,6 +86,11 @@ class Tool:
                 dicPartie["h_cut_max"] = partie["h_cut_max"]
                 dicPartie["node_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node_cut_face"])
                 dicPartie["tri_cut_face"] = partie["tri_cut_face"]
+                # On ajoute le volume en dépouille, et les points de la face en dépouille :
+                dicPartie["node_clearance_bnd"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node_clearance_bnd"])
+                dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
+                dicPartie["pnt_clearance_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
+            
                 self.elementary_tools_list.append(dicPartie)
 # --------------------------------------------------------------------------------------------------
     def draw(self):
@@ -189,7 +198,7 @@ class WithInsertsMill (Mill):
         # insert.elementary_tools_list est la liste des parties de la plaquette ajoutée
         dicPartie = {}
         dicPartie["tooth_id"] = self.__toothId__
-        print insert.elementary_tools_list
+        # print insert.elementary_tools_list
         for partie in insert.elementary_tools_list:
             dicPartie = {}
             dicPartie["tooth_id"] = self.__toothId__
@@ -199,7 +208,7 @@ class WithInsertsMill (Mill):
             dicPartie["node_cut_face"] = self.millFom.givePointsInCanonicalFrame(frame.name, partie["node_cut_face"])
             dicPartie["tri_cut_face"] = partie["tri_cut_face"]
             self.elementary_tools_list.append(dicPartie)
-        print self.elementary_tools_list
+        # print self.elementary_tools_list
         self.__toothId__+=1
 # --------------------------------------------------------------------------------------------------
     def __addInsertByRotation__(self, nbParties):

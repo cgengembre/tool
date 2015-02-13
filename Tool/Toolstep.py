@@ -44,6 +44,10 @@ class ToolstepModel:
             dicPartie["h_cut_max"] = partie["h_cut_max"]
             dicPartie["node_cut_face"] = frame.givePointsInFatherFrame( partie["node_cut_face"])
             dicPartie["tri_cut_face"] = partie["tri_cut_face"]
+            # On ajoute le volume en dépouille, et les points de la face en dépouille :
+            dicPartie["node_clearance_bnd"] = frame.givePointsInFatherFrame(partie["node_clearance_bnd"])
+            dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
+            dicPartie["pnt_clearance_face"] = frame.givePointsInFatherFrame(partie["pnt_clearance_face"])
             self.elementary_tools_list.append(dicPartie)
         idx_in_etl_end = len(self.elementary_tools_list)-1
         self.range_in_etl_list.append([idx_in_elt_begin, idx_in_etl_end])
