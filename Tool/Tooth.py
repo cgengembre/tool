@@ -606,18 +606,18 @@ class ToothInsert(ToothModel) :
             
             cut_edge_middle = [0.5*elem_tool_dic['pnt_cut_edge'][0][idx]+0.5*elem_tool_dic['pnt_cut_edge'][1][idx] for idx in range(3)]
             elem_tool_dic['pnt_clearance_face'] =copy.deepcopy(elem_tool_dic['pnt_cut_edge']) + \
-                   [[cut_edge_middle [0] - math.sin(current_angle) * delta_clearance_face_thickness * math.cos(self.clearance_face_angle),\
-                             - delta_clearance_face_thickness * math.sin(self.clearance_face_angle),\
-                             cut_edge_middle[2] - math.cos(current_angle)* delta_clearance_face_thickness* math.cos(self.clearance_face_angle)],]
+                   [[cut_edge_middle [0] - math.sin(current_angle) * delta_clearance_face_thickness * math.sin(self.clearance_face_angle),\
+                             - delta_clearance_face_thickness * math.cos(self.clearance_face_angle),\
+                             cut_edge_middle[2] - math.cos(current_angle)* delta_clearance_face_thickness* math.sin(self.clearance_face_angle)],]
             
             # 1: calcul des points :
             clearance_layers_points_list = []
             for j in range(self.clearance_face_nb_layers+1):
                 clearance_layer_points = []
                 for node in elem_tool_dic['node_cut_face']:
-                    point = [node [0] - math.sin(current_angle) * j*delta_clearance_face_thickness * math.cos(self.clearance_face_angle),\
-                             - j*delta_clearance_face_thickness * math.sin(self.clearance_face_angle),\
-                             node[2] - math.cos(current_angle)* j*delta_clearance_face_thickness* math.cos(self.clearance_face_angle)]
+                    point = [node [0] - math.sin(current_angle) * j*delta_clearance_face_thickness * math.sin(self.clearance_face_angle),\
+                             - j*delta_clearance_face_thickness * math.cos(self.clearance_face_angle),\
+                             node[2] - math.cos(current_angle)* j*delta_clearance_face_thickness* math.sin(self.clearance_face_angle)]
                     clearance_layer_points.append(point) 
                 clearance_layers_points_list.append(clearance_layer_points)
             # Calcul des nodes et maillage :
@@ -1036,6 +1036,8 @@ class ToothForHelicoidalMillType1(ToothInsert):
         params['clearance_face_angle_degrees'] = dic['clearance_face_angle_degrees']
         ## TODO : Controler que radius > cut_face_thickness + debordement volume en depouille /!\
         params['radius'] = dic['radius']
+        if (params['radius'] < params['cut_face_thickness']+params['clearance_face_thickness']*math.sin(math.radians(params['clearance_face_angle_degrees']))):
+            raise Exception("Attention le volume de la dent va au delà  de l'axe de rotation de la fraise !")
         params['torsion_angle_degrees'] = dic['torsion_angle_degrees']
         
         params['cutting_edge_geom'] = [{'seg_length' : dic['height'], \

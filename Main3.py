@@ -15,7 +15,7 @@ dicInsert1 = {   'name' : 'ma plaquette',
              'cut_face_nb_layers' : 2,
              'clearance_face_thickness' : 2.E-3,
              'clearance_face_nb_layers' : 2,
-             'clearance_face_angle_degrees' : 45.,
+             'clearance_face_angle_degrees' : 80.,
 
              'tooth_id': 0,
              'toolstep_id': 0
@@ -30,7 +30,7 @@ dicInsert1Arc = {   'name' : 'ma plaquette',
              'cut_face_nb_layers' : 3   ,
              'clearance_face_thickness' :3.12E-3,
              'clearance_face_nb_layers' :4,
-             'clearance_face_angle_degrees' : 40.,
+             'clearance_face_angle_degrees' : 10.,
 
              'tooth_id': 0,
              'toolstep_id': 0
@@ -40,6 +40,6 @@ dicInsert1Arc = {   'name' : 'ma plaquette',
 #dicInsert1Arc['cut_face_thickness'] = .25E-2 # Maillage face arrière
 #dicInsert1Arc['clearance_face_thickness'] = 0.5E-2 # pas de pointe en dessous
 
-plaquette = Tooth.ToothInsert(**dicInsert1Arc) #Arc)
+plaquette = Tooth.ToothInsert(**dicInsert1) #Arc)
 
 plaquette.draw()
