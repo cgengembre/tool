@@ -162,33 +162,34 @@ dicFraisePlaquettes = {
 #for alpha in angles :
 #    dicFramePlaquette['axialAngleDegrees'] = alpha
 #    dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
-#    frame = fraise.tool_for.create_frame(**dicFramePlaquette)
+#    frame = fraise.foref.create_frame(**dicFramePlaquette)
 #    fraise.addTooth(plaquette, frame)
 #fraise.draw()
 ### Outil à étages
 angles = [0, 90,  180,  270  ]
 angles2 = [10, 100,  190, 280  ]
 plaquette = Tooth.ToothInsert(**dicInsert1)
-plaquette.draw()
+# plaquette.draw()
 plaquetteArc = Tooth.ToothInsert(**dicInsert1Arc)
-plaquette.draw()
+# plaquette.draw()
 
 outil = Tool.Tool(name = 'toolstep_tool1')
 etage = Toolstep.ToolstepModel(name = 'Un modele d etage')
 for alpha in angles :
     dicFramePlaquette['axialAngleDegrees'] = alpha
     dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
-    frame = outil.tool_for.create_frame(**dicFramePlaquette)
+    frame = etage.foref.create_frame(**dicFramePlaquette)
     etage.addTooth(plaquette, frame)
 for alpha in angles2 :
     dicFramePlaquette['axialAngleDegrees'] = alpha
     dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
-    frame = outil.tool_for.create_frame(**dicFramePlaquette)
+    frame = etage.foref.create_frame(**dicFramePlaquette)
     etage.addTooth(plaquetteArc, frame)
 for z in [3.0E-3, 1.6E-2]:
     dicFrameEtage['axialPosition'] = z
     dicFrameEtage['name'] = 'pour z = %f'%(z)
-    frame = outil.tool_for.create_frame(**dicFrameEtage)
+    frame = outil.foref.create_frame(**dicFrameEtage)
     outil.addToolstep(name = 'z=%f'%z, toolstep = etage, frame = frame)
 outil.draw()
+outil.write('mon_outil')
     

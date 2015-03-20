@@ -18,3 +18,20 @@ dent = Tooth.ToothForHelicoidalMillType1(name = 'toothMonoblocTyp1',
                                          height                   = 2.E-3,
                                          torsion_angle_degrees    = 30)
 dent.draw()
+
+fraise = Tool.Tool(name = 'fraise elicoidale de type 1')
+
+for angle in [0., 60., 120., 180., 240., 300.  ]:
+    frame = fraise.foref.create_frame(name =  "dent"+str(angle),
+           fatherFrameName = "Canonical",
+           frameType       = FoR.INSERT_FRAME_AROUND_A_MILL,
+           axialAngleDegrees  = 30.,
+           radius             = 0.,
+           axialPosition      = 0.,
+           rotDegreAutourNormale = 0.,
+           rotDegreAutourRadiale = 0.,
+           rotDegreAutourAxiale  = angle)
+    fraise.addTooth(dent, frame)
+fraise.write('faise_helico_type1')
+fraise.draw()
+    

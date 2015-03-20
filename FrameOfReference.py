@@ -122,9 +122,16 @@ class Frame:
 class FrameOfReference:
 # ==================================================================================================
 # --------------------------------------------------------------------------------------------------
+    __instance_counter__ = 0
+
     def __init__(self, **dic):
-        self.name = dic["name"]
+        if dic.has_key("name"):
+            self.name = dic["name"]+'_'+str(FrameOfReference.__instance_counter__)
+        else:
+            self.name = "FoRef_"+str(FrameOfReference.__instance_counter__)
+            
         self.dic_frames = {"Canonical": None}
+        FrameOfReference.__instance_counter__ +=1
 # --------------------------------------------------------------------------------------------------
     def create_frame(self, **dic):
         # Verifier que le père du repère ajouté existe bien dans le réferentiel
@@ -135,7 +142,7 @@ class FrameOfReference:
                 # print self.dic_frames
                 raise FrameError('Un frame de ce nom existe déjà')
             self.dic_frames[dic['name']] = Frame(**dic)
-            self.dic_frames[dic['name']].fom = self
+            self.dic_frames[dic['name']].foref = self
         else: raise FrameError("Pere inexistant")
         return self.dic_frames[dic['name']]
 # --------------------------------------------------------------------------------------------------

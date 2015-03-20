@@ -37,7 +37,9 @@ class Tool:
             self.name = dic['name']
         else:
             self.name = 'Tool_'+str(Tool.__instance_counter__)
-        self.tool_for = FoR.FrameOfReference(name = 'for_' + self.name)
+        
+        self.foref = FoR.FrameOfReference(name = 'for_' + self.name)
+        
         toolstep0 = Toolstep.ToolstepModel()
         base_sif = Toolstep.ToolstepInFrame(name = 'base_toolstep', toolstep = toolstep0, frame = None )
         self.toolstep_dic['base_toolstep'] = base_sif
@@ -46,7 +48,7 @@ class Tool:
 # --------------------------------------------------------------------------------------------------        
     def addTooth(self, tooth, frame, sif_name ='base_toolstep' ):
         self.toolstep_dic[sif_name].toolstep.addTooth(tooth, frame)#,self.toolstep_dic[sif_name].toolstep.__tooth_id__)
-        # self.tool_for.add(frame)
+        # self.foref.add(frame)
         # calculer les points de la dent dans le repere canonique de la fraise
         # insert.elementary_tools_list est la liste des parties de la plaquette ajoutée
         # print tooth.elementary_tools_list
@@ -55,15 +57,15 @@ class Tool:
             dicPartie = {}
             dicPartie["tooth_id"] = self.toolstep_dic[sif_name].toolstep
             dicPartie["toolstep_id"] = sif_name
-            dicPartie["pnt_cut_edge"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
-            dicPartie["pnt_in_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
+            dicPartie["pnt_cut_edge"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
+            dicPartie["pnt_in_cut_face"] = self.foref.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
             dicPartie["h_cut_max"] = partie["h_cut_max"]
-            dicPartie["node_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node_cut_face"])
+            dicPartie["node_cut_face"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["node_cut_face"])
             dicPartie["tri_cut_face"] = partie["tri_cut_face"]
             # On ajoute le volume en dépouille, et les points de la face en dépouille :
-            dicPartie["node_clearance_bnd"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node_clearance_bnd"])
+            dicPartie["node_clearance_bnd"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["node_clearance_bnd"])
             dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
-            dicPartie["pnt_clearance_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
+            dicPartie["pnt_clearance_face"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
             self.elementary_tools_list.append(dicPartie)
         idx_in_etl_end = len(self.elementary_tools_list)-1
         self.range_in_etl_dic[sif_name].append([idx_in_etl_begin, idx_in_etl_end])
@@ -81,20 +83,37 @@ class Tool:
                 dicPartie = {}
                 dicPartie["tooth_id"] = partie['tooth_id']
                 dicPartie['toolstep_id'] = name
-                dicPartie["pnt_cut_edge"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
-                dicPartie["pnt_in_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
+                dicPartie["pnt_cut_edge"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
+                dicPartie["pnt_in_cut_face"] = self.foref.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
                 dicPartie["h_cut_max"] = partie["h_cut_max"]
-                dicPartie["node_cut_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node_cut_face"])
+                dicPartie["node_cut_face"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["node_cut_face"])
                 dicPartie["tri_cut_face"] = partie["tri_cut_face"]
                 # On ajoute le volume en dépouille, et les points de la face en dépouille :
-                dicPartie["node_clearance_bnd"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["node_clearance_bnd"])
+                dicPartie["node_clearance_bnd"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["node_clearance_bnd"])
                 dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
-                dicPartie["pnt_clearance_face"] = self.tool_for.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
+                dicPartie["pnt_clearance_face"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
             
                 self.elementary_tools_list.append(dicPartie)
 # --------------------------------------------------------------------------------------------------
     def draw(self):
         bloc_util.view_bloc(self.elementary_tools_list)
+# --------------------------------------------------------------------------------------------------
+    def write(self, file_name = None):
+        if file_name == None :
+            file_name = self.name + '.py'
+        file_tool = open(file_name, 'w')
+        file_tool.write("[")
+        for etl in self.elementary_tools_list:
+            file_tool.write ('{\n')
+            for k in etl.keys():
+                if isinstance(etl[k], str):
+                    file_tool.write("'"+k+"' : "+"'"+str(etl[k])+"'")
+                else:
+                    file_tool.write("'"+k+"' : "+str(etl[k]))
+                file_tool.write(',\n')
+            file_tool.write("},\n")
+        file_tool.write("]")
+        file_tool.close()
 # --------------------------------------------------------------------------------------------------                
 # ==================================================================================================
 class Mill(Tool):
