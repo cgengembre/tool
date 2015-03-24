@@ -730,7 +730,7 @@ class ToothInsert(ToothModel) :
         #    print ddd
 
 class ToothForHelicoidalMillType2(ToothInsert):
-    def __init__(self, dic):
+    def __init__(self, **dic):
         """
          example for dic : 
          {
@@ -752,7 +752,7 @@ class ToothForHelicoidalMillType2(ToothInsert):
          'nbCouchesLiaison'    : 1, 'nbSweep' : 1
          }
         """
-        ToothModel.__init__(self,dic)
+        ToothModel.__init__(self,**dic)
         #1 : preparer les donnees pour pouvoir appliquer la methode classe insert
         # Construction des listes
         self.dic['seg_length_list'] = [dic['longProlongApres'],dic['longProlongAvant']]
@@ -774,12 +774,21 @@ class ToothForHelicoidalMillType2(ToothInsert):
         self.__generePartiesEtMaillagePlaquette__()
         #3 : On retourne la face de coupe et on remonte la dent sur l'axe x :
         z_diff = self.dic['seg_length_list'][1]/2. +self.dic['radius_list'][0]
-        for i in range (self.nb_elementary_tools):
-            for node in self.elementary_tools_list[i]['node_cut_face']:
-                node [2] = -node[2] + z_diff
-            self.elementary_tools_list[i]['pnt_cut_edge'][0][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][0][2] + z_diff
-            self.elementary_tools_list[i]['pnt_cut_edge'][1][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][1][2] + z_diff
-            self.elementary_tools_list[i]['pnt_in_cut_face'][2] = - self.elementary_tools_list[i]['pnt_in_cut_face'][2] + z_diff
+        
+        for elem_tool in self.elementary_tools_list:
+            for key in ['node_cut_face','pnt_cut_edge','node_clearance_bnd','pnt_clearance_face']:
+                 
+                for node in elem_tool[key]:
+                    node[2]= -node[2]+z_diff
+                    node[1]= -node[1]
+            elem_tool['pnt_in_cut_face'][2] = -elem_tool['pnt_in_cut_face'][2]+z_diff
+        
+        #for i in range (self.nb_elementary_tools):
+        #    for node in self.elementary_tools_list[i]['node_cut_face']:
+        #        node [2] = -node[2] + z_diff
+        #    self.elementary_tools_list[i]['pnt_cut_edge'][0][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][0][2] + z_diff
+        #    self.elementary_tools_list[i]['pnt_cut_edge'][1][2] = - self.elementary_tools_list[i]['pnt_cut_edge'][1][2] + z_diff
+        #    self.elementary_tools_list[i]['pnt_in_cut_face'][2] = - self.elementary_tools_list[i]['pnt_in_cut_face'][2] + z_diff
             
         
         #4 : Application de la methode l'hélicoidalisation 
@@ -1054,9 +1063,9 @@ class ToothForHelicoidalMillType1(ToothInsert):
             for key in ['node_cut_face','pnt_cut_edge','node_clearance_bnd','pnt_clearance_face']:
                  
                 for node in elem_tool[key]:
-                    node[2]+=dic['height']/2.
-                
-            elem_tool['pnt_in_cut_face'][2]+=.5*dic['height']
+                    node[2]= - node[2]+dic['height']/2.
+                    node[1]= -node[1]
+            elem_tool['pnt_in_cut_face'][2] = -elem_tool['pnt_in_cut_face'][2]+.5*dic['height']
             
         # 4: application de la torsion transformation. 
         self.torsion_transformation()

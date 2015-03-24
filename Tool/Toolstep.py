@@ -28,7 +28,7 @@ class ToolstepModel:
         #self.elementary_tools_obj = ElemToolList()
         #self.elementary_tools_list = self.elementary_tools_obj.elementary_tools_list
         self.elementary_tools_list = []
-        self.range_in_etl_list = []
+        self.idx_benen_in_etl_list = []
         self.__tooth_id__ = 0
         ToolstepModel.__instance_counter__ += 1 
         
@@ -57,9 +57,10 @@ class ToolstepModel:
             dicPartie["pnt_clearance_face"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
             self.elementary_tools_list.append(dicPartie)
         idx_in_etl_end = len(self.elementary_tools_list)-1
-        self.range_in_etl_list.append([idx_in_elt_begin, idx_in_etl_end])
+        self.idx_benen_in_etl_list.append([idx_in_elt_begin, idx_in_etl_end])
         # CGen 19mars15 self.repeated_teeth_list.append(0)
         self.__tooth_id__+=1
+        return self.__tooth_id__ - 1
 # --------------------------------------------------------------------------------------------------
     def draw(self):
         bloc_util.view_bloc(self.elementary_tools_list)
