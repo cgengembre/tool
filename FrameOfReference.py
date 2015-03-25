@@ -30,8 +30,11 @@ def npRotAroundOzAxisMatrix(angle):
     return np.array([cos_angle, - sin_angle, 0., sin_angle, cos_angle,0.,0., 0, 1. ]).reshape(3,3)
 # --------------------------------------------------------------------------------------------------
 
-INSERT_FRAME_FOR_A_TURNERY_MACHIN = 1
-INSERT_FRAME_AROUND_A_MILL = 2
+
+FRAME_CARTESIAN_V1V12 = 0
+FRAME_CARTESIAN_EULER = 1
+FRAME_CARTESIAN_NRA   = 2
+FRAME_CYLINDRIC_NRA   = 3 # FRAME_CYLINDRIC_NRA
 # ==================================================================================================
 class Frame:
 # --------------------------------------------------------------------------------------------------
@@ -43,24 +46,24 @@ class Frame:
     	   "fatherFrameName" : "nom du repere pere"
     	   "frameType"       : <Id type frame>
         --> clés suivantes en fonction de dic["FrameType"]
-    	A/ "frameType"   :
+    	A/ "frameType"   : FRAME_CARTESIAN_V1V12
     	   ---------------
     	   "Origin"      : [xO, yO, zO] # dans le fatherFrame
     	   "Vector1"     : [x1, y1, z1] # dans le fatherFrame
     	   "Vector12"    : [x12,y12,z12]# dans le fatherFrame
     	
-    	B/ "frameType"   :
+    	B/ "frameType"   : FRAME_CARTESIAN_EULER
     	   ---------------
     	   "origin"      : [xO, yO, zO] # dans le fatherFrame
     	   "eulerAngles" : [Psi, Teta, Phi]
         
-        C/ "frameType"   : INSERT_FRAME_FOR_A_TURNERY_MACHIN
+        C/ "frameType"   : FRAME_CARTESIAN_NRA # INSERT_FRAME_FOR_A_TURNERY_MACHIN
            ---------------
     	   "origin"      : [xO, yO, zO] # dans le fatherFrame
     	   "rotAngles"   : [rotYfather, rotXfather, rotZfather]
     	   example : position plaquette de tour 
     	
-    	D/ "frameType"          : INSERT_FRAME_AROUND_A_MILL
+    	D/ "frameType"          : FRAME_CYLINDRIC_NRA
     	   -------------
     	   "axialAngleDegrees"  : alpha
     	   "radius"             : r
@@ -89,7 +92,7 @@ class Frame:
         Let P be a point expressed in self,
         [ self.npMatSelfToFather ].P + self.npVectSelfToFather expresses P in fatherFrame    
         """
-        if dic["frameType"] == INSERT_FRAME_AROUND_A_MILL:
+        if dic["frameType"] == FRAME_CYLINDRIC_NRA:
             alpha    = m.radians(dic["axialAngleDegrees"])
             radius   = dic["radius"]
             axialPos = dic["axialPosition"]
@@ -107,6 +110,8 @@ class Frame:
             npMatSelfToFather = np.dot(npMrotAlpha, npMatSelfToFather)
             self.npMatSelfToFather = npMatSelfToFather
             self.npVectSelfToFather = np.array([radius*m.cos(alpha), radius*m.sin(alpha), axialPos])
+        else :
+            raise FrameError("frameType not yet implemented")
 # --------------------------------------------------------------------------------------------------
     def givePointsInFatherFrame(self, points):
 

@@ -119,7 +119,7 @@ dicInsert1Arc = {   'name' : 'ma plaquette',
 dicFramePlaquette = {
             "name"            : "repere plaquette ",
     	   "fatherFrameName" : "Canonical",
-    	   "frameType"       : FoR.INSERT_FRAME_AROUND_A_MILL,
+    	   "frameType"       : FoR.FRAME_CYLINDRIC_NRA,
     	   "axialAngleDegrees"  : 90.,
     	   "radius"             : 20.0E-3,
     	   "axialPosition"      : 3.0E-3,
@@ -130,7 +130,7 @@ dicFramePlaquette = {
 dicFrameEtage = {
             "name"            : "repere etage1",
            "fatherFrameName" : "Canonical",
-           "frameType"       : FoR.INSERT_FRAME_AROUND_A_MILL,
+           "frameType"       : FoR.FRAME_CYLINDRIC_NRA,
            "axialAngleDegrees"  : 0.,
            "radius"             : 0.,
            "axialPosition"      : 7.0E-3,

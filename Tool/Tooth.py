@@ -752,9 +752,29 @@ class ToothForHelicoidalMillType2(ToothInsert):
          'nbCouchesLiaison'    : 1, 'nbSweep' : 1
          }
         """
-        ToothModel.__init__(self,**dic)
+        #ToothModel.__init__(self,**dic)
+        # 0 : On construit le dictionnaire passé à la classe mere :
+        params = {   
+             'name' : dic ['name'],
+             
+             'cut_face_thickness' : dic['cut_face_thickness'],
+             'cut_face_nb_layers' : dic['cut_face_nb_layers'],
+             'clearance_face_thickness' : dic['clearance_face_thickness'],
+             'clearance_face_nb_layers' : dic['clearance_face_nb_layers'],
+             'clearance_face_angle_degrees' :dic['clearance_face_angle_degrees'],
+
+             'cutting_edge_geom': [{'seg_length' : dic['longProlongApres'],'nb_elementary_tools': dic['nbPartiesFlancApres'], 'nb_slices': dic['seg_nb_slice_after']}, # même nbSlices pour chaque el. tool
+                                   {'angle_degrees': 180-dic['anglePointeOutil'], 'radius':dic['rayonBec'], 'nb_elementary_tools': dic['nbPartiesDisque'], 'nb_slices': dic['arc_nb_slices']},
+                                   {'seg_length' : dic['longProlongAvant'],'nb_elementary_tools': dic['nbPartiesFlancAvant'], 'nb_slices': dic['seg_nb_slice_before']},
+                                   
+                                  ],
+             'insert_location': {'mediatrice_seg_idx': 1, 'dist_from_origin':dic['dist_from_origin'] }
+         }
+        # 0.1 : Appel du constructeur de la classe mère sur les params :
+        ToothInsert.__init__(self,**params)
         #1 : preparer les donnees pour pouvoir appliquer la methode classe insert
         # Construction des listes
+        """
         self.dic['seg_length_list'] = [dic['longProlongApres'],dic['longProlongAvant']]
         self.dic['seg_nb_elementary_tools_list'] = [dic['nbPartiesFlancApres'],dic['nbPartiesFlancAvant']]
         self.dic['seg_nb_slices_list'] = [dic['seg_nb_slice_after'],dic['seg_nb_slice_before']]
@@ -772,6 +792,7 @@ class ToothForHelicoidalMillType2(ToothInsert):
         ### rem. : self.nb_elementary_tools sera à priori calculé dans self.__generePartiesEtMaillagePlaquette__()
         #2 : On génère le maillage :
         self.__generePartiesEtMaillagePlaquette__()
+        """
         #3 : On retourne la face de coupe et on remonte la dent sur l'axe x :
         z_diff = self.dic['seg_length_list'][1]/2. +self.dic['radius_list'][0]
         

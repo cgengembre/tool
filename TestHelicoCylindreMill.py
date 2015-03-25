@@ -24,7 +24,7 @@ fraise = Tool.Tool(name = 'fraise elicoidale de type 1')
 for angle in [0., 60., 120., 180., 240., 300.  ]:
     frame = fraise.toolstep_dic['base_toolstep'].toolstep.foref.create_frame(name =  "dent"+str(angle),
            fatherFrameName = "Canonical",
-           frameType       = FoR.INSERT_FRAME_AROUND_A_MILL,
+           frameType       = FoR.FRAME_CYLINDRIC_NRA,
            axialAngleDegrees  = 30.,
            radius             = 0.,
            axialPosition      = 0.,

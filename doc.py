@@ -23,7 +23,7 @@ dicInsert = {
 dicInsertFrame = {
                  "name"                  : "repere plaquette ",
                  "fatherFrameName"       : "Canonical",
-                 "frameType"             : Fom.INSERT_FRAME_AROUND_A_MILL,
+                 "frameType"             : Fom.FRAME_CYLINDRIC_NRA,
                  "axialAngleDegrees"     : 90.,
                  "radius"                : 20.0E-3,
                  "axialPosition"         : 5.0E-3,
