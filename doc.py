@@ -32,12 +32,6 @@ dicInsertFrame = {
                  "rotDegreAutourAxiale"  : 0.
                  }
     	   
-dicFraisePlaquettes = {
-                      "name"        : "fraisePlaquette",
-                      "insert"      : dicInsert, #dicPlaquetteEquerre,
-                      "insertFrame" : dicInsertFrame,
-                      "nbDents"     : 8
-                      }
 
 ## -------------------------------------------------------------------------------------------------
 ## API for Mill Object.
@@ -54,38 +48,77 @@ MyMill.Teeth_dic = {'storey1': { 'tooth1': range(start,stop), 'teethSet' : [rang
                     'storey2': ...
                    }
                    
-MyMill.addInsert(dicoInsert) # return a tooth_id.
-MyMill.addTeethByRotation (nbTeeth = 2, storey_id, tooth_id )
 
 
 
 ## -------------------------------------------------------------------------------------------------
-## Public result when you create a mill :
+## Public result when you create a tool :
 ## -------------------------------------------------------------------------------------------------
 ## Elementary tool list : a list of dictionaries :
 ## f = float, i = integer
-MyMill.ET_list =[
+MyMill.elementary_tools_list =[
                 {
                  'pnt_cut_edge'   : [ [f, f, f], [f, f, f] ],
                  'pnt_in_cut_face': [f, f, f],
-                 'node'           : [ [f, f, f], [f, f, f],...],
-                 'tri'            : [ [i,i,i], [i,i,i], ...],                   
+                 'node_cut_face'  : [ [f, f, f], [f, f, f],...],
+                 'tri_cut_face'   : [ [i,i,i], [i,i,i], ...],                   
+                 
+                 'pnt_clearance_face' : [ [f, f, f], [f, f, f], [f, f, f] ],
+                 'node_clearance_bnd' :[ [f, f, f], [f, f, f], ... ],
+                 'tri_clearance_bnd'  : [ [i,i,i], [i,i,i], ...],
+                 
                  'h_cut_max'      : f
                  'cut_law_names'  : ['cut law 1 name', 'cut law 2 name', 'cut law 3 name'],
                  'tooth_id'       : i,
-                 'storey_id'      : i
+                 'toolstep_id'      : 'bla'
+                 
                 },
                 { idem },
                 { idem },
                  ...
                 ]
+MyMill.toolstep_dic = {'base_toolstep' : a_toolstep_in_frame, ... }
+                a_toolstep_in_frame.name =  'base_toolstep'
+                a_toolstep_in_frame.toolstep =  <ToolstepModel>
+                a_toolstep_in_frame.toolstep =  <Frame>
+MyMill.benen_in_etl_dic = {'base_toolstep' : [idx_in_etl_begin, idx_in_etl_end], ...}
+
+MyMill.foref = <FrameOfReference>
+
+
+def addToolstep(self, name, toolstep, frame )
+def addTooth(self, tooth, frame, tsif_name ='base_toolstep' )
+def draw(self)
+def write(self, file_name = None)
+# -------------------------------------------------------------------------------------------------
+# ToolstepModel
+# -------------------------------------------------------------------------------------------------
+MyToolstepModel.foref = FoR.FrameOfReference()
+MyToolstepModel.elementary_tools_list = [{elmt_dic}, {elmt_dic}, ...]
+MyToolstepModel.idx_benen_in_etl_list = [[idx_in_etl_begin,idx_in_etl_end], ...]
+MyToolstepModel.name
+
+def addTooth(self, tooth, frame):
+def draw(self):
+# -------------------------------------------------------------------------------------------------
+# ToolstepInFrame
+# -------------------------------------------------------------------------------------------------
+MyToolstepInFrame.toolstep
+MyToolstepInFrame.frame
+MyToolstepInFrame.name
+
+# ==================================================================================================
+class ToothModel:
+# ==================================================================================================
+def torsion_transformation(self)
+def give_mesh_rect_patch(self, tri, dim1, dim2, offset=0)
+def give_mesh_rect_peak_patch(self, tri, dim1, dim2, offset=0)
 
 
 
 
 
 
-fraise_avec_plaquettes  = Tools.WithInsertsMill(dicFraisePlaquettes)
-fraise_avec_plaquettes.showyou()
+
 
 

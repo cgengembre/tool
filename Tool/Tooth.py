@@ -23,7 +23,7 @@ class ToothInFrame:
 class ToothModel:
 # ==================================================================================================
     """
-    Classe abstraite mère de toutes les dents. Attentions aux dents de la mer !
+    Abstract class -  Mother class of every tooth.
     """
 # --------------------------------------------------------------------------------------------------
     def __init__(self,  **dic):
@@ -68,10 +68,10 @@ class ToothModel:
         
             *--*--*-- ...--*\
             *--*--*-- ...--* \
-            ...               dim2 
+            ...               dim2+1 
             *--*--*-- ...--* /
             *--*--*-- ...--*/
-            \_____dim1_____/
+            \_____dim1+1___/
         """
         # print "give_mesh --> Rectangle dim1 : %d, dim2 : %d"%(dim1, dim2) 
         for j in range (dim2):    
