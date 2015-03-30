@@ -110,13 +110,13 @@ class Tool:
                 self.elementary_tools_list.append(dicPartie)
 # --------------------------------------------------------------------------------------------------
     def draw(self):
-        bloc_util.view_bloc(self.elementary_tools_list)
+        bloc_util.view_bloc(self.elementary_tools_list, 'tool.lf')
 # --------------------------------------------------------------------------------------------------
     def write(self, file_name = None):
         if file_name == None :
             file_name = self.name + '.py'
         file_tool = open(file_name, 'w')
-        file_tool.write("[")
+        file_tool.write("tool_def = [")
         for etl in self.elementary_tools_list:
             file_tool.write ('{\n')
             for k in etl.keys():

@@ -7,9 +7,9 @@ sys.path.append('/Users/gengembre/nessy2/mesh/util_mesh')
 import v3d
 import Mesh_IO
 
-def view_bloc(Bloc):
+def view_bloc(Bloc,v3d_lf_name='bloc.lf'):
     
-    v3d_lf_name='bloc.lf'
+    
     lf_file=open(v3d_lf_name,'w')
 
     I=0
