@@ -33,9 +33,12 @@ class ToolstepModel:
         ToolstepModel.__instance_counter__ += 1 
         
 # --------------------------------------------------------------------------------------------------
-    def addTooth(self, tooth, frame):
+    def addTooth(self, tooth, frame, set_id = None):
         """
-        In this method, frame must be a frame created in self.foref 
+        In this method, frame must be a frame created in self.foref.
+        If set_id == None : tooth is alone.
+        Else : tooth belongs to a set of teeth identified by set_id. The user is guarant of the coherence
+        of the sets of teeth in the toolstep.   
         """
         tif = Tooth.ToothInFrame(tooth = tooth, frame = frame, tooth_id= self.__tooth_id__)
         self.tif_list.append(tif)
@@ -45,6 +48,7 @@ class ToolstepModel:
         for partie in tooth.elementary_tools_list:
             dicPartie = {}
             dicPartie["tooth_id"] = self.__tooth_id__
+            dicPartie["set_id"] = set_id
             dicPartie["toolstep_id"] = self.name
             dicPartie["pnt_cut_edge"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])# frame.givePointsInFatherFrame( partie["pnt_cut_edge"])
             dicPartie["pnt_in_cut_face"] = self.foref.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
