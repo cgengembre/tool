@@ -12,10 +12,11 @@ dicInsert1 = {   'name' : 'ma plaquette',
              'clearance_face_thickness' : 2.E-3,
              'clearance_face_nb_layers' : 1,
              'clearance_face_angle_degrees' : 20.,
+             'cut_law_names' : ['loi 1', 'loi 2', 'loi 3']
          }
 
 dent = Tooth.ToothInsert(**dicInsert1)
-dent.draw()
+#dent.draw()
 
 outil = Tool.Tool(name = 'outil elicoidale de type 1')
 

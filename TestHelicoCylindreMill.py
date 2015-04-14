@@ -7,7 +7,7 @@ import FrameOfReference as FoR
 dent = Tooth.ToothForHelicoidalMillType1(name = 'toothMonoblocTyp1',
                                          nb_elementary_tools      = 3,
                                          nb_slices                = 4,
-        
+                                         cut_law_names            = ['loi 1', 'Machin','Loi truc'],
                                          cut_face_thickness       = 2.E-3,
                                          cut_face_nb_layers       = 2,
                                          clearance_face_thickness = 2.E-3,
