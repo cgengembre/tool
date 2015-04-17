@@ -118,32 +118,34 @@ class Tool:
         # dans la liste des parties
 # --------------------------------------------------------------------------------------------------
     def draw(self, bloc_type = CUTFACE_BLOC):
-        if bloc_type == CUTFACE_BLOC:
-            bloc_util.view_bloc(self.elem_tool_cut_list, 'tool.lf')
-        elif bloc_type == CLEARANCE_BLOC :
-            bloc_util.view_bloc(self.elem_tool_clear_list, 'tool.lf')
+        self.compute_out_blocs() 
+        bloc_util.view_bloc(self.elem_tool_out_list, 'tool.lf')
+        
 # --------------------------------------------------------------------------------------------------
     def compute_out_blocs (self):
-        self.elem_tool_cut_list = []
-        self.elem_tool_clearance_list = []
+        self.elem_tool_out_list = []
+        elemtool_id = 0
         for elem_tool in self.elementary_tools_list:
             elem_tool_cut = {}
             elem_tool_clear = {}
             ## cutting face :
 
-            elem_tool_cut['type']            = 'cute'
+            elem_tool_cut['type']            = 'cut'
             elem_tool_cut['node']            = elem_tool['node_cut_face'] # noeud
             elem_tool_cut['tri']             = elem_tool['tri_cut_face'] # tri
             elem_tool_cut['pnt']             = elem_tool['pnt_cut_edge'] + [elem_tool['pnt_in_cut_face'],]  # : 3 point , les deux point de l'arrete et le point de la face. 
             elem_tool_cut['h_cut_max']       = elem_tool['h_cut_max']
-            elem_tool_cut['law_names']       = elem_tool['law_names']# : liste nom lois de coupe, 1 par bloc dexel
+            elem_tool_clear['generic_cut_law']      = elem_tool['generic_cut_law']# : liste nom lois de coupe, 1 par bloc dexel
             elem_tool_cut['tooth_id']        = elem_tool['tooth_id']
             elem_tool_cut['set_id']          = elem_tool['set_id']
             elem_tool_cut['step_id']         = elem_tool['toolstep_id']
+            elem_tool_cut['elemtool_id']     = elemtool_id
+
+
             #elem_tool_cut['rep_in_spindle']  = elem_tool['']# optionel
             #elem_tool_cut['id_node_dyn']     = elem_tool['']# optionel
             #elem_tool_cut['nb_rep']          = elem_tool['']# optionel
-            self.elem_tool_cut_list.append(elem_tool_cut)
+            self.elem_tool_out_list.append(elem_tool_cut)
             
             ## clear face
             
@@ -151,31 +153,33 @@ class Tool:
             elem_tool_clear['node']           = elem_tool['node_clearance_bnd']# noeud
             elem_tool_clear['tri']            = elem_tool['tri_clearance_bnd']# tri
             elem_tool_clear['pnt']            = [elem_tool['pnt_clearance_face'][i] for i in  [2,1,0]] #: 3 point , p1 point dans la face de talonnage, p1p2 dir U, p1p3 dir v, avec U^V normal sortante
-            elem_tool_clear['law_names']      = elem_tool['law_names']# : liste nom lois de talonnage, 1 par bloc dexel
+            elem_tool_clear['generic_clear_law']      = elem_tool['generic_clear_law']# : liste nom lois de talonnage, 1 par bloc dexel
             elem_tool_clear['tooth_id']       = elem_tool['tooth_id']
             elem_tool_clear['set_id']         = elem_tool['set_id']
             elem_tool_clear['step_id']        = elem_tool['toolstep_id']
+            elem_tool_cut['elemtool_id']      = elemtool_id
             #elem_tool_clear['rep_in_spindle'] = elem_tool[]# optionel
             #elem_tool_clear['id_node_dyn']    = elem_tool[]# optionel
             #elem_tool_clear['nb_rep']         = elem_tool[]# optionel
-            self.elem_tool_clearance_list.append(elem_tool_clear)
+            self.elem_tool_out_list.append(elem_tool_clear)
+            elemtool_id += 1
             
 # --------------------------------------------------------------------------------------------------
     def write(self, bloc_type,  file_name = None):
         # Construction des deux listes à partir de self.elementary_tools_list
         self.compute_out_blocs()
-        bloc_list = []
-        if bloc_type == CUTFACE_BLOC:
-            bloc_list = self.elem_tool_cut_list
-        elif bloc_type == CLEARANCE_BLOC:
-            bloc_list = self.elem_tool_clearance_list
+        #bloc_list = []
+        #if bloc_type == CUTFACE_BLOC:
+        #    bloc_list = self.elem_tool_cut_list
+        #elif bloc_type == CLEARANCE_BLOC:
+        #    bloc_list = self.elem_tool_clearance_list
             
         
         if file_name == None :
             file_name = self.name + '.py'
         file_tool = open(file_name, 'w')
         file_tool.write("tool_def = [")
-        for etl in bloc_list:
+        for etl in self.elem_tool_out_list:
             file_tool.write ('{\n')
             for k in etl.keys():
                 if isinstance(etl[k], str):

@@ -33,7 +33,10 @@ class ToolstepModel:
         self.elementary_tools_list = []
         self.idx_benen_in_etl_list = []
         self.__tooth_id__ = 0
+        self.__set_counter__ = 0
+        self.__set_id_dic__ = {}
         ToolstepModel.__instance_counter__ += 1 
+        
         
 # --------------------------------------------------------------------------------------------------
     def addTooth(self, tooth, frame, set_id = None):
@@ -48,10 +51,24 @@ class ToolstepModel:
         self.foref.computeRotMatAndTransVect(frame.name)
         idx_in_elt_begin = len(self.elementary_tools_list)
         
+        set_idx = 0 
+        if set_id :
+            if self.__set_id_dic__.has_key(set_id) :
+                set_idx = self.__set_id_dic__[set_id]
+            else :
+                self.__set_id_dic__[set_id] = self.__set_counter__
+                set_idx = self.__set_counter__
+                self.__set_counter__+=1
+        else :
+            set_idx = self.__set_counter__
+            self.__set_counter__+=1
+            
+            
+            
         for partie in tooth.elementary_tools_list:
             dicPartie = {}
             dicPartie["tooth_id"] = self.__tooth_id__
-            dicPartie["set_id"] = set_id
+            dicPartie["set_id"] = set_idx
             dicPartie["toolstep_id"] = self.name
             dicPartie["pnt_cut_edge"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])# frame.givePointsInFatherFrame( partie["pnt_cut_edge"])
             dicPartie["pnt_in_cut_face"] = self.foref.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
@@ -71,26 +88,28 @@ class ToolstepModel:
         return self.__tooth_id__ - 1
 # --------------------------------------------------------------------------------------------------
     def compute_out_blocs (self):
-        self.elem_tool_cut_list = []
-        self.elem_tool_clearance_list = []
+        self.elem_tool_out_list = []
+        elem_tool_id = 0
         for elem_tool in self.elementary_tools_list:
             elem_tool_cut = {}
             elem_tool_clear = {}
             ## cutting face :
 
-            elem_tool_cut['type']            = 'cute'
+            elem_tool_cut['type']            = 'cut'
             elem_tool_cut['node']            = elem_tool['node_cut_face'] # noeud
             elem_tool_cut['tri']             = elem_tool['tri_cut_face'] # tri
             elem_tool_cut['pnt']             = elem_tool['pnt_cut_edge'] + [elem_tool['pnt_in_cut_face'],]  # : 3 point , les deux point de l'arrete et le point de la face. 
             elem_tool_cut['h_cut_max']       = elem_tool['h_cut_max']
-            elem_tool_cut['law_names']       = elem_tool['law_names']# : liste nom lois de coupe, 1 par bloc dexel
+            elem_tool_cut['generic_cut_law']       = elem_tool['generic_cut_law']# : liste nom lois de coupe, 1 par bloc dexel
             elem_tool_cut['tooth_id']        = elem_tool['tooth_id']
             elem_tool_cut['set_id']          = elem_tool['set_id']
+            elem_tool_cut['elemtool_id']     =  elem_tool_id
+
             #elem_tool_cut['step_id']         = elem_tool['toolstep_id']
             #elem_tool_cut['rep_in_spindle']  = elem_tool['']# optionel
             #elem_tool_cut['id_node_dyn']     = elem_tool['']# optionel
             #elem_tool_cut['nb_rep']          = elem_tool['']# optionel
-            self.elem_tool_cut_list.append(elem_tool_cut)
+            self.elem_tool_out_list.append(elem_tool_cut)
             
             ## clear face
             
@@ -98,23 +117,23 @@ class ToolstepModel:
             elem_tool_clear['node']           = elem_tool['node_clearance_bnd']# noeud
             elem_tool_clear['tri']            = elem_tool['tri_clearance_bnd']# tri
             elem_tool_clear['pnt']            = [elem_tool['pnt_clearance_face'][i] for i in  [2,1,0]] #: 3 point , p1 point dans la face de talonnage, p1p2 dir U, p1p3 dir v, avec U^V normal sortante
-            elem_tool_clear['law_names']      = elem_tool['law_names']# : liste nom lois de talonnage, 1 par bloc dexel
+            elem_tool_clear['generic_clear_law']      = elem_tool['generic_clear_law']# : liste nom lois de talonnage, 1 par bloc dexel
             elem_tool_clear['tooth_id']       = elem_tool['tooth_id']
             elem_tool_clear['set_id']         = elem_tool['set_id']
+            elem_tool_cut['elemtool_id']      =  elem_tool_id
+
             #elem_tool_clear['step_id']        = elem_tool['toolstep_id']
             #elem_tool_clear['rep_in_spindle'] = elem_tool[]# optionel
             #elem_tool_clear['id_node_dyn']    = elem_tool[]# optionel
             #elem_tool_clear['nb_rep']         = elem_tool[]# optionel
-            self.elem_tool_clearance_list.append(elem_tool_clear)
+            self.elem_tool_out_list.append(elem_tool_clear)
+            elem_tool_id+=1
  
 # --------------------------------------------------------------------------------------------------
-    def draw(self, bloc_type = CUTFACE_BLOC):
+    def draw(self):
         self.compute_out_blocs()
             
-        if bloc_type == CUTFACE_BLOC:
-            bloc_util.view_bloc(self.elem_tool_cut_list, 'tool.lf')
-        elif bloc_type == CLEARANCE_BLOC :
-            bloc_util.view_bloc(self.elem_tool_clear_list, 'tool.lf')
+        bloc_util.view_bloc(self.elem_tool_out_list, 'tool.lf')
 
         
 
