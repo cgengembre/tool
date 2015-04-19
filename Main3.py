@@ -15,7 +15,7 @@ dicInsert1 = {   'name' : 'ma plaquette',
              'cut_face_nb_layers' : 2,
              'clearance_face_thickness' : 2.E-3,
              'clearance_face_nb_layers' : 2,
-             'clearance_face_angle_degrees' : 80.,
+             'clearance_face_angle_degrees' : 30.,
 
              'tooth_id': 0,
              'toolstep_id': 0

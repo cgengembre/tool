@@ -20,9 +20,10 @@ def view_bloc(Bloc,v3d_lf_name='bloc.lf'):
         pnt=bloc['pnt']
         
         if bloc['type'] == 'clear' :
+            
             zz = 0
-            for node in pnt:
-                file_name=Mesh_IO.OUT_PNT_V3D(node,(0,1,0),10,'pnt_clearance_face_'+str(zz)+'_'+str(I))
+            for p in pnt:
+                file_name=Mesh_IO.OUT_PNT_V3D(p,(0,1,0),10,'pnt_clearance_face_'+str(zz)+'_'+str(I))
                 zz+=1
                 lf_file.write(file_name+'\n')
             color=(random.random(),random.random(),random.random(),0.5) #0.5)
@@ -32,7 +33,7 @@ def view_bloc(Bloc,v3d_lf_name='bloc.lf'):
             lf_file.write(file_name+'\n')
        
         elif bloc['type'] == 'cut' :
-        
+            pass
             file_name=Mesh_IO.OUT_SEG_V3D([[item for sl in pnt[0:1]  for item in sl],[]],(0,0,1),4,1,'pnt_'+str(I),1)
             lf_file.write(file_name+'\n')
             

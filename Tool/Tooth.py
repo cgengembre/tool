@@ -9,6 +9,7 @@
 #
 import math
 import bloc_util
+import bloc_util3
 import copy
 CUTFACE_BLOC = 0
 CLEARANCE_BLOC = 1
@@ -59,11 +60,11 @@ class ToothModel:
             ## cutting face :
 
             elem_tool_cut['type']            = 'cut'
-            elem_tool_cut['node']            = elem_tool['node_cut_face'] # noeud
-            elem_tool_cut['tri']             = elem_tool['tri_cut_face'] # tri
-            elem_tool_cut['pnt']             = elem_tool['pnt_cut_edge'] + [elem_tool['pnt_in_cut_face'],]  # : 3 point , les deux point de l'arrete et le point de la face. 
+            elem_tool_cut['node']            = copy.deepcopy(elem_tool['node_cut_face']) # noeud
+            elem_tool_cut['tri']             = copy.deepcopy(elem_tool['tri_cut_face']) # tri
+            elem_tool_cut['pnt']             = copy.deepcopy(elem_tool['pnt_cut_edge']) + [elem_tool['pnt_in_cut_face'],]  # : 3 point , les deux point de l'arrete et le point de la face. 
             elem_tool_cut['h_cut_max']       = elem_tool['h_cut_max']
-            elem_tool_clear['generic_cut_law']      = self.generic_cut_law# : liste nom lois de coupe, 1 par bloc dexel
+            elem_tool_cut['generic_cut_law']      = self.generic_cut_law# : liste nom lois de coupe, 1 par bloc dexel
             elem_tool_cut['elemtool_id']    = elemtool_id
             #elem_tool_cut['tooth_id']        = elem_tool['tooth_id']
             #elem_tool_cut['set_id']          = elem_tool['set_id']
@@ -76,8 +77,8 @@ class ToothModel:
             ## clear face
             
             elem_tool_clear['type']           = 'clear'
-            elem_tool_clear['node']           = elem_tool['node_clearance_bnd']# noeud
-            elem_tool_clear['tri']            = elem_tool['tri_clearance_bnd']# tri
+            elem_tool_clear['node']           = copy.deepcopy(elem_tool['node_clearance_bnd'])# noeud
+            elem_tool_clear['tri']            = copy.deepcopy(elem_tool['tri_clearance_bnd'])# tri
             elem_tool_clear['pnt']            = [elem_tool['pnt_clearance_face'][i] for i in  [2,1,0]] #: 3 point , p1 point dans la face de talonnage, p1p2 dir U, p1p3 dir v, avec U^V normal sortante
             elem_tool_clear['generic_clear_law']      = self.generic_clear_law# : liste nom lois de talonnage, 1 par bloc dexel
             elem_tool_clear['elemtool_id']    = elemtool_id
@@ -183,8 +184,12 @@ class ToothModel:
 # --------------------------------------------------------------------------------------------------
     def draw(self):
         self.compute_out_blocs()
-        bloc_util.view_bloc(self.elem_tool_out_list, 'tool.lf')
-        
+        ##print self.elem_tool_out_list
+        #print '\n'
+        #print self.elementary_tools_list
+        #bloc_util.view_bloc(self.elem_tool_out_list, 'tool.lf')
+        bloc_util3.view_bloc(self.elem_tool_out_list, 'tool.lf')
+        #bloc_util.view_bloc(self.elementary_tools_list, 'tool.lf')
         
 
         
