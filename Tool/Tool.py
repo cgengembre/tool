@@ -60,6 +60,7 @@ class Tool:
             for partie in toolstep.elementary_tools_list:
                 dicPartie = {}
                 dicPartie["tooth_id"] = partie['tooth_id']
+                dicPartie["set_id"] = partie['set_id']
                 dicPartie['toolstep_id'] = self.__toolstep_id__
                 dicPartie["pnt_cut_edge"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_cut_edge"])
                 dicPartie["pnt_in_cut_face"] = self.foref.givePointsInCanonicalFrame(frame.name, [partie["pnt_in_cut_face"]])[0]
@@ -69,8 +70,10 @@ class Tool:
                 # On ajoute le volume en dépouille, et les points de la face en dépouille :
                 dicPartie["node_clearance_bnd"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["node_clearance_bnd"])
                 dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
-                dicPartie["pnt_clearance_face"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
-                dicPartie["law_names"] = partie["law_names"] 
+                dicPartie["pnt_clearance_face"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"]) 
+                dicPartie["generic_cut_law"] = partie["generic_cut_law"]
+                dicPartie["generic_clear_law"] = partie["generic_clear_law"]
+            
                 self.elementary_tools_list.append(dicPartie)
         self.__toolstep_id__+=1
 # --------------------------------------------------------------------------------------------------        
@@ -110,7 +113,8 @@ class Tool:
                 dicPartie["node_clearance_bnd"] =   partie["node_clearance_bnd"]
                 dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
                 dicPartie["pnt_clearance_face"] =   partie["pnt_clearance_face"]
-            dicPartie['law_names'] = tooth.cut_law_names
+            dicPartie['generic_cut_law'] = tooth.generic_cut_law
+            dicPartie['generic_clear_law'] = tooth.generic_clear_law
             self.elementary_tools_list.append(dicPartie)
         idx_in_etl_end = len(self.elementary_tools_list)-1
         self.benen_in_etl_dic[tsif_name].append([idx_in_etl_begin, idx_in_etl_end])
@@ -135,7 +139,7 @@ class Tool:
             elem_tool_cut['tri']             = elem_tool['tri_cut_face'] # tri
             elem_tool_cut['pnt']             = elem_tool['pnt_cut_edge'] + [elem_tool['pnt_in_cut_face'],]  # : 3 point , les deux point de l'arrete et le point de la face. 
             elem_tool_cut['h_cut_max']       = elem_tool['h_cut_max']
-            elem_tool_clear['generic_cut_law']      = elem_tool['generic_cut_law']# : liste nom lois de coupe, 1 par bloc dexel
+            elem_tool_cut['generic_cut_law']      = elem_tool['generic_cut_law']# : liste nom lois de coupe, 1 par bloc dexel
             elem_tool_cut['tooth_id']        = elem_tool['tooth_id']
             elem_tool_cut['set_id']          = elem_tool['set_id']
             elem_tool_cut['step_id']         = elem_tool['toolstep_id']
@@ -165,15 +169,9 @@ class Tool:
             elemtool_id += 1
             
 # --------------------------------------------------------------------------------------------------
-    def write(self, bloc_type,  file_name = None):
-        # Construction des deux listes à partir de self.elementary_tools_list
-        self.compute_out_blocs()
-        #bloc_list = []
-        #if bloc_type == CUTFACE_BLOC:
-        #    bloc_list = self.elem_tool_cut_list
-        #elif bloc_type == CLEARANCE_BLOC:
-        #    bloc_list = self.elem_tool_clearance_list
-            
+    def write(self,  file_name = None):
+        # Construction de la liste OUT à partir de self.elementary_tools_list
+        self.compute_out_blocs()    
         
         if file_name == None :
             file_name = self.name + '.py'

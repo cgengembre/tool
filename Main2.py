@@ -1,4 +1,7 @@
 # -*- coding: Utf-8 -*-
+# Christophe Gengembre - Test de la classe dent en slices
+# TODO : Renomer le fichier en TestToothSliced.py ...
+
 
 from Tool import Tool, Toolstep, Tooth
 import FrameOfReference as FoR

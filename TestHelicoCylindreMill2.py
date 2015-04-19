@@ -8,6 +8,9 @@ dent = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de
          
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,
+         generic_cut_law = "Ma belle loi de coupe",
+         generic_clear_law = "Ma belle loi de talonage",
+         
          
          clearance_face_thickness = 2.E-3,
          clearance_face_nb_layers = 2,

@@ -50,7 +50,7 @@ class ToolstepModel:
         self.tif_list.append(tif)
         self.foref.computeRotMatAndTransVect(frame.name)
         idx_in_elt_begin = len(self.elementary_tools_list)
-        
+        # Numerotation des ensembles de dents
         set_idx = 0 
         if set_id :
             if self.__set_id_dic__.has_key(set_id) :
@@ -79,7 +79,9 @@ class ToolstepModel:
             dicPartie["node_clearance_bnd"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["node_clearance_bnd"])
             dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
             dicPartie["pnt_clearance_face"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
-            dicPartie["law_names"] = partie["law_names"]
+            dicPartie["generic_cut_law"] = partie["generic_cut_law"]
+            dicPartie["generic_clear_law"] = partie["generic_clear_law"]
+            
             self.elementary_tools_list.append(dicPartie)
         idx_in_etl_end = len(self.elementary_tools_list)-1
         self.idx_benen_in_etl_list.append([idx_in_elt_begin, idx_in_etl_end])
