@@ -79,8 +79,8 @@ class ToolstepModel:
             dicPartie["node_clearance_bnd"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["node_clearance_bnd"])
             dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
             dicPartie["pnt_clearance_face"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
-            dicPartie["generic_cut_law"] = partie["generic_cut_law"]
-            dicPartie["generic_clear_law"] = partie["generic_clear_law"]
+            dicPartie["cut_law_names"] = partie["cut_law_names"]
+            dicPartie["clear_law_names"] = partie["clear_law_names"]
             
             self.elementary_tools_list.append(dicPartie)
         idx_in_etl_end = len(self.elementary_tools_list)-1
@@ -102,7 +102,7 @@ class ToolstepModel:
             elem_tool_cut['tri']             = elem_tool['tri_cut_face'] # tri
             elem_tool_cut['pnt']             = elem_tool['pnt_cut_edge'] + [elem_tool['pnt_in_cut_face'],]  # : 3 point , les deux point de l'arrete et le point de la face. 
             elem_tool_cut['h_cut_max']       = elem_tool['h_cut_max']
-            elem_tool_cut['generic_cut_law']       = elem_tool['generic_cut_law']# : liste nom lois de coupe, 1 par bloc dexel
+            elem_tool_cut['law_names']       = elem_tool['cut_law_names']# : liste nom lois de coupe, 1 par bloc dexel
             elem_tool_cut['tooth_id']        = elem_tool['tooth_id']
             elem_tool_cut['set_id']          = elem_tool['set_id']
             elem_tool_cut['elemtool_id']     =  elem_tool_id
@@ -119,7 +119,7 @@ class ToolstepModel:
             elem_tool_clear['node']           = elem_tool['node_clearance_bnd']# noeud
             elem_tool_clear['tri']            = elem_tool['tri_clearance_bnd']# tri
             elem_tool_clear['pnt']            = [elem_tool['pnt_clearance_face'][i] for i in  [2,1,0]] #: 3 point , p1 point dans la face de talonnage, p1p2 dir U, p1p3 dir v, avec U^V normal sortante
-            elem_tool_clear['generic_clear_law']      = elem_tool['generic_clear_law']# : liste nom lois de talonnage, 1 par bloc dexel
+            elem_tool_clear['law_names']      = elem_tool['clear_law_names']# : liste nom lois de talonnage, 1 par bloc dexel
             elem_tool_clear['tooth_id']       = elem_tool['tooth_id']
             elem_tool_clear['set_id']         = elem_tool['set_id']
             elem_tool_cut['elemtool_id']      =  elem_tool_id

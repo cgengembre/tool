@@ -34,8 +34,8 @@ class ToothModel:
         name : optional argument. Name of the ToolModel 
         cut_face_thickness : Thickness of the cutting face of the Tooth
         cut_face_nb_layers : For the fineness of the meshing of the cutting face
-        'generic_cut_law'
-        'generic_clear_law'
+        'cut_law_names'
+        'clear_law_names'
         """
         self.dic = {}
         self.dic["name"]= dic["name"]
@@ -45,8 +45,8 @@ class ToothModel:
         
         self.cut_face_thickness = dic['cut_face_thickness']
         self.cut_face_nb_layers = dic['cut_face_nb_layers']
-        self.generic_cut_law    = None if not dic.has_key('generic_cut_law') else dic ['generic_cut_law'] 
-        self.generic_clear_law    = None if not dic.has_key('generic_clear_law') else dic ['generic_clear_law']
+        self.cut_law_names    = None if not dic.has_key('cut_law_names') else dic ['cut_law_names'] 
+        self.clear_law_names    = None if not dic.has_key('clear_law_names') else dic ['clear_law_names']
         self.nb_elementary_tools = 0 # Computed or given in subclasses
         self.elementary_tools_list = []
 # --------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ class ToothModel:
             elem_tool_cut['tri']             = elem_tool['tri_cut_face']  # copy.deepcopy(elem_tool['tri_cut_face']) # tri
             elem_tool_cut['pnt']             = elem_tool['pnt_cut_edge'] + [elem_tool['pnt_in_cut_face'],]  # : 3 point , les deux point de l'arrete et le point de la face. 
             elem_tool_cut['h_cut_max']       = elem_tool['h_cut_max']
-            elem_tool_cut['generic_cut_law']      = self.generic_cut_law# : liste nom lois de coupe, 1 par bloc dexel
+            elem_tool_cut['law_names']      = self.cut_law_names# : liste nom lois de coupe, 1 par bloc dexel
             elem_tool_cut['elemtool_id']    = elemtool_id
             #elem_tool_cut['tooth_id']        = elem_tool['tooth_id']
             #elem_tool_cut['set_id']          = elem_tool['set_id']
@@ -79,7 +79,7 @@ class ToothModel:
             elem_tool_clear['node']           = elem_tool['node_clearance_bnd'] #copy.deepcopy(elem_tool['node_clearance_bnd'])# noeud
             elem_tool_clear['tri']            = elem_tool['tri_clearance_bnd']  #copy.deepcopy(elem_tool['tri_clearance_bnd'])# tri
             elem_tool_clear['pnt']            = [elem_tool['pnt_clearance_face'][i] for i in  [2,1,0]] #: 3 point , p1 point dans la face de talonnage, p1p2 dir U, p1p3 dir v, avec U^V normal sortante
-            elem_tool_clear['generic_clear_law']      = self.generic_clear_law# : liste nom lois de talonnage, 1 par bloc dexel
+            elem_tool_clear['law_names']      = self.clear_law_names# : liste nom lois de talonnage, 1 par bloc dexel
             elem_tool_clear['elemtool_id']    = elemtool_id
             #elem_tool_clear['tooth_id']       = elem_tool['tooth_id']
             #elem_tool_clear['set_id']         = elem_tool['set_id']
@@ -383,8 +383,8 @@ class ToothInsert(ToothModel) :
                         idxSommet3 = (nbCouchesReel+1)*(nbSlices+1)
                         dicoPartie["tri_cut_face"].append([idxSommet1,idxSommet2,idxSommet3])
                 
-                dicoPartie['generic_cut_law'] = self.generic_cut_law
-                dicoPartie['generic_clear_law'] = self.generic_clear_law    
+                dicoPartie['cut_law_names'] = self.cut_law_names
+                dicoPartie['clear_law_names'] = self.clear_law_names    
                 self.elementary_tools_list.append (dicoPartie)
                 cur_point_local[0],cur_point_local[1] = p2[0], p2[1]
                 cur_angle_local = cur_angle_local + deltaAlpha
@@ -634,8 +634,8 @@ class ToothInsert(ToothModel) :
                         idxSommet2 = idxSommet2
                         idxSommet3 = idxSommet1 + 1
                         dicoPartie["tri_cut_face"].append([idxSommet1,idxSommet2,idxSommet3])
-                dicoPartie['generic_cut_law'] = self.generic_cut_law
-                dicoPartie['generic_clear_law'] = self.generic_clear_law
+                dicoPartie['cut_law_names'] = self.cut_law_names
+                dicoPartie['clear_law_names'] = self.clear_law_names
                 self.elementary_tools_list.append (dicoPartie)
                 cur_point_local = p2
             next_point[0],next_point[1] = p2[0], p2[1]
@@ -807,8 +807,8 @@ class ToothForHelicoidalMillType2(ToothInsert):
         # 0 : On construit le dictionnaire passé à la classe mere :
         params = {   
              'name' : dic ['name'],
-             'generic_cut_law' : dic['generic_cut_law'], 
-             'generic_clear_law' : dic['generic_clear_law'], 
+             'cut_law_names' : dic['cut_law_names'], 
+             'clear_law_names' : dic['clear_law_names'], 
              
              'cut_face_thickness' : dic['cut_face_thickness'],
              'cut_face_nb_layers' : dic['cut_face_nb_layers'],
@@ -947,7 +947,7 @@ class ToothSliced(ToothModel):
                 gamma = math.radians(slice_geom_dic['gamma'])
                 radius = math.sqrt(slice_geom_dic['x']**2 + slice_geom_dic['y']**2)
                 rho =  math.acos(slice_geom_dic['x']/radius)
-                gamma_util = math.pi -(rho - gamma)
+                gamma_util = rho + math.pi - gamma
                 increment_l_gamma = slice_geom_dic['L_gamma'] /self.cut_face_nb_layers
                 
                 alpha1_util = gamma_util - math.pi/2  + math.radians(slice_geom_dic['alpha1'])
@@ -1012,8 +1012,8 @@ class ToothSliced(ToothModel):
             #    for i in range(self.cut_face_nb_layers):
             #        elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, j*(self.cut_face_nb_layers+1)+i,     (j+1)*(self.cut_face_nb_layers+1)+i ])
             #        elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, (j+1)*(self.cut_face_nb_layers+1)+i, (j+1)*(self.cut_face_nb_layers+1)+i +1 ])
-            elem_tool['generic_cut_law'] = self.generic_cut_law
-            elem_tool['generic_clear_law'] = self.generic_clear_law
+            elem_tool['cut_law_names'] = self.cut_law_names
+            elem_tool['clear_law_names'] = self.clear_law_names
             self.elementary_tools_list.append(elem_tool)
         #print "Nombre d'outils elementaires  : ", len(self.elementary_tools_list)
         #for tool_elementaire in self.elementary_tools_list : print tool_elementaire
@@ -1085,8 +1085,8 @@ class ToothForHelicoidalMillType1(ToothInsert):
         'name' : 'toothMonoblocTyp1',
         'nb_elementary_tools': 3,
         'nb_slices' : 4,
-        'generic_cut_law' : 'Nom cutlaw'
-        'generic_clear_law' : 'Nom clearlaw'
+        'cut_law_names' : 'Nom cutlaw',
+        'clear_law_names' : 'Nom clearlaw',
         'cut_face_thickness' : 3.E-3,
         'cut_face_nb_layers' : 2,
         'clearance_face_thickness' : 2.E-3,
@@ -1123,8 +1123,8 @@ class ToothForHelicoidalMillType1(ToothInsert):
         params['clearance_face_thickness'] = dic['clearance_face_thickness']
         params['clearance_face_nb_layers'] = dic['clearance_face_nb_layers']
         params['clearance_face_angle_degrees'] = dic['clearance_face_angle_degrees']
-        params['generic_cut_law']  = dic ['generic_cut_law']
-        params['generic_clear_law'] = dic ['generic_clear_law']
+        params['cut_law_names']  = dic ['cut_law_names']
+        params['clear_law_names'] = dic ['clear_law_names']
         ## TODO : Controler que radius > cut_face_thickness + debordement volume en depouille /!\
         params['radius'] = dic['radius']
         if (params['radius'] < params['cut_face_thickness']+params['clearance_face_thickness']*math.sin(math.radians(params['clearance_face_angle_degrees']))):
