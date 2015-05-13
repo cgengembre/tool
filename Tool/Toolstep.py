@@ -122,7 +122,7 @@ class ToolstepModel:
             elem_tool_clear['law_names']      = elem_tool['clear_law_names']# : liste nom lois de talonnage, 1 par bloc dexel
             elem_tool_clear['tooth_id']       = elem_tool['tooth_id']
             elem_tool_clear['set_id']         = elem_tool['set_id']
-            elem_tool_cut['elemtool_id']      =  elem_tool_id
+            elem_tool_clear['elemtool_id']      =  elem_tool_id
 
             #elem_tool_clear['step_id']        = elem_tool['toolstep_id']
             #elem_tool_clear['rep_in_spindle'] = elem_tool[]# optionel
@@ -154,3 +154,4 @@ class ToolstepInFrame:
         self.name = dic['name']
         self.toolstep = dic ['toolstep']
         self.frame = dic ['frame']
+        self.tsif_id = dic['id']

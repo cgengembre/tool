@@ -950,10 +950,12 @@ class ToothSliced(ToothModel):
                 gamma_util = rho + math.pi - gamma
                 increment_l_gamma = slice_geom_dic['L_gamma'] /self.cut_face_nb_layers
                 
-                alpha1_util = gamma_util - math.pi/2  + math.radians(slice_geom_dic['alpha1'])
+                #alpha1_util = gamma_util - math.pi/2  + math.radians(slice_geom_dic['alpha1'])
+                alpha1_util = rho + math.pi/2  + math.radians(slice_geom_dic['alpha1'])
                 increment_l_alpha1 = slice_geom_dic['L1']/self.clearance_face1_nb_layers
                 
-                alpha2_util = gamma_util - math.pi/2  + math.radians(slice_geom_dic['alpha2'])
+                #alpha2_util = gamma_util - math.pi/2  + math.radians(slice_geom_dic['alpha2'])
+                alpha2_util = rho + math.pi/2  + math.radians(slice_geom_dic['alpha2'])
                 increment_l_alpha2 = slice_geom_dic['L2']/self.clearance_face2_nb_layers
                 
                 

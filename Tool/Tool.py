@@ -42,19 +42,21 @@ class Tool:
         self.foref = FoR.FrameOfReference(name = 'for_' + self.name)
         
         toolstep0 = Toolstep.ToolstepModel()
-        base_tsif = Toolstep.ToolstepInFrame(name = 'base_toolstep', toolstep = toolstep0, frame = None )
+        base_tsif = Toolstep.ToolstepInFrame(name = 'base_toolstep', toolstep = toolstep0, frame = None, id = 0 )
         self.toolstep_dic['base_toolstep'] = base_tsif
         self.__toolstep_id__ = 0
         Tool.__instance_counter__ += 1
 
 # --------------------------------------------------------------------------------------------------
     def addToolstep(self, toolstep, frame, name = "default" ):
+        
         if name == "default" :
-            name = toolstep.name + str (self.__toolstep_id__)
+            name = toolstep.name + str (self.__toolstep_id__+1)
         if self.benen_in_etl_dic.has_key(name):
             print name, " : attention - nom déjà choisi pour l'etage !!" 
         else:
-            tsif = Toolstep.ToolstepInFrame(name = name, toolstep = toolstep, frame = frame)
+            self.__toolstep_id__+=1
+            tsif = Toolstep.ToolstepInFrame(name = name, toolstep = toolstep, frame = frame, id = self.__toolstep_id__)
             self.toolstep_dic[name] = tsif
             self.benen_in_etl_dic[name] = [[i+len(self.elementary_tools_list) for i in toolstep.idx_benen_in_etl_list[j]] for j in range(len(toolstep.idx_benen_in_etl_list))]
             for partie in toolstep.elementary_tools_list:
@@ -75,7 +77,7 @@ class Tool:
                 dicPartie["clear_law_names"] = partie["clear_law_names"]
             
                 self.elementary_tools_list.append(dicPartie)
-        self.__toolstep_id__+=1
+        
 # --------------------------------------------------------------------------------------------------        
     def addTooth(self, tooth, frame, set_id = None , tsif_name ='base_toolstep' ):
         tooth_id = self.toolstep_dic[tsif_name].toolstep.addTooth(tooth, frame)#,self.toolstep_dic[sif_name].toolstep.__tooth_id__)
@@ -90,7 +92,7 @@ class Tool:
             dicPartie = {}
             
             dicPartie["tooth_id"] = tooth_id
-            dicPartie["toolstep_id"] = tsif_name
+            dicPartie["toolstep_id"] = self.toolstep_dic[tsif_name].tsif_id
             dicPartie["set_id"] = set_id
             if self.toolstep_dic[tsif_name].frame : # != None:
                 toolstep_frame = self.toolstep_dic[tsif_name].frame
@@ -161,7 +163,7 @@ class Tool:
             elem_tool_clear['tooth_id']       = elem_tool['tooth_id']
             elem_tool_clear['set_id']         = elem_tool['set_id']
             elem_tool_clear['step_id']        = elem_tool['toolstep_id']
-            elem_tool_cut['elemtool_id']      = elemtool_id
+            elem_tool_clear['elemtool_id']      = elemtool_id
             #elem_tool_clear['rep_in_spindle'] = elem_tool[]# optionel
             #elem_tool_clear['id_node_dyn']    = elem_tool[]# optionel
             #elem_tool_clear['nb_rep']         = elem_tool[]# optionel
