@@ -4,6 +4,8 @@
 
 # Outil, piece, trajectoire.
 # 1: création de l'outil
+import sys
+sys.path.append('../sources')
 
 from Tool import Tool, Toolstep, Tooth
 import FrameOfReference as FoR

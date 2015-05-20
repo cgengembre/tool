@@ -111,8 +111,8 @@ class ToothModel:
             # transformation de l'arrete, des nodes de face de coute et de volume en dépouille, des point sur la cutface et sur la clearance face :
             for node in et['pnt_cut_edge'] + et['node_cut_face']+et['node_clearance_bnd'] + [et['pnt_in_cut_face'],]+ et['pnt_clearance_face']:
                 beta = node[2]*self.torsion_angle/self.height
-                node[0] = node[0]*math.cos(beta) - node[1]*math.sin(beta)
-                node[1] = node[0]*math.sin(beta) + node[1]*math.cos(beta)
+                node[0], node[1] = node[0]*math.cos(beta) - node[1]*math.sin(beta), node[0]*math.sin(beta) + node[1]*math.cos(beta)
+                # node[1] = node[0]*math.sin(beta) + node[1]*math.cos(beta)
             
     def give_mesh_rect_patch(self, tri, dim1, dim2, offset=0):
         """

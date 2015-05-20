@@ -1,4 +1,6 @@
 # -*- coding: Utf-8 -*-
+import sys
+sys.path.append('../sources')
 
 from Tool import  Tooth #, Tool, Toolstep
 # import FrameOfReference as FoR

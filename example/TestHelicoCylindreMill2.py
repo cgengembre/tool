@@ -1,5 +1,8 @@
 # -*- coding: Utf-8 -*-
 
+import sys
+sys.path.append('../sources')
+
 from Tool import Tool, Toolstep, Tooth
 import FrameOfReference as FoR
 
@@ -8,8 +11,8 @@ dent = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de
          
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,
-         generic_cut_law = "Ma belle loi de coupe",
-         generic_clear_law = "Ma belle loi de talonage",
+         cut_law_names = "Ma belle loi de coupe",
+         clear_law_names = "Ma belle loi de talonage",
          
          
          clearance_face_thickness = 2.E-3,

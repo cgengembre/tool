@@ -2,6 +2,8 @@
 # Christophe Gengembre - Test de la classe dent en slices
 # TODO : Renomer le fichier en TestToothSliced.py ...
 
+import sys
+sys.path.append('../sources')
 
 from Tool import Tool, Toolstep, Tooth
 import FrameOfReference as FoR
