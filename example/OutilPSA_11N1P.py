@@ -81,4 +81,4 @@ outil.addToolstep(name = 'Etage_Unique',
 
 outil.write('OUtilPSA.py')
 
-outil.draw()
+outil.draw(1)

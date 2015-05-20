@@ -1,5 +1,9 @@
 # -*- coding: Utf-8 -*-
 # 
+
+import sys
+sys.path.append('../sources')
+
 from Tool import Tool, Toolstep, Tooth
 import FrameOfReference as FoR
 
@@ -276,4 +280,4 @@ Tool_PSA.addToolstep( name     = 'Toolstep_normal',
 Tool_PSA.write()
 
 
-Tool_PSA.draw()
+Tool_PSA.draw(2)

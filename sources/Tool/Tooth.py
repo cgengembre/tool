@@ -495,6 +495,9 @@ class ToothInsert(ToothModel) :
                 self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, actual_clearance_face_nb_layers, offset)
                 offset = (nb_slices+1) * (self.clearance_face_nb_layers+1) 
             
+            ## Calcul d'un point dans la face en depouille : On prend la moyenne des points
+            sum_pnt_in_clear_face = reduce (lambda a,b:  [a[i]+b[i] for i in range(3)],  elem_tool_dic['node_clearance_bnd'])
+            elem_tool_dic['pnt_clearance_face'][2] = [sum_pnt_in_clear_face[i]/len (elem_tool_dic['node_clearance_bnd']) for i in range (3)]
             
             # --> La face en dessous :
             if len(clearance_layers_points_list[-1]) != 1 :
