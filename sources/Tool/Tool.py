@@ -140,6 +140,7 @@ class Tool:
     def draw(self, dc_color = None, bloc_type = CUTFACE_BLOC):
         self.compute_out_blocs()
         out_d = './d_tool'
+        #out_d = os.path.abspath('./d_tool')
         if not os.path.isdir(out_d): os.mkdir(out_d)
         
         Tooth.tool_util.view_bloc(self.elem_tool_out_list, out_d, dc_color)
@@ -153,7 +154,7 @@ class Tool:
             elem_tool_clear = {}
             ## cutting face :
 
-            elem_tool_cut['type']            = 'cut'
+            elem_tool_cut['type']            = 'rake_face'
             elem_tool_cut['node']            = elem_tool['node_cut_face'] # noeud
             elem_tool_cut['tri']             = elem_tool['tri_cut_face'] # tri
             elem_tool_cut['pnt']             = elem_tool['pnt_cut_edge'] + [elem_tool['pnt_in_cut_face'],]  # : 3 point , les deux point de l'arrete et le point de la face. 
@@ -172,7 +173,7 @@ class Tool:
             
             ## clear face
             if elem_tool.has_key('node_clearance_bnd'):
-                elem_tool_clear['type']           = 'clear'
+                elem_tool_clear['type']           = 'clear_vol'
                 elem_tool_clear['node']           = elem_tool['node_clearance_bnd']# noeud
                 elem_tool_clear['tri']            = elem_tool['tri_clearance_bnd']# tri
                 elem_tool_clear['pnt']            = [elem_tool['pnt_clearance_face'][i] for i in  [2,1,0]] #: 3 point , p1 point dans la face de talonnage, p1p2 dir U, p1p3 dir v, avec U^V normal sortante
