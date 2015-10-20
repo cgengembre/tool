@@ -12,30 +12,30 @@ dent = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,
          cut_law_names = "Ma belle loi de coupe",
-         #clear_law_names = "Ma belle loi de talonage",
+         clear_law_names = "Ma belle loi de talonage",
          
          
-         #clearance_face_thickness = 2.E-3,
-         #clearance_face_nb_layers = 2,
-         #clearance_face_angle_degrees = 30.,
+         clearance_face_thickness = 2.E-3,
+         clearance_face_nb_layers = 2,
+         clearance_face_angle_degrees = 30.,
         
          
          dist_from_origin = 6.0e-3, # futur radius of the mill...
          rayonBec = 3.E-3,
-         longProlongAvant = 5.E-03,
+         longProlongAvant = 1.E-02,
          longProlongApres = 0., # 1.5E-03, #  longProlongApres = 0.
-         anglePointeOutil = 50.0, angleHelice = 10.0, # anglePointeOutil = 110.0, angleHelice = 10.0,
+         anglePointeOutil = 80.0, angleHelice = -40.0, # anglePointeOutil = 110.0, angleHelice = 10.0,
 
           
          nbPartiesFlancAvant = 5, nbPartiesFlancApres = 3, nbPartiesDisque = 5,
-         seg_nb_slice_before =1, seg_nb_slice_after = 1, arc_nb_slices = 2,
+         seg_nb_slice_before =3, seg_nb_slice_after = 1, arc_nb_slices = 2,
          
          nbCouchesLiaison = 1, nbSweep = 1)
 dent.draw()
 
 fraise = Tool.Tool(name = 'fraise elicoidale de type 1')
 
-for angle in [0., 60., 120., 180., 240., 300.  ]:
+for angle in [0., 90., 180., 270.  ]:
     frame = fraise.toolstep_dic['base_toolstep'].toolstep.foref.create_frame(name =  "dent"+str(angle),
            fatherFrameName = "Canonical",
            frameType       = FoR.FRAME_CYLINDRIC_NRA,

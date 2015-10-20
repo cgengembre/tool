@@ -11,11 +11,11 @@ dicInsert1 = {   'name' : 'ma plaquette',
              'insert_location': {'mediatrice_seg_idx':0 , 'dist_from_origin':4.0e-3 }, #'bissectrice_arc_idx': 1
              'cut_face_thickness' : 3.E-3,
              'cut_face_nb_layers' : 1,
-             'clearance_face_thickness' : 2.E-3,
-             'clearance_face_nb_layers' : 1,
-             'clearance_face_angle_degrees' : 20.,
-             'generic_cut_law' : "Generic Cut Law Name",                
-             'generic_clear_law' : 'Generic Clear Law Name'
+             #'clearance_face_thickness' : 2.E-3,
+             #'clearance_face_nb_layers' : 1,
+             #'clearance_face_angle_degrees' : 20.,
+             'cut_law_names' : "Generic Cut Law Name",                
+             'clear_law_names' : 'Generic Clear Law Name'
          }
 
 dent = Tooth.ToothInsert(**dicInsert1)
@@ -34,6 +34,7 @@ for angle in [0., 180. ]:
            rotDegreAutourRadiale = 0.,
            rotDegreAutourAxiale  = angle)
     outil.addTooth(dent, frame)
-outil.write('faise_helico_type1')
+outil.toolstep_dic['base_toolstep'].toolstep.draw()
+outil.write('Outil2plaquettesSimples')
 outil.draw()
     

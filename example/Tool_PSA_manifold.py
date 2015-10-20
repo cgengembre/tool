@@ -34,9 +34,10 @@ tool_name = 'Tool_PSA_manifold_11N1P'
 
 # "Normal' insert : includes 3 portions in order to take into account
 #                   the evolution of the geometry of the cutting edge
-#                   and to be able to have different cutting laws.
+#                   and to be able to have different cuttings.
 
 PlaquetteNormale_P_Utile = {   
+            'cut_law_names' : 'A',
              'name' : 'PlaquetteNormale_P_Utile',
              'cutting_edge_geom': 
                [{'seg_length' : 8.0e-3,                       
@@ -54,7 +55,8 @@ PlaquetteNormale_P_Utile = {
              'clearance_face_angle_degrees' : 5.,
          }
 
-PlaquetteNormale_S = {   
+PlaquetteNormale_S = {
+            'cut_law_names' : 'B',   
              'name' : 'PlaquetteNormale_S',
              'cutting_edge_geom': 
                [{'seg_length' : 0.0e-3,                       
@@ -80,7 +82,8 @@ PlaquetteNormale_S = {
              'clearance_face_angle_degrees' : 5.,
             }
 
-PlaquetteNormale_P_Inutile = {   
+PlaquetteNormale_P_Inutile = {  
+             'cut_law_names' : 'C', 
              'name' : 'PlaquetteNormale_P_Inutile',
              'cutting_edge_geom': 
                [{'seg_length' : 0.0e-3,                       
@@ -103,6 +106,7 @@ PlaquetteNormale_P_Inutile = {
 #                    and to be able to have different cutting laws.
 
 PlaquettePlaneuse_P = {   
+             'cut_law_names' : 'D',
              'name' : 'PlaquettePlaneuse_P',
              'cutting_edge_geom': 
                [{'seg_length' : 8.0e-3,                       
@@ -121,7 +125,8 @@ PlaquettePlaneuse_P = {
          }
 
 
-PlaquettePlaneuse_S = {   
+PlaquettePlaneuse_S = {
+             'cut_law_names' : 'E',   
              'name' : 'PlaquettePlaneuse_S',
              'cutting_edge_geom': 
                [{'seg_length' : 0.0e-3,                       
@@ -280,4 +285,4 @@ Tool_PSA.addToolstep( name     = 'Toolstep_normal',
 Tool_PSA.write()
 
 
-Tool_PSA.draw(2)
+Tool_PSA.draw(1)
