@@ -25,14 +25,14 @@ outil = Tool.Tool(name = 'outil elicoidale de type 1')
 
 for angle in [0., 180. ]:
     frame = outil.toolstep_dic['base_toolstep'].toolstep.foref.create_frame(name =  "dent"+str(angle),
-           fatherFrameName = "Canonical",
-           frameType       = FoR.FRAME_CYLINDRIC_NRA,
-           axialAngleDegrees  = 30.,
-           radius             = 0.,
-           axialPosition      = 0.,
-           rotDegreAutourNormale = 0.,
-           rotDegreAutourRadiale = 0.,
-           rotDegreAutourAxiale  = angle)
+           father_frame_name = "Canonical",
+           frame_type         = FoR.FRAME_CYLINDRIC_NRA,
+           axial_angle_degrees = 30.,
+           radius              = 0.,
+           axial_position      = 0.,
+           rot_normal_degrees = 0.,
+           rot_radial_degrees = 0.,
+           rot_axial_degrees  = angle)
     outil.addTooth(dent, frame)
 outil.toolstep_dic['base_toolstep'].toolstep.draw()
 outil.write('Outil2plaquettesSimples')

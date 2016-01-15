@@ -6,7 +6,7 @@ sys.path.append('../sources')
 from Tool import Tool, Toolstep, Tooth
 import FrameOfReference as FoR
 
-# 1 creation d'une dent de fraise hélicoïdale cylindrique :
+# 1 creation d'une dent de fraise hélicoïdale boule en slices :
 # construction du dico à partir du fichier modelFraise.gtool
 
 # eventuellement : chdir('/Users/gengembre/NessyCGen/tools')
@@ -60,14 +60,14 @@ fraise = Tool.Tool(name = 'fraise boule')
 
 for angle in range (0, 360, 90):
     frame = fraise.toolstep_dic['base_toolstep'].toolstep.foref.create_frame(name =  "dent"+str(angle),
-           fatherFrameName = "Canonical",
-           frameType       = FoR.FRAME_CYLINDRIC_NRA,
-           axialAngleDegrees  = 0.,
-           radius             = 0.,
-           axialPosition      = 0.,
-           rotDegreAutourNormale = 0.,
-           rotDegreAutourRadiale = 0.,
-           rotDegreAutourAxiale  = angle)
+           father_frame_name = "Canonical",
+           frame_type       = FoR.FRAME_CYLINDRIC_NRA,
+           axial_angle_degrees = 0.,
+           radius              = 0.,
+           axial_position      = 0.,
+           rot_normal_degrees = 0.,
+           rot_radial_degrees = 0.,
+           rot_axial_degrees  = angle)
     fraise.addTooth(dent, frame)
 fraise.write('Ball_Mill_with_SlicedTooths')
 fraise.draw(2)

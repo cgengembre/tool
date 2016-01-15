@@ -40,15 +40,15 @@ dentHelico = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïd
          
          dist_from_origin = 4.0e-3, # futur radius of the mill...
          rayonBec = 3.E-3,
-         longProlongAvant = .5E-02,
-         longProlongApres = 0., # 1.5E-03, #  longProlongApres = 0.
-         anglePointeOutil = 80.0, angleHelice = 10.0, # anglePointeOutil = 110.0, angleHelice = 10.0,
+         lenght_before = .5E-02,
+         lenght_after  = 0., # 1.5E-03, #  lenght_after = 0.
+         tool_tip_angle_degrees = 80.0, helix_angle_degrees = 10.0, # tool_tip_angle_degrees = 110.0, helix_angle_degrees = 10.0,
 
           
-         nbPartiesFlancAvant = 5, nbPartiesFlancApres = 3, nbPartiesDisque = 5,
+         seg_nb_elem_tool_before = 5, seg_nb_elem_tool_after = 3, arc_nb_elem_tool = 5,
          seg_nb_slice_before =1, seg_nb_slice_after = 1, arc_nb_slices = 2,
          
-         nbCouchesLiaison = 1, nbSweep = 1)
+         nb_binding_slice = 1, nb_sweep = 1)
 dentHelico.draw()
 
 
@@ -63,14 +63,14 @@ etage1 = Toolstep.ToolstepModel(name = 'Etage1')
 for alpha in angles_toolstep_1 :
     frameEtage1 = etage1.foref.create_frame(
             name                  = 'Etage1 alpha = %f'%(alpha),
-            fatherFrameName       ="Canonical",
-            frameType             = FoR.FRAME_CYLINDRIC_NRA,
-            axialAngleDegrees     = 0.,
+            father_frame_name     ="Canonical",
+            frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+            axial_angle_degrees   = 0.,
             radius                = 0.,
-            axialPosition         = 0.,
-            rotDegreAutourNormale = 30.,
-            rotDegreAutourRadiale = -30.,
-            rotDegreAutourAxiale  = alpha
+            axial_position        = 0.,
+            rot_normal_degrees = 30.,
+            rot_radial_degrees = -30.,
+            rot_axial_degrees  = alpha
            )
     etage1.addTooth(dent, frameEtage1)
 
@@ -78,14 +78,14 @@ etage2 = Toolstep.ToolstepModel(name = 'Etage2')
 for alpha in angles_toolstep_2 :
     frameEtage2 = etage2.foref.create_frame(
             name                  = 'Etage2 alpha = %f'%(alpha),
-            fatherFrameName       ="Canonical",
-            frameType             = FoR.FRAME_CYLINDRIC_NRA,
-            axialAngleDegrees     = 0.,
+            father_frame_name     ="Canonical",
+            frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+            axial_angle_degrees   = 0.,
             radius                = 0.,
-            axialPosition         = 0.,
-            rotDegreAutourNormale = 0.,
-            rotDegreAutourRadiale = 0.,
-            rotDegreAutourAxiale  = alpha
+            axial_position        = 0.,
+            rot_normal_degrees = 0.,
+            rot_radial_degrees = 0.,
+            rot_axial_degrees  = alpha
            )
     etage2.addTooth(dentHelico, frameEtage2)
 
@@ -93,27 +93,27 @@ for alpha in angles_toolstep_2 :
 
 frame = outil.foref.create_frame(
             name                  = 'Etage1 alpha = %f'%(alpha),
-            fatherFrameName       ="Canonical",
-            frameType             = FoR.FRAME_CYLINDRIC_NRA,
-            axialAngleDegrees     = 0.,
+            father_frame_name     ="Canonical",
+            frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+            axial_angle_degrees   = 0.,
             radius                = 0.,
-            axialPosition         = 0.,
-            rotDegreAutourNormale = 0.,
-            rotDegreAutourRadiale = 0.,
-            rotDegreAutourAxiale  = 0.
+            axial_position        = 0.,
+            rot_normal_degrees = 0.,
+            rot_radial_degrees = 0.,
+            rot_axial_degrees  = 0.
            )
 outil.addToolstep(name = 'z=O.', toolstep = etage1, frame = frame)
 
 frame = outil.foref.create_frame(
             name                  = 'Etage2 alpha = %f'%(alpha),
-            fatherFrameName       ="Canonical",
-            frameType             = FoR.FRAME_CYLINDRIC_NRA,
-            axialAngleDegrees     = 0.,
+            father_frame_name     ="Canonical",
+            frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+            axial_angle_degrees   = 0.,
             radius                = 0.,
-            axialPosition         = 5.E-3,
-            rotDegreAutourNormale = 0.,
-            rotDegreAutourRadiale = 0.,
-            rotDegreAutourAxiale  = 0.
+            axial_position        = 5.E-3,
+            rot_normal_degrees = 0.,
+            rot_radial_degrees = 0.,
+            rot_axial_degrees  = 0.
            )
 outil.addToolstep(name = 'z=0.1', toolstep = etage2, frame = frame)
 

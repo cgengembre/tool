@@ -174,26 +174,26 @@ if tool_name == 'Tool_PSA_manifold_11N1P' :
     
     FoR_insert_planing_P = Toolstep_planing.foref.create_frame(
            name                  = 'FoR_insert_planing_P',
-    	   fatherFrameName       = "Canonical",
-    	   frameType             = FoR.FRAME_CYLINDRIC_NRA,
-    	   axialAngleDegrees     = 0.0, 
+    	   father_frame_name     = "Canonical",
+    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   axial_angle_degrees   = 0.0, 
     	   radius                = 43.482404e-3,
-    	   axialPosition         = 2.922084e-3,
-    	   rotDegreAutourNormale = 50.0,
-    	   rotDegreAutourRadiale =  0.,
-    	   rotDegreAutourAxiale  =  0. )
+    	   axial_position        = 2.922084e-3,
+    	   rot_normal_degrees = 50.0,
+    	   rot_radial_degrees =  0.,
+    	   rot_axial_degrees  =  0. )
     Toolstep_planing.addTooth(Insert_planing_P, FoR_insert_planing_P, set_id = "planing_tooth") ## /!\ CGen. - FoR_insert_planing_P est un frame 
 
     FoR_insert_planing_S = Toolstep_planing.foref.create_frame(
            name                  = 'Insert_planing_S',
-    	   fatherFrameName       = "Canonical",
-    	   frameType             = FoR.FRAME_CYLINDRIC_NRA,
-    	   axialAngleDegrees     = 0.0, 
+    	   father_frame_name     = "Canonical",
+    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   axial_angle_degrees   = 0.0, 
     	   radius                = 35.454045e-3,
-    	   axialPosition         = 0.0,
-    	   rotDegreAutourNormale = 90.0,
-    	   rotDegreAutourRadiale =  0.0,
-    	   rotDegreAutourAxiale  =  0.0 )
+    	   axial_position        = 0.0,
+    	   rot_normal_degrees = 90.0,
+    	   rot_radial_degrees =  0.0,
+    	   rot_axial_degrees  =  0.0 )
     Toolstep_planing.addTooth(Insert_planing_S, FoR_insert_planing_S, set_id = "planing_tooth")
     
     
@@ -211,38 +211,38 @@ for alpha in angles_toolstep_normal :
 
     FoR_insert_normal_PU = Toolstep_normal.foref.create_frame(
            name                  = 'PU_'+str(alpha),
-    	   fatherFrameName       = "Canonical",
-    	   frameType             = FoR.FRAME_CYLINDRIC_NRA,
-    	   axialAngleDegrees     = alpha, 
+    	   father_frame_name     = "Canonical",
+    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   axial_angle_degrees   = alpha, 
     	   radius                = 43.482404e-3,
-    	   axialPosition         = 2.922084e-3,
-    	   rotDegreAutourNormale = 50.0,
-    	   rotDegreAutourRadiale =  0.,
-    	   rotDegreAutourAxiale  =  0. )
+    	   axial_position        = 2.922084e-3,
+    	   rot_normal_degrees = 50.0,
+    	   rot_radial_degrees =  0.,
+    	   rot_axial_degrees  =  0. )
     Toolstep_normal.addTooth(Insert_normal_PU, FoR_insert_normal_PU, set_id = str(alpha))
 
     FoR_insert_normal_S = Toolstep_normal.foref.create_frame(
            name                  = 'S_'+str(alpha),
-    	   fatherFrameName       = "Canonical",
-    	   frameType             = FoR.FRAME_CYLINDRIC_NRA,
-    	   axialAngleDegrees     = alpha, 
+    	   father_frame_name     = "Canonical",
+    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   axial_angle_degrees   = alpha, 
     	   radius                = 38.854045e-3,
-    	   axialPosition         =  0.,
-    	   rotDegreAutourNormale = 90.,
-    	   rotDegreAutourRadiale =  0.,
-    	   rotDegreAutourAxiale  =  0. )
+    	   axial_position        =  0.,
+    	   rot_normal_degrees = 90.,
+    	   rot_radial_degrees =  0.,
+    	   rot_axial_degrees  =  0. )
     Toolstep_normal.addTooth(Insert_normal_S, FoR_insert_normal_S, set_id = str(alpha))
 
     FoR_insert_normal_PI = Toolstep_normal.foref.create_frame(
            name                  = 'PI_'+str(alpha),
-    	   fatherFrameName       = "Canonical",
-    	   frameType             = FoR.FRAME_CYLINDRIC_NRA,
-    	   axialAngleDegrees     = alpha, 
+    	   father_frame_name     = "Canonical",
+    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   axial_angle_degrees   = alpha, 
     	   radius                = 33.352058e-3,
-    	   axialPosition         =  3.808374e-3,
-    	   rotDegreAutourNormale = 140.,
-    	   rotDegreAutourRadiale =   0.,
-    	   rotDegreAutourAxiale  =   0. )
+    	   axial_position        =  3.808374e-3,
+    	   rot_normal_degrees = 140.,
+    	   rot_radial_degrees =   0.,
+    	   rot_axial_degrees  =   0. )
     Toolstep_normal.addTooth(Insert_normal_PI, FoR_insert_normal_PI, set_id = str(alpha))
 
 
@@ -255,28 +255,28 @@ Tool_PSA = Tool.Tool(name = tool_name)
 if tool_name == 'Tool_PSA_manifold_11N1P' : 
     FoR_toolstep_planing = Tool_PSA.foref.create_frame(
            name                  = 'FoR_toolstep_planing',
-    	   fatherFrameName       = "Canonical",
-    	   frameType             = FoR.FRAME_CYLINDRIC_NRA,
-    	   axialAngleDegrees     = 0., 
+    	   father_frame_name     = "Canonical",
+    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   axial_angle_degrees   = 0., 
     	   radius                = 0.,
-    	   axialPosition         = 0.,
-    	   rotDegreAutourNormale = 0.,
-    	   rotDegreAutourRadiale = 0.,
-    	   rotDegreAutourAxiale  = 0. )
+    	   axial_position        = 0.,
+    	   rot_normal_degrees = 0.,
+    	   rot_radial_degrees = 0.,
+    	   rot_axial_degrees  = 0. )
     Tool_PSA.addToolstep(name = 'Toolstep_planing', 
                   toolstep = Toolstep_planing, 
                   frame = FoR_toolstep_planing)
 
 FoR_toolstep_normal = Tool_PSA.foref.create_frame(
            name                  = 'FoR_toolstep_normal',
-    	   fatherFrameName       = "Canonical",
-    	   frameType             = FoR.FRAME_CYLINDRIC_NRA,
-    	   axialAngleDegrees     = 0., 
+    	   father_frame_name     = "Canonical",
+    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   axial_angle_degrees   = 0., 
     	   radius                = 0.,
-    	   axialPosition         = 0.,
-    	   rotDegreAutourNormale = 0.,
-    	   rotDegreAutourRadiale = 0.,
-    	   rotDegreAutourAxiale  = 0. )
+    	   axial_position        = 0.,
+    	   rot_normal_degrees = 0.,
+    	   rot_radial_degrees = 0.,
+    	   rot_axial_degrees  = 0. )
 
 Tool_PSA.addToolstep( name     = 'Toolstep_normal', 
                       toolstep = Toolstep_normal, 

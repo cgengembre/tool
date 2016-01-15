@@ -42,47 +42,47 @@ class Frame:
         """
     	Structures possibles pour dic :
         --> clés communes à tous les types de reperes :
-           "name"            : "nom du repere"
-    	   "fatherFrameName" : "nom du repere pere"
-    	   "frameType"       : <Id type frame>
-        --> clés suivantes en fonction de dic["FrameType"]
-    	A/ "frameType"   : FRAME_CARTESIAN_V1V12
+           "name"              : "nom du repere"
+    	   "father_frame_name" : "nom du repere pere"
+    	   "frame_type"        : <Id type frame>
+        --> clés suivantes en fonction de dic["frame_type"]
+    	A/ "frame_type"   : FRAME_CARTESIAN_V1V12
     	   ---------------
     	   "Origin"      : [xO, yO, zO] # dans le fatherFrame
     	   "Vector1"     : [x1, y1, z1] # dans le fatherFrame
     	   "Vector12"    : [x12,y12,z12]# dans le fatherFrame
     	
-    	B/ "frameType"   : FRAME_CARTESIAN_EULER
+    	B/ "frame_type"  : FRAME_CARTESIAN_EULER
     	   ---------------
     	   "origin"      : [xO, yO, zO] # dans le fatherFrame
     	   "eulerAngles" : [Psi, Teta, Phi]
         
-        C/ "frameType"   : FRAME_CARTESIAN_NRA # INSERT_FRAME_FOR_A_TURNERY_MACHIN
+        C/ "frame_type"  : FRAME_CARTESIAN_NRA # INSERT_FRAME_FOR_A_TURNERY_MACHIN
            ---------------
     	   "origin"      : [xO, yO, zO] # dans le fatherFrame
     	   "rotAngles"   : [rotYfather, rotXfather, rotZfather]
     	   example : position plaquette de tour 
     	
-    	D/ "frameType"          : FRAME_CYLINDRIC_NRA
+    	D/ "frame_type"         : FRAME_CYLINDRIC_NRA
     	   -------------
-    	   "axialAngleDegrees"  : alpha
+    	   "axial_angle_degrees": alpha
     	   "radius"             : r
-    	   "axialPosition"      : z
-    	   "rotDegreAutourNormale" : rotYp
-    	   "rotDegreAutourRadiale" : rotXp
-    	   "rotDegreAutourAxiale"  : rotZp
+    	   "axial_position"     : z
+    	   "rot_normal_degrees" : rotYp
+    	   "rot_radial_degrees" : rotXp
+    	   "rot_axial_degrees"  : rotZp
     	   Example : position plaquettes de fraise
     	   
        	Le but du constructeur est de générer le vecteur translation et la matrice de
         rotation pour faire le changement de repère toujours de la meme manière
         """
-        self.name             = dic["name"]
-        self.fatherFrameName = dic["fatherFrameName"]
-        self.frameType        = dic["frameType"]
+        self.name              = dic["name"]
+        self.father_frame_name = dic["father_frame_name"]
+        self.frame_type        = dic["frame_type"]
         self.__computeRotationMatAndTanslationVect__(**dic)
         #self.name
         #self.FrameOfReference
-        #self.FatherFrameName
+        #self.father_frame_name
         #self.rotMatrix
         #self.origin
 # --------------------------------------------------------------------------------------------------
@@ -92,13 +92,13 @@ class Frame:
         Let P be a point expressed in self,
         [ self.npMatSelfToFather ].P + self.npVectSelfToFather expresses P in fatherFrame    
         """
-        if dic["frameType"] == FRAME_CYLINDRIC_NRA:
-            alpha    = m.radians(dic["axialAngleDegrees"])
+        if dic["frame_type"] == FRAME_CYLINDRIC_NRA:
+            alpha    = m.radians(dic["axial_angle_degrees"])
             radius   = dic["radius"]
-            axialPos = dic["axialPosition"]
-            rotXp    = m.radians(dic["rotDegreAutourRadiale"])
-            rotYp    = m.radians(dic["rotDegreAutourNormale"])
-            rotZp    = m.radians(dic["rotDegreAutourAxiale"])
+            axialPos = dic["axial_position"]
+            rotXp    = m.radians(dic["rot_radial_degrees"])
+            rotYp    = m.radians(dic["rot_normal_degrees"])
+            rotZp    = m.radians(dic["rot_axial_degrees"])
             
             npMrotXp   = npRotAroundOxAxisMatrix (rotXp)
             npMrotYp   = npRotAroundOyAxisMatrix (rotYp)
@@ -111,7 +111,7 @@ class Frame:
             self.npMatSelfToFather = npMatSelfToFather
             self.npVectSelfToFather = np.array([radius*m.cos(alpha), radius*m.sin(alpha), axialPos])
         else :
-            raise FrameError("frameType not yet implemented")
+            raise FrameError("frame_type not yet implemented")
 # --------------------------------------------------------------------------------------------------
     def givePointsInFatherFrame(self, points):
 
@@ -141,7 +141,7 @@ class FrameOfReference:
     def create_frame(self, **dic):
         # Verifier que le père du repère ajouté existe bien dans le réferentiel
         # Ajouter le repère au dico des repères. Les clés sont les noms des repères
-        if self.dic_frames.has_key(dic['fatherFrameName']):
+        if self.dic_frames.has_key(dic['father_frame_name']):
             ## creer le frame :
             if self.dic_frames.has_key(dic['name']):
                 # print self.dic_frames
@@ -161,11 +161,11 @@ class FrameOfReference:
         name = frameName
         M = self.dic_frames[name].npMatSelfToFather
         T = self.dic_frames[name].npVectSelfToFather
-        name = self.dic_frames[name].fatherFrameName
+        name = self.dic_frames[name].father_frame_name
         while name != 'Canonical':
             M = np.dot(self.dic_frames[name].npMatSelfToFather,M)
             T = np.dot(self.dic_frames[name].npMatSelfToFather,T) + self.dic_frames[name].npVectSelfToFather
-            name = self.dic_frames[name].fatherFrameName
+            name = self.dic_frames[name].father_frame_name
         self.dic_frames[frameName].npMatRot2Canonical = M
         self.dic_frames[frameName].npVectTrans2Canonical = T
 # --------------------------------------------------------------------------------------------------
@@ -191,9 +191,9 @@ class FrameOfReference:
         # print type(points)
         _points_ = Frame.givePointsInFatherFrame(self.dic_frames[frameName], points)
         #_points_ = self.dic_frames[frameName].givePointsInFatherFrame(points)
-        if self.dic_frames[frameName].fatherFrameName == "Canonical":
+        if self.dic_frames[frameName].father_frame_name == "Canonical":
             return _points_
         else:
-            return self.givePointsInCanonicalFrameR(self.dic_frames[frameName].fatherFrameName ,_points_)
+            return self.givePointsInCanonicalFrameR(self.dic_frames[frameName].father_frame_name ,_points_)
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================

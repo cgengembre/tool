@@ -17,16 +17,16 @@ import FrameOfReference as FoR
 #  epaisseurFaceCoupe = 1.5e-3,
 #  nbDents            = 8, nbParties = 6,
 #  nbTranches         = 3, nbCouchesFaceCoupe = 5,
-#  nbCouchesLiaison   = 1, nbSweep = 1)
+#  nb_binding_slice   = 1, nb_sweep = 1)
 dic = {  
                 "nbParties" : 10, 
                 "nbTranches" : 3, 
                 "nbCouchesFaceCoupe" : 4,
-                "nbCouchesLiaison" : 1,
-                "nbSweep" :1,
+                "nb_binding_slice" : 1,
+                "nb_sweep" :1,
                 # Parametres géométriques
                 "angleAxialInitial" : 0.0, 
-                "angleHelice" : 40.0,
+                "helix_angle_degrees" : 40.0,
                 "idNoeudMaitre" : 1,
                 "loiDeCoupe" : ["Loi1","Loi2","Loi3"],
                 "diametreFraise" : 6.0E-3,
@@ -119,26 +119,26 @@ dicInsert1Arc = {   'name' : 'ma plaquette',
          }
 
 dicFramePlaquette = {
-            "name"            : "repere plaquette ",
-    	   "fatherFrameName" : "Canonical",
-    	   "frameType"       : FoR.FRAME_CYLINDRIC_NRA,
-    	   "axialAngleDegrees"  : 90.,
+            "name"             : "repere plaquette ",
+    	   "father_frame_name" : "Canonical",
+    	   "frame_type"        : FoR.FRAME_CYLINDRIC_NRA,
+    	   "axial_angle_degrees"  : 90.,
     	   "radius"             : 20.0E-3,
-    	   "axialPosition"      : 3.0E-3,
-    	   "rotDegreAutourNormale" : 0.,
-    	   "rotDegreAutourRadiale" : -20.,
-    	   "rotDegreAutourAxiale"  : 0.
+    	   "axial_position"     : 3.0E-3,
+    	   "rot_normal_degrees" : 0.,
+    	   "rot_radial_degrees" : -20.,
+    	   "rot_axial_degrees"  : 0.
     	   }
 dicFrameEtage = {
-            "name"            : "repere etage1",
-           "fatherFrameName" : "Canonical",
-           "frameType"       : FoR.FRAME_CYLINDRIC_NRA,
-           "axialAngleDegrees"  : 0.,
+            "name"             : "repere etage1",
+           "father_frame_name" : "Canonical",
+           "frame_type"        : FoR.FRAME_CYLINDRIC_NRA,
+           "axial_angle_degrees"  : 0.,
            "radius"             : 0.,
-           "axialPosition"      : 7.0E-3,
-           "rotDegreAutourNormale" : 0.,
-           "rotDegreAutourRadiale" : 0.,
-           "rotDegreAutourAxiale"  : 0.
+           "axial_position"     : 7.0E-3,
+           "rot_normal_degrees" : 0.,
+           "rot_radial_degrees" : 0.,
+           "rot_axial_degrees"  : 0.
            }
 dicFraisePlaquettes = {
            "name" : "fraisePlaquette",
@@ -162,7 +162,7 @@ dicFraisePlaquettes = {
 #plaquette = Insert.Insert(**dico1_nouveau_1)
 #angles = [0,10, 90, 100, 180, 190, 270, 280  ]
 #for alpha in angles :
-#    dicFramePlaquette['axialAngleDegrees'] = alpha
+#    dicFramePlaquette['axial_angle_degrees'] = alpha
 #    dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
 #    frame = fraise.foref.create_frame(**dicFramePlaquette)
 #    fraise.addTooth(plaquette, frame)
@@ -178,17 +178,17 @@ plaquetteArc = Tooth.ToothInsert(**dicInsert1Arc)
 outil = Tool.Tool(name = 'toolstep_tool1')
 etage = Toolstep.ToolstepModel(name = 'Un modele d etage')
 for alpha in angles :
-    dicFramePlaquette['axialAngleDegrees'] = alpha
+    dicFramePlaquette['axial_angle_degrees'] = alpha
     dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
     frame = etage.foref.create_frame(**dicFramePlaquette)
     etage.addTooth(plaquette, frame)
 for alpha in angles2 :
-    dicFramePlaquette['axialAngleDegrees'] = alpha
+    dicFramePlaquette['axial_angle_degrees'] = alpha
     dicFramePlaquette['name'] = 'reperePlaquette alpha = %f'%(alpha)
     frame = etage.foref.create_frame(**dicFramePlaquette)
     etage.addTooth(plaquetteArc, frame)
 for z in [3.0E-3, 1.6E-2]:
-    dicFrameEtage['axialPosition'] = z
+    dicFrameEtage['axial_position'] = z
     dicFrameEtage['name'] = 'pour z = %f'%(z)
     frame = outil.foref.create_frame(**dicFrameEtage)
     outil.addToolstep(name = 'z=%f'%z, toolstep = etage, frame = frame)

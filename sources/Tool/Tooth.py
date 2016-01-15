@@ -16,6 +16,8 @@ sys.path.append(tool_util_path)
 import tool_util
 
 import copy
+import numpy as np
+import FrameOfReference as FoR
 
 CUTFACE_BLOC = 0
 CLEARANCE_BLOC = 1
@@ -109,7 +111,8 @@ class ToothModel:
     def torsion_transformation(self):
         """
         Attention : To call this method, attributes 
-        self.radius, self.height, and self.helix_angle or self.torsion_angle must be defined. 
+        self.radius, self.height, and self.helix_angle or self.torsion_angle must be defined.
+        Angles expressed in radians 
         """
         if hasattr(self, 'helix_angle'):
             self.torsion_angle = self.height*math.tan(self.helix_angle)/self.radius
@@ -826,15 +829,15 @@ class ToothForHelicoidalMillType2(ToothInsert):
          
          'dist_from_origin'      : 6.0D-3, # futur radiurs of the mill...
          'rayonBec' : 3.D-3,
-         'longProlongAvant'    : 5.D-03,
-         'longProlongApres'    : 0.0,
-         'anglePointeOutil'    : 110.0, 'angleHelice' : -10.0,
+         'lenght_before'   : 5.D-03,
+         'lenght_after'    : 0.0,
+         'tool_tip_angle_degrees': 110.0, 'helix_angle_degrees': -10.0,
 
           
-         'nbPartiesFlancAvant' : 5, 'nbPartiesFlancApres' : 0, 'nbPartiesDisque' : 5,
+         'seg_nb_elem_tool_before' : 5, 'seg_nb_elem_tool_after' : 0, 'arc_nb_elem_tool' : 5,
          'seg_nb_slice_before':1, 'seg_nb_slice_after': 1, 'arc_nb_slices': 2,
          
-         'nbCouchesLiaison'    : 1, 'nbSweep' : 1
+         'nb_binding_slice'    : 1, 'nb_sweep' : 1
          }
         """
         #ToothModel.__init__(self,**dic)
@@ -851,9 +854,9 @@ class ToothForHelicoidalMillType2(ToothInsert):
              'clearance_face_angle_degrees' :dic.get('clearance_face_angle_degrees'),
 
              'cutting_edge_geom': [ # même nbSlices pour chaque el. tool
-                                   {'seg_length' : dic['longProlongAvant'],'nb_elementary_tools': dic['nbPartiesFlancAvant'], 'nb_slices': dic['seg_nb_slice_before']},
-                                   {'angle_degrees': 180-dic['anglePointeOutil'], 'radius':dic['rayonBec'], 'nb_elementary_tools': dic['nbPartiesDisque'], 'nb_slices': dic['arc_nb_slices']},
-                                   {'seg_length' : dic['longProlongApres'],'nb_elementary_tools': dic['nbPartiesFlancApres'], 'nb_slices': dic['seg_nb_slice_after']},
+                                   {'seg_length' : dic['lenght_before'],'nb_elementary_tools': dic['seg_nb_elem_tool_before'], 'nb_slices': dic['seg_nb_slice_before']},
+                                   {'angle_degrees': 180-dic['tool_tip_angle_degrees'], 'radius':dic['rayonBec'], 'nb_elementary_tools': dic['arc_nb_elem_tool'], 'nb_slices': dic['arc_nb_slices']},
+                                   {'seg_length' : dic['lenght_after'],'nb_elementary_tools': dic['seg_nb_elem_tool_after'], 'nb_slices': dic['seg_nb_slice_after']},
                                    
                                   ],
              'insert_location': {'mediatrice_seg_idx': 0, 'dist_from_origin':dic['dist_from_origin'] }
@@ -863,12 +866,12 @@ class ToothForHelicoidalMillType2(ToothInsert):
         #1 : preparer les donnees pour pouvoir appliquer la methode classe insert
         # Construction des listes
         """
-        self.dic['seg_length_list'] = [dic['longProlongApres'],dic['longProlongAvant']]
-        self.dic['seg_nb_elementary_tools_list'] = [dic['nbPartiesFlancApres'],dic['nbPartiesFlancAvant']]
+        self.dic['seg_length_list'] = [dic['lenght_after'],dic['lenght_before']]
+        self.dic['seg_nb_elementary_tools_list'] = [dic['seg_nb_elem_tool_after'],dic['seg_nb_elem_tool_before']]
         self.dic['seg_nb_slices_list'] = [dic['seg_nb_slice_after'],dic['seg_nb_slice_before']]
         
-        self.dic['arc_angle_degrees_list'] = [180-dic['anglePointeOutil']]
-        self.dic['arc_nb_elementary_tools_list'] = [dic['nbPartiesDisque']]
+        self.dic['arc_angle_degrees_list'] = [180-dic['tool_tip_angle_degrees']]
+        self.dic['arc_nb_elementary_tools_list'] = [dic['arc_nb_elem_tool']]
         self.dic['radius_list'] = [dic['rayonBec']]
         self.dic['arc_nb_slices_list'] = [dic['arc_nb_slices']]
         
@@ -876,7 +879,7 @@ class ToothForHelicoidalMillType2(ToothInsert):
         self.dic["dist_from_origin"] = dic["dist_from_origin"]
 
         
-        self.nb_elementary_tools = dic['nbPartiesFlancAvant'] + dic['nbPartiesFlancApres'] + dic['nbPartiesDisque']
+        self.nb_elementary_tools = dic['seg_nb_elem_tool_before'] + dic['seg_nb_elem_tool_after'] + dic['arc_nb_elem_tool']
         ### rem. : self.nb_elementary_tools sera à priori calculé dans self.__generePartiesEtMaillagePlaquette__()
         #2 : On génère le maillage :
         self.__generePartiesEtMaillagePlaquette__()
@@ -906,8 +909,8 @@ class ToothForHelicoidalMillType2(ToothInsert):
         #4 : Application de la methode l'hélicoidalisation 
         # self.radius, self.height, et self.helix_angle ou self.torsion_angle doivent exister.
         self.radius = self.dic['dist_from_origin']
-        self.helix_angle = dic['angleHelice']
-        self.height = dic['rayonBec']+dic['longProlongAvant']
+        self.helix_angle = dic['helix_angle_degrees']
+        self.height = dic['rayonBec']+dic['lenght_before']
         self.torsion_transformation()
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
@@ -1196,7 +1199,7 @@ class ToothForHelicoidalMillType1(ToothInsert):
                 
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
-class ToothForHelicoidalMillTore(ToothInsert):
+class ToothForHelicoidalBallMill(ToothInsert):
     def __init__(self, **dic):
         """
         waited params : 
@@ -1212,14 +1215,77 @@ class ToothForHelicoidalMillTore(ToothInsert):
         'clearance_face_nb_layers' : 2,
         'clearance_face_angle_degrees' : 45.,
         
-        'torre_radius': 1.3E-3 # condition : 
+        #'torre_radius': 1.3E-3 # condition : 
+        
         
         'radius' : 1.6E-3,
-        'height' : 2.E-3,
-        'torsion_angle_degrees' : 30, # or helix_angle
+        'helix_angle' : 30, # or 
+        'angle_secteur_de_coupe' : 130.,
+        'angle_debut_secteur' : 10.,
+        
         }
         """
-        pass
+        
+        
+        # 1: transformation des données pour être géré commme une plaquette. 
+        params = {}
+        params['name'] = dic['name']
+        params['cut_face_thickness'] = dic['cut_face_thickness']
+        params['cut_face_nb_layers'] = dic['cut_face_nb_layers']
+        params['clearance_face_thickness'] = dic.get('clearance_face_thickness')
+        params['clearance_face_nb_layers'] = dic.get('clearance_face_nb_layers')
+        params['clearance_face_angle_degrees'] = dic.get('clearance_face_angle_degrees')
+        params['cut_law_names']  = dic ['cut_law_names']
+        params['clear_law_names'] = dic.get('clear_law_names')
+        ## TODO : Controler que radius > cut_face_thickness + debordement volume en depouille /!\
+        params['radius'] = dic['radius']
+        if (params['radius'] < params['cut_face_thickness']+params['clearance_face_thickness']*math.sin(math.radians(params['clearance_face_angle_degrees']))):
+            raise Exception("Attention le volume de la dent va au delà  de l'axe de rotation de la fraise !")
+        
+        params['cutting_edge_geom'] = [{'seg_length' : 0., \
+                                        'nb_elementary_tools': 1, \
+                                        'nb_slices':  dic['nb_slices']},\
+                                       {'angle_degrees': dic['angle_secteur_de_coupe'], 'radius':dic['radius'],\
+                                        'nb_elementary_tools': dic['nb_elementary_tools'], 'nb_slices': dic['nb_slices']}, \
+                                       {'seg_length' :0.,                'nb_elementary_tools': 5, 'nb_slices': 2}] 
+        params['insert_location'] ={'bissectrice_arc_idx' : 0, 'dist_from_origin': 0.}
+        # 2: Appel du contructeur de la classe mère :
+        ToothInsert.__init__(self, **params)
+        
+        self.helix_angle = np.radians(dic['helix_angle'])
+        self.radius = dic['radius']
+        angle_secteur_de_coupe = np.radians(dic['angle_secteur_de_coupe'])
+        angle_debut_secteur  = np.radians(dic['angle_debut_secteur'])
+        self.height = self.radius*(np.sin(angle_secteur_de_coupe+angle_debut_secteur-np.pi/2) - np.sin(angle_debut_secteur-np.pi/2))
+
+        # 3: Rotation  d'axe y pour se caler sur l'angle_debut_secteur et 
+        # deplacement des points pour que la dent soit posée sur le plan (O,x,y):
+        
+        for elem_tool in self.elementary_tools_list:
+            liste_cles = ['node_cut_face','pnt_cut_edge']
+            if self.has_clear_face(): liste_cles+=['node_clearance_bnd','pnt_clearance_face']
+            for key in liste_cles:                 
+                for node in elem_tool[key]:
+                    ## DONE : incerer ici la rotation d'axe y.
+                    np_node = np.array(node)
+                    np_rot_matrix = FoR.npRotAroundOyAxisMatrix(np.pi/2.-np.radians(dic['angle_secteur_de_coupe']/2. + dic['angle_debut_secteur']))
+                    np_rot_node = np.dot(np_rot_matrix,np_node)
+                    node[0] = np_rot_node[0]
+                    node[1] = np_rot_node[1]
+                    node[2] = np_rot_node[2]
+                    node[2]+=dic['radius']
+                    #node[1]= -node[1]
+            np_node = np.array(elem_tool['pnt_in_cut_face'])
+            np_rot_matrix = FoR.npRotAroundOyAxisMatrix(np.pi/2.-np.radians(dic['angle_secteur_de_coupe']/2. + dic['angle_debut_secteur']))
+            np_rot_node = np.dot(np_rot_matrix,np_node)
+            elem_tool['pnt_in_cut_face'][0] = np_rot_node[0]
+            elem_tool['pnt_in_cut_face'][1] = np_rot_node[1]
+            elem_tool['pnt_in_cut_face'][2] = np_rot_node[2]
+            elem_tool['pnt_in_cut_face'][2]+=dic['radius']
+            
+        # 5: application de l'angle de torsion 
+        self.torsion_transformation()
+        
     
 # ==================================================================================================
 
@@ -1284,15 +1350,15 @@ if __name__ == "__main__":
          
          'dist_from_origin'      : 6.0E-3, # futur radiurs of the mill...
          'rayonBec' : 3.E-3,
-         'longProlongAvant'    : 5.E-03,
-         'longProlongApres'    : 0.0,
-         'anglePointeOutil'    : 110.0, 'angleHelice' : -10.0,
+         'lenght_before'    : 5.E-03,
+         'lenght_after'    : 0.0,
+         'tool_tip_angle_degrees' : 110.0, 'helix_angle_degrees' : -10.0,
 
           
-         'nbPartiesFlancAvant' : 5, 'nbPartiesFlancApres' : 0, 'nbPartiesDisque' : 5,
+         'seg_nb_elem_tool_before' : 5, 'seg_nb_elem_tool_after' : 0, 'arc_nb_elem_tool' : 5,
          'seg_nb_slice_before':1, 'seg_nb_slice_after': 1, 'arc_nb_slices': 2,
          
-         'nbCouchesLiaison'    : 1, 'nbSweep' : 1
+         'nb_binding_slice'    : 1, 'nb_sweep' : 1
          }
     #plaquette = Insert(dicPlaquette1Segment)
     #plaquette = Insert(dicPlaquette1Arc)

@@ -52,6 +52,7 @@ class Tool:
         toolstep0 = Toolstep.ToolstepModel()
         base_tsif = Toolstep.ToolstepInFrame(name = 'base_toolstep', toolstep = toolstep0, frame = None, id = 0 )
         self.toolstep_dic['base_toolstep'] = base_tsif
+        self.base_toolstep = self.toolstep_dic['base_toolstep'].toolstep
         self.__toolstep_id__ = 0
         Tool.__instance_counter__ += 1
 

@@ -47,14 +47,14 @@ etage = Toolstep.ToolstepModel(name = 'EtageUnique')
 for alpha in angles :
     frame = etage.foref.create_frame(
            name                  = 'P_'+str(alpha),
-    	   fatherFrameName       = "Canonical",
-    	   frameType             = FoR.FRAME_CYLINDRIC_NRA,
-    	   axialAngleDegrees     = alpha, 
+    	   father_frame_name     = "Canonical",
+    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   axial_angle_degrees   = alpha, 
     	   radius                = 43.482404e-3,
-    	   axialPosition         = 2.922084e-3,
-    	   rotDegreAutourNormale = 50.0,
-    	   rotDegreAutourRadiale =  0.,
-    	   rotDegreAutourAxiale  =  0. )
+    	   axial_position        = 2.922084e-3,
+    	   rot_normal_degrees = 50.0,
+    	   rot_radial_degrees =  0.,
+    	   rot_axial_degrees  =  0. )
     etage.addTooth(plaquette, frame)
 
 # ----------------------------------------------------------------------
@@ -65,14 +65,14 @@ outil = Tool.Tool(name = 'OUtilPSA')
 
 frame_Etage = outil.foref.create_frame(
            name                  = 'frame_Etage',
-    	   fatherFrameName       = "Canonical",
-    	   frameType             = FoR.FRAME_CYLINDRIC_NRA,
-    	   axialAngleDegrees     = 0., 
+    	   father_frame_name     = "Canonical",
+    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   axial_angle_degrees   = 0., 
     	   radius                = 0.,
-    	   axialPosition         = 0.,
-    	   rotDegreAutourNormale = 0.,
-    	   rotDegreAutourRadiale = 0.,
-    	   rotDegreAutourAxiale  = 0. )
+    	   axial_position        = 0.,
+    	   rot_normal_degrees = 0.,
+    	   rot_radial_degrees = 0.,
+    	   rot_axial_degrees  = 0. )
 
 
 outil.addToolstep(name = 'Etage_Unique', 
