@@ -16,9 +16,8 @@ insert_tool_dic = {   'name' : 'ma plaquette',
              'clearance_face_thickness' : 1.E-3,
              'clearance_face_nb_layers' : 1,
              'clearance_face_angle_degrees' : 20.,
-             'generic_cut_law' : "Generic Cut Law Name",                
-             'generic_clear_law' : 'Generic Clear Law Name',
-             'cut_law_names' : "LC0"
+             'mcr_cv_cl_name' : 'Macro Clearance Volume cut Law Name',
+             'mcr_rf_cl_name' : "LC0"
          }
 
 dent = Tooth.ToothInsert(**insert_tool_dic)

@@ -14,8 +14,8 @@ dicInsert1 = {   'name' : 'ma plaquette',
              #'clearance_face_thickness' : 2.E-3,
              #'clearance_face_nb_layers' : 1,
              #'clearance_face_angle_degrees' : 20.,
-             'cut_law_names' : "Generic Cut Law Name",                
-             'clear_law_names' : 'Generic Clear Law Name'
+             'mcr_rf_cl_name' : "Macro Cut Law Name",                
+             'mcr_cv_cl_name' : 'Macro Clear Law Name'
          }
 
 dent = Tooth.ToothInsert(**dicInsert1)

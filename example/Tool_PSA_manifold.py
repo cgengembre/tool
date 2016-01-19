@@ -37,7 +37,7 @@ tool_name = 'Tool_PSA_manifold_11N1P'
 #                   and to be able to have different cuttings.
 
 PlaquetteNormale_P_Utile = {   
-            'cut_law_names' : 'A',
+            'mcr_rf_cl_name' : 'A',
              'name' : 'PlaquetteNormale_P_Utile',
              'cutting_edge_geom': 
                [{'seg_length' : 8.0e-3,                       
@@ -56,7 +56,7 @@ PlaquetteNormale_P_Utile = {
          }
 
 PlaquetteNormale_S = {
-            'cut_law_names' : 'B',   
+            'mcr_rf_cl_name' : 'B',   
              'name' : 'PlaquetteNormale_S',
              'cutting_edge_geom': 
                [{'seg_length' : 0.0e-3,                       
@@ -83,7 +83,7 @@ PlaquetteNormale_S = {
             }
 
 PlaquetteNormale_P_Inutile = {  
-             'cut_law_names' : 'C', 
+             'mcr_rf_cl_name' : 'C', 
              'name' : 'PlaquetteNormale_P_Inutile',
              'cutting_edge_geom': 
                [{'seg_length' : 0.0e-3,                       
@@ -106,7 +106,7 @@ PlaquetteNormale_P_Inutile = {
 #                    and to be able to have different cutting laws.
 
 PlaquettePlaneuse_P = {   
-             'cut_law_names' : 'D',
+             'mcr_rf_cl_name' : 'D',
              'name' : 'PlaquettePlaneuse_P',
              'cutting_edge_geom': 
                [{'seg_length' : 8.0e-3,                       
@@ -126,7 +126,7 @@ PlaquettePlaneuse_P = {
 
 
 PlaquettePlaneuse_S = {
-             'cut_law_names' : 'E',   
+             'mcr_rf_cl_name' : 'E',   
              'name' : 'PlaquettePlaneuse_S',
              'cutting_edge_geom': 
                [{'seg_length' : 0.0e-3,                       

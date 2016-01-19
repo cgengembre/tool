@@ -28,6 +28,7 @@ PlaquetteNormale_P_Utile = {
              'clearance_face_thickness' : 2.E-3,
              'clearance_face_nb_layers' : 1,
              'clearance_face_angle_degrees' : 5.,
+             'mcr_rf_cl_name' : "Macro rakeFace cutlaw name 1"
          }
 
 

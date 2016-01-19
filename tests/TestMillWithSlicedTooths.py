@@ -50,8 +50,8 @@ dent = Tooth.ToothSliced(name = 'dent en slices',
                          clearance_face2_nb_layers = 1,
                          nb_slices_per_elt = 5,
                          nb_elementary_tools = 4,
-                         cut_law_names = 'Nom cutlaw',
-                         clear_law_names = 'Nom clearlaw',
+                         mcr_rf_cl_name = 'Nom macro cutlaw',
+                         mcr_cv_cl_name = 'Nom macro clearlaw',
                          cutting_edge_geom = from_data_dic_list)
 
 # dent.draw()

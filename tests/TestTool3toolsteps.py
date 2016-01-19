@@ -22,9 +22,8 @@ insert_tooth_dic = {   'name' : 'ma plaquette',
              'clearance_face_thickness' : 1.E-3,
              'clearance_face_nb_layers' : 1,
              'clearance_face_angle_degrees' : 20.,
-             'generic_cut_law' : "Generic Cut Law Name",                
-             'generic_clear_law' : 'Generic Clear Law Name',
-             'cut_law_names' : "LC0"
+             'mcr_cv_cl_name' : 'MCV0',
+             'mcr_rf_cl_name' : "LC0"
          }
 insert_tooth = Tooth.ToothInsert(**insert_tooth_dic)
 
@@ -35,8 +34,8 @@ helico_tooth = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise h√©lico√
          
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,
-         cut_law_names = "Ma belle loi de coupe",
-         #clear_law_names = "Ma belle loi de talonage",
+         mcr_rf_cl_name = "nom macro de loi de coupe",
+         #mcr_cv_cl_name = "Macro loi de talonage",
          
          
          #clearance_face_thickness = 2.E-3,
@@ -45,7 +44,7 @@ helico_tooth = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise h√©lico√
         
          
          dist_from_origin = 6.0e-3, # futur radius of the mill...
-         rayonBec = 3.E-3,
+         tool_tip_radius = 3.E-3,
          lenght_before = 5.E-03,
          lenght_after = 0., # 1.5E-03, #  lenght_after = 0.
          tool_tip_angle_degrees = 50.0, helix_angle_degrees = 10.0, # tool_tip_angle_degrees = 110.0, helix_angle_degrees = 10.0,
@@ -63,8 +62,8 @@ helico_tooth.draw()
 ball_tooth_dic = {'name' : 'dent boule SNECMA',
         'nb_elementary_tools': 30,
         'nb_slices' : 1,
-        'cut_law_names' : 'Nom cutlaw',
-        'clear_law_names' : 'Nom clearlaw',
+        'mcr_rf_cl_name' : 'Nom macro cutlaw',
+        'mcr_cv_cl_name' : 'Nom macro clearlaw',
         'cut_face_thickness' : 1.40E-3,
         'cut_face_nb_layers' : 2,
         'clearance_face_thickness' : 2.E-3,

@@ -11,8 +11,8 @@ dent = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de
          
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,
-         cut_law_names = "Ma belle loi de coupe",
-         #clear_law_names = "Ma belle loi de talonage",
+         mcr_rf_cl_name = "macro loi de coupe",
+         #mcr_cv_cl_name = "Nom Macro loi de talonage",
          
          
          #clearance_face_thickness = 2.E-3,
@@ -21,7 +21,7 @@ dent = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de
         
          
          dist_from_origin = 6.0e-3, # futur radius of the mill...
-         rayonBec = 3.E-3,
+         tool_tip_radius = 3.E-3,
          lenght_before = 5.E-03,
          lenght_after = 0., # 1.5E-03, #  lenght_after = 0.
          tool_tip_angle_degrees = 50.0, helix_angle_degrees = 10.0, # tool_tip_angle_degrees = 110.0, helix_angle_degrees = 10.0,
