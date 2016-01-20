@@ -13,14 +13,15 @@ import numpy as np
 
 import sys
 import os
-from n2m_paths import tool_util_path
-sys.path.append(tool_util_path)
+
+# import tool_util
+my_dir=os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(my_dir,'..','..','..','n2m','lib'))
 import tool_util
 
-# import bloc_util
-import FrameOfReference as FoR
-import Tooth
-import Toolstep
+from frame_of_reference import frame_of_reference as FoR
+import tooth
+import toolstep
 # from Carbon.QuickDraw import frame
 # from json import tool
 
@@ -49,26 +50,26 @@ class Tool:
         
         self.foref = FoR.FrameOfReference(name = 'for_' + self.name)
         
-        toolstep0 = Toolstep.ToolstepModel()
-        base_tsif = Toolstep.ToolstepInFrame(name = 'base_toolstep', toolstep = toolstep0, frame = None, id = 0 )
+        toolstep0 = toolstep.ToolstepModel()
+        base_tsif = toolstep.ToolstepInFrame(name = 'base_toolstep', toolstep = toolstep0, frame = None, id = 0 )
         self.toolstep_dic['base_toolstep'] = base_tsif
         self.base_toolstep = self.toolstep_dic['base_toolstep'].toolstep
         self.__toolstep_id__ = 0
         Tool.__instance_counter__ += 1
 
 # --------------------------------------------------------------------------------------------------
-    def addToolstep(self, toolstep, frame, name = "default" ):
+    def addToolstep(self, tstep, frame, name = "default" ):
         
         if name == "default" :
-            name = toolstep.name + str (self.__toolstep_id__+1)
+            name = a_toolstep.name + str (self.__toolstep_id__+1)
         if self.benen_in_etl_dic.has_key(name):
             print name, " : attention - nom déjà choisi pour l'etage !!" 
         else:
             self.__toolstep_id__+=1
-            tsif = Toolstep.ToolstepInFrame(name = name, toolstep = toolstep, frame = frame, id = self.__toolstep_id__)
+            tsif = toolstep.ToolstepInFrame(name = name, toolstep = tstep, frame = frame, id = self.__toolstep_id__)
             self.toolstep_dic[name] = tsif
-            self.benen_in_etl_dic[name] = [[i+len(self.elementary_tools_list) for i in toolstep.idx_benen_in_etl_list[j]] for j in range(len(toolstep.idx_benen_in_etl_list))]
-            for partie in toolstep.elementary_tools_list:
+            self.benen_in_etl_dic[name] = [[i+len(self.elementary_tools_list) for i in tstep.idx_benen_in_etl_list[j]] for j in range(len(tstep.idx_benen_in_etl_list))]
+            for partie in tstep.elementary_tools_list:
                 dicPartie = {}
                 dicPartie["tooth_id"] = partie['tooth_id']
                 dicPartie["set_id"] = partie['set_id']
@@ -90,8 +91,8 @@ class Tool:
                 self.elementary_tools_list.append(dicPartie)
         
 # --------------------------------------------------------------------------------------------------        
-    def addTooth(self, tooth, frame, set_id = None , tsif_name ='base_toolstep' ):
-        tooth_id = self.toolstep_dic[tsif_name].toolstep.addTooth(tooth, frame)#,self.toolstep_dic[sif_name].toolstep.__tooth_id__)
+    def addTooth(self, tth, frame, set_id = None , tsif_name ='base_toolstep' ):
+        tooth_id = self.toolstep_dic[tsif_name].toolstep.addTooth(tth, frame)#,self.toolstep_dic[sif_name].toolstep.__tooth_id__)
         # self.foref.add(frame)
         # calculer les points de la dent dans le repere canonique de la fraise
         # insert.elementary_tools_list est la liste des parties de la plaquette ajoutée
@@ -128,10 +129,10 @@ class Tool:
                     dicPartie["node_clearance_bnd"] =   partie["node_clearance_bnd"]
                     dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
                     dicPartie["pnt_clearance_face"] =   partie["pnt_clearance_face"]
-                    dicPartie['mcr_cv_cl_name'] = tooth.mcr_cv_cl_name
+                    dicPartie['mcr_cv_cl_name'] = tth.mcr_cv_cl_name
 
                     
-            dicPartie['mcr_rf_cl_name'] = tooth.mcr_rf_cl_name
+            dicPartie['mcr_rf_cl_name'] = tth.mcr_rf_cl_name
             self.elementary_tools_list.append(dicPartie)
         idx_in_etl_end = len(self.elementary_tools_list)-1
         self.benen_in_etl_dic[tsif_name].append([idx_in_etl_begin, idx_in_etl_end])
@@ -144,7 +145,7 @@ class Tool:
         #out_d = os.path.abspath('./d_tool')
         if not os.path.isdir(out_d): os.mkdir(out_d)
         
-        Tooth.tool_util.view_bloc(self.elem_tool_out_list, out_d, dc_color)
+        tooth.tool_util.view_bloc(self.elem_tool_out_list, out_d, dc_color)
         
 # --------------------------------------------------------------------------------------------------
     def compute_out_blocs (self):

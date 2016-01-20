@@ -11,13 +11,14 @@ import math
 
 import sys
 import os
-from n2m_paths import tool_util_path
-sys.path.append(tool_util_path)
+# tool_util
+my_dir=os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(my_dir,'..','..','..','n2m','lib'))
 import tool_util
 
 import copy
 import numpy as np
-import FrameOfReference as FoR
+from frame_of_reference import frame_of_reference as FoR
 
 CUTFACE_BLOC = 0
 CLEARANCE_BLOC = 1
@@ -26,7 +27,7 @@ CLEARANCE_BLOC = 1
 class ToothInFrame:
 # ==================================================================================================
     def __init__(self, **dic):
-        self.tooth = dic['tooth']
+        self.tooth = dic['tth']
         self.frame = dic['frame']
         self.tooth_id = dic['tooth_id']
 

@@ -1,13 +1,7 @@
 # -*- coding: Utf-8 -*-
 
-import sys
-sys.path.append('../sources')
-
-from Tool import Tool, Toolstep, Tooth
-import FrameOfReference as FoR
-
 # 1 creation d'une dent de fraise hélicoïdale cylindrique :
-dent = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de type 2',
+dent = tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de type 2',
          
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,
@@ -33,7 +27,7 @@ dent = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de
          nb_binding_slice = 1, nb_sweep = 1)
 dent.draw()
 
-fraise = Tool.Tool(name = 'fraise elicoidale de type 1')
+fraise = tool.Tool(name = 'fraise elicoidale de type 1')
 
 for angle in [0., 60., 120., 180., 240., 300.  ]:
     frame = fraise.toolstep_dic['base_toolstep'].toolstep.foref.create_frame(name =  "dent"+str(angle),

@@ -1,9 +1,4 @@
 # -*- coding: Utf-8 -*-
-import sys
-sys.path.append('../sources')
-
-from Tool import Tool, Toolstep, Tooth
-import FrameOfReference as FoR
 # =======================
 # Create  the teeth :
 # =======================
@@ -25,12 +20,12 @@ insert_tooth_dic = {   'name' : 'ma plaquette',
              'mcr_cv_cl_name' : 'MCV0',
              'mcr_rf_cl_name' : "LC0"
          }
-insert_tooth = Tooth.ToothInsert(**insert_tooth_dic)
+insert_tooth = tooth.ToothInsert(**insert_tooth_dic)
 
 # a helico cylindric tooth ball end :
 # ----------------------------------------------
 
-helico_tooth = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de type 2',
+helico_tooth = tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de type 2',
          
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,
@@ -76,15 +71,15 @@ ball_tooth_dic = {'name' : 'dent boule SNECMA',
         'angle_debut_secteur' : 5.# 90-51.3,
         }
 
-ball_tooth = Tooth.ToothForHelicoidalBallMill(**ball_tooth_dic)
+ball_tooth = tooth.ToothForHelicoidalBallMill(**ball_tooth_dic)
 ball_tooth.draw()
 
 # =======================
 # Create the Toolsteps :
 # =======================
-etage1 = Toolstep.ToolstepModel(name = 'Etage1')
-etage2 = Toolstep.ToolstepModel(name = 'Etage2')
-etage3 = Toolstep.ToolstepModel(name = 'Etage3')
+etage1 = toolstep.ToolstepModel(name = 'Etage1')
+etage2 = toolstep.ToolstepModel(name = 'Etage2')
+etage3 = toolstep.ToolstepModel(name = 'Etage3')
 
 
 
@@ -133,7 +128,7 @@ etage3.addTooth(helico_tooth, frame)
 #
 # Create the tool :
 #
-tool_example = Tool.Tool(name = 'Tree toolsteps tool')
+tool_example = tool.Tool(name = 'Tree toolsteps tool')
 
 # Put the toolsteps int the tool : 
 frame_Etage = tool_example.foref.create_frame(
@@ -147,7 +142,7 @@ frame_Etage = tool_example.foref.create_frame(
     	   rot_radial_degrees = 0.,
     	   rot_axial_degrees  = 0. )
 tool_example.addToolstep(name = 'toolstep 1', 
-                  toolstep = etage1, 
+                  tstep = etage1, 
                   frame = frame_Etage)
 
 frame_Etage = tool_example.foref.create_frame(
@@ -161,7 +156,7 @@ frame_Etage = tool_example.foref.create_frame(
     	   rot_radial_degrees = 0.,
     	   rot_axial_degrees  = 0. )
 tool_example.addToolstep(name = 'toolstep 2', 
-                  toolstep = etage2, 
+                  tstep = etage2, 
                   frame = frame_Etage)
 
 frame_Etage = tool_example.foref.create_frame(
@@ -175,7 +170,7 @@ frame_Etage = tool_example.foref.create_frame(
     	   rot_radial_degrees = 0.,
     	   rot_axial_degrees  = 0. )
 tool_example.addToolstep(name = 'toolstep 3', 
-                  toolstep = etage3, 
+                  tstep = etage3, 
                   frame = frame_Etage)
                   
 tool_example.write("OUT_tool_3toolsteps")

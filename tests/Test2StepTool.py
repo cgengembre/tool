@@ -1,9 +1,4 @@
 # -*- coding: Utf-8 -*-
-import sys
-sys.path.append('../sources')
-
-from Tool import Tool, Toolstep, Tooth
-import FrameOfReference as FoR
 
 insert_tooth_dic = {   'name' : 'ma plaquette',
              'cutting_edge_geom': [{'seg_length' : 2.5e-3,                      'nb_elementary_tools': 1, 'nb_slices': 1},
@@ -20,11 +15,11 @@ insert_tooth_dic = {   'name' : 'ma plaquette',
              #'mcr_cv_cl_name' : 'Macro Clearance Volume Cut Law Name',
          }
 
-dent = Tooth.ToothInsert(**insert_tooth_dic)
+dent = tooth.ToothInsert(**insert_tooth_dic)
 dent.draw()
 
 
-dentHelico = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de type 2',
+dentHelico = tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de type 2',
          
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,
@@ -56,9 +51,9 @@ angles_toolstep_1 = range(0,360,120)
 angles_toolstep_2 = range(0,360,90)
 
 
-outil = Tool.Tool(name = 'Plaquette pour usinage tube2')
+outil = tool.Tool(name = 'Plaquette pour usinage tube2')
 
-etage1 = Toolstep.ToolstepModel(name = 'Etage1')
+etage1 = toolstep.ToolstepModel(name = 'Etage1')
 for alpha in angles_toolstep_1 :
     frameEtage1 = etage1.foref.create_frame(
             name                  = 'Etage1 alpha = %f'%(alpha),
@@ -73,7 +68,7 @@ for alpha in angles_toolstep_1 :
            )
     etage1.addTooth(dent, frameEtage1)
 
-etage2 = Toolstep.ToolstepModel(name = 'Etage2')
+etage2 = toolstep.ToolstepModel(name = 'Etage2')
 for alpha in angles_toolstep_2 :
     frameEtage2 = etage2.foref.create_frame(
             name                  = 'Etage2 alpha = %f'%(alpha),
@@ -101,7 +96,7 @@ frame = outil.foref.create_frame(
             rot_radial_degrees = 0.,
             rot_axial_degrees  = 0.
            )
-outil.addToolstep(name = 'z=O.', toolstep = etage1, frame = frame)
+outil.addToolstep(name = 'z=O.', tstep = etage1, frame = frame)
 
 frame = outil.foref.create_frame(
             name                  = 'Etage2 alpha = %f'%(alpha),
@@ -114,7 +109,7 @@ frame = outil.foref.create_frame(
             rot_radial_degrees = 0.,
             rot_axial_degrees  = 0.
            )
-outil.addToolstep(name = 'z=0.1', toolstep = etage2, frame = frame)
+outil.addToolstep(name = 'z=0.1', tstep = etage2, frame = frame)
 
 outil.draw(0)
 outil.write('mon_outil')

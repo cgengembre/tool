@@ -1,16 +1,16 @@
 # -*- coding: Utf-8 -*-
 import os
 
-import FrameOfReference as FoR
+from frame_of_reference import frame_of_reference as FoR
 
-import Tooth
+import tooth
 CUTFACE_BLOC = 0
 CLEARANCE_BLOC = 1
 
 import sys
 import os
-from n2m_paths import tool_util_path
-sys.path.append(tool_util_path)
+my_dir=os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(my_dir,'..','..','..','n2m','lib'))
 import tool_util
 
 # ==================================================================================================
@@ -47,14 +47,14 @@ class ToolstepModel:
         
         
 # --------------------------------------------------------------------------------------------------
-    def addTooth(self, tooth, frame, set_id = None):
+    def addTooth(self, tth, frame, set_id = None):
         """
         In this method, frame must be a frame created in self.foref.
         If set_id == None : tooth is alone.
         Else : tooth belongs to a set of teeth identified by set_id. The user is guarant of the coherence
         of the sets of teeth in the toolstep.   
         """
-        tif = Tooth.ToothInFrame(tooth = tooth, frame = frame, tooth_id= self.__tooth_id__)
+        tif = tooth.ToothInFrame(tth = tth, frame = frame, tooth_id= self.__tooth_id__)
         self.tif_list.append(tif)
         self.foref.computeRotMatAndTransVect(frame.name)
         idx_in_elt_begin = len(self.elementary_tools_list)
@@ -73,7 +73,7 @@ class ToolstepModel:
             
             
             
-        for partie in tooth.elementary_tools_list:
+        for partie in tth.elementary_tools_list:
             dicPartie = {}
             dicPartie["tooth_id"] = self.__tooth_id__
             dicPartie["set_id"] = set_idx
@@ -85,7 +85,7 @@ class ToolstepModel:
             dicPartie["tri_cut_face"] = partie["tri_cut_face"]
             dicPartie["mcr_rf_cl_name"] = partie["mcr_rf_cl_name"]
             # On ajoute le volume en dépouille, et les points de la face en dépouille :
-            if tooth.has_clear_face():
+            if tth.has_clear_face():
                 dicPartie["node_clearance_bnd"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["node_clearance_bnd"])
                 dicPartie["tri_clearance_bnd"] = partie["tri_clearance_bnd"]
                 dicPartie["pnt_clearance_face"] = self.foref.givePointsInCanonicalFrame(frame.name, partie["pnt_clearance_face"])
@@ -151,7 +151,7 @@ class ToolstepModel:
         out_d = './d_toolstep'
         if not os.path.isdir(out_d): os.mkdir(out_d)
         
-        Tooth.tool_util.view_bloc(self.elem_tool_out_list, out_d)
+        tooth.tool_util.view_bloc(self.elem_tool_out_list, out_d)
         
 
 # ==================================================================================================
