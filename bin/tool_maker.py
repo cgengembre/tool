@@ -7,6 +7,7 @@ import sys
 my_dir=os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(my_dir,'..','lib'))
 
+if not os.path.isdir('OUT'): os.mkdir('OUT')
 
 from tool import tool, toolstep, tooth
 from frame_of_reference import frame_of_reference as FoR

@@ -7,7 +7,7 @@ from Tool import Tool, Toolstep, Tooth
 import FrameOfReference as FoR
 
 # 1 creation d'une dent de fraise hélicoïdale cylindrique :
-dent = Tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de type 2',
+dent = Tooth.Tooth_toroidal_mill(name = 'dent de fraise hélicoïdale de type 2',
          
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,

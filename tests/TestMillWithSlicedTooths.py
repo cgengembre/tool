@@ -1,65 +1,23 @@
 # -*- coding: Utf-8 -*-
 
-import sys
-sys.path.append('../sources')
-
-from Tool import Tool, Toolstep, Tooth
-import FrameOfReference as FoR
-
-# 1 creation d'une dent de fraise hélicoïdale boule en slices :
-# construction du dico à partir du fichier modelFraise.gtool
-
-# eventuellement : chdir('/Users/gengembre/NessyCGen/tools')
-
-data_file_tool = open ('modelFraise.gtool', 'r')
-
-first_line = data_file_tool.readline()
-nb_data_slice = int (first_line)
-
-from_data_dic_list = []
-data_keys = ['z','x','y','gamma','L_gamma','alpha1','L1','alpha2','L2']
-for i in range (nb_data_slice):
-    
-    from_data_line = data_file_tool.readline()
-    splitted_line = from_data_line.split()
-    from_data_dic = {}
-    i = 0
-    for cle in data_keys:
-        from_data_dic [cle] = float(splitted_line[i])
-        i+=1
-    from_data_dic_list.append(from_data_dic)
-    
-
-print 'nombre de slices dans donnees : ', nb_data_slice
-
-"""
-'cut_face_thickness' : 1.2E-3
-        'cut_face_nb_layers' : 1
-        'nb_slices_per_elt': 1
-        --> Clés propres à ToothForMonoblocMillType3
-        'nb_elementary_tools' : 50
-        'cutting_edge_geom' : [{'z': 2.0E-2, 'x': 3.0E-2 , 'y': 1.0E-2 , 'gamma':60 ,'L_gamma': 1.3E-2,'alpha1': 10 ,'L1':1.E-2 ,'alpha2': 30,'L2':0.7E-2 },
-                               {'z': 4.0E-2, 'x': 3.4E-2 , 'y': 1.4E-2 , 'gamma':60 ,'L_gamma': 1.3E-2,'alpha1': 10 ,'L1':1.E-2 ,'alpha2': 30,'L2':0.7E-2 },
-                               ...
-                              ]
-"""
-dent = Tooth.ToothSliced(name = 'dent en slices', 
-                         cut_face_thickness= 1.2E-3, 
-                         cut_face_nb_layers = 1, 
+file_gtooth = 'sliced_tooth.gtooth'
+bm_tooth = tooth.Tooth_sliced(
+                         name = 'ball_mill_tooth',
+                         cutting_edge_geom = file_gtooth,
+                         nb_elementary_tools = 4,
+                         nb_slices_per_elt = 5,
                          clearance_face1_nb_layers = 1,
                          clearance_face2_nb_layers = 1,
-                         nb_slices_per_elt = 5,
-                         nb_elementary_tools = 4,
-                         mcr_rf_cl_name = 'Nom macro cutlaw',
-                         mcr_cv_cl_name = 'Nom macro clearlaw',
-                         cutting_edge_geom = from_data_dic_list)
+                         mcr_rf_cl_name = 'mcl_cut_face',
+                         mcr_cv_cl_name = 'mcl_clear_face', 
+                         cut_face_thickness= 1.E-3, 
+                         cut_face_nb_layers = 1 )
 
-# dent.draw()
+# bm_tooth.draw()
 
-fraise = Tool.Tool(name = 'fraise boule')
-
+bm_tool = tool.Tool(name = 'ball_mill_tool')
 for angle in range (0, 360, 90):
-    frame = fraise.toolstep_dic['base_toolstep'].toolstep.foref.create_frame(name =  "dent"+str(angle),
+    frame = bm_tool.toolstep_dic['base_toolstep'].toolstep.foref.create_frame(name =  "tooth_"+str(angle),
            father_frame_name = "Canonical",
            frame_type       = FoR.FRAME_CYLINDRIC_NRA,
            axial_angle_degrees = 0.,
@@ -67,9 +25,11 @@ for angle in range (0, 360, 90):
            axial_position      = 0.,
            rot_normal_degrees = 0.,
            rot_radial_degrees = 0.,
-           rot_axial_degrees  = angle)
-    fraise.addTooth(dent, frame)
-fraise.write('Ball_Mill_with_SlicedTooths')
-fraise.draw(2)
+           rot_axial_degrees  = angle )
+    bm_tool.addTooth(bm_tooth, frame)
+
+bm_tool.write('sliced_ball_mill')
+
+bm_tool.draw(2)
 
 

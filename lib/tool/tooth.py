@@ -14,6 +14,8 @@ import os
 # tool_util
 my_dir=os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(my_dir,'..','..','..','n2m','lib'))
+case_path = os.path.abspath(os.curdir)
+
 import tool_util
 
 import copy
@@ -204,7 +206,7 @@ class ToothModel:
 # --------------------------------------------------------------------------------------------------
     def draw(self):
         self.compute_out_blocs()
-        out_d = './d_tooth'
+        out_d = './OUT/d_tooth'
         if not os.path.isdir(out_d): os.mkdir(out_d)
         
         tool_util.view_bloc(self.elem_tool_out_list, out_d)        
@@ -818,7 +820,7 @@ class ToothInsert(ToothModel) :
         #for ddd in self.elementary_tools_list:
         #    print ddd
 
-class ToothForHelicoidalMillType2(ToothInsert):
+class Tooth_toroidal_mill(ToothInsert):
     def __init__(self, **dic):
         """
          example for dic : 
@@ -915,7 +917,7 @@ class ToothForHelicoidalMillType2(ToothInsert):
         self.torsion_transformation()
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
-class ToothSliced(ToothModel):
+class Tooth_sliced(ToothModel):
 # ==================================================================================================
     def __init__(self, **dic):
         """
@@ -929,20 +931,42 @@ class ToothSliced(ToothModel):
         'nb_slices_per_elt': 1
         --> Clés propres à ToothForMonoblocMillType3
         'nb_elementary_tools' : 50
-        'cutting_edge_geom' : [{'z': 2.0E-2, 'x': 3.0E-2 , 'y': 1.0E-2 , 'gamma':60 ,'L_gamma': 1.3E-2,'alpha1': 10 ,'L1':1.E-2 ,'alpha2': 30,'L2':0.7E-2 },
-                               {'z': 4.0E-2, 'x': 3.4E-2 , 'y': 1.4E-2 , 'gamma':60 ,'L_gamma': 1.3E-2,'alpha1': 10 ,'L1':1.E-2 ,'alpha2': 30,'L2':0.7E-2 },
-                               ...
-                              ]
+        'cutting_edge_geom' : name_of_gtooth_file
+            The contents of gtooth_file is converted in a dictionary : 
+            [{'z': 2.0E-2, 'x': 3.0E-2 , 'y': 1.0E-2 , 'gamma':60 ,
+              'L_gamma': 1.3E-2,'alpha1': 10 ,'L1':1.E-2 ,'alpha2': 30,'L2':0.7E-2 },
+             {'z': 4.0E-2, 'x': 3.4E-2 , 'y': 1.4E-2 , 'gamma':60 ,
+              'L_gamma': 1.3E-2,'alpha1': 10 ,'L1':1.E-2 ,'alpha2': 30,'L2':0.7E-2 },
+             ... ]
         """
         ToothModel.__init__(self, **dic)
         self._has_clear_face = True
-        self.cutting_edge_geom = dic['cutting_edge_geom']
         self.nb_elementary_tools = dic['nb_elementary_tools']
         self.nb_slices_per_elt = dic['nb_slices_per_elt']
         self.clearance_face1_nb_layers = dic['clearance_face1_nb_layers']
         self.clearance_face2_nb_layers = dic['clearance_face2_nb_layers']
-        ## Calcule des arrête et du maillage :
-        # Initialisation - premier plan :
+
+        ## Import of the sliced tooth data and dictionary creation :
+        file_name_gtooth = dic['cutting_edge_geom']
+        print ("reading gtooth file : " + file_name_gtooth) 
+        #file_name_gtooth = os.path.join(case_path,file_name_gtooth)
+        data_file_tooth = open (file_name_gtooth, 'r')
+        first_line = data_file_tooth.readline()
+        nb_data_slice = int (first_line)
+        print(' number of slices: '+ str(nb_data_slice) )
+        from_data_dic_list = []
+        data_keys = ['z','x','y','gamma','L_gamma','alpha1','L1','alpha2','L2']
+        for i in range (nb_data_slice):       
+            from_data_line = data_file_tooth.readline()
+            splitted_line = from_data_line.split()
+            from_data_dic = {}
+            i = 0
+            for cle in data_keys:
+                from_data_dic [cle] = float(splitted_line[i])
+                i+=1
+            from_data_dic_list.append(from_data_dic)
+        self.cutting_edge_geom = from_data_dic_list
+
         current_point = [self.cutting_edge_geom[0][coord] for coord in ['x','y','z']]
         first_z = current_point [2]
         last_z  = self.cutting_edge_geom[-1]['z']
@@ -1121,7 +1145,7 @@ class ToothSliced(ToothModel):
             self.give_mesh_rect_patch(tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt, offset = offset)
         self.__clearance_bnd_mesh_mng__()
 # ==================================================================================================
-class ToothForHelicoidalMillType1(ToothInsert):
+class Tooth_cylindrical_mill(ToothInsert):
     def __init__(self, **dic):
         """
         waited params : 
@@ -1200,7 +1224,7 @@ class ToothForHelicoidalMillType1(ToothInsert):
                 
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
-class ToothForHelicoidalBallMill(ToothInsert):
+class Tooth_ball_mill(ToothInsert):
     def __init__(self, **dic):
         """
         waited params : 
@@ -1221,8 +1245,8 @@ class ToothForHelicoidalBallMill(ToothInsert):
         
         'radius' : 1.6E-3,
         'helix_angle' : 30, # or 
-        'angle_secteur_de_coupe' : 130.,
-        'angle_debut_secteur' : 10.,
+        'cutting_angle_degrees' : 130.,
+        'init_angle_degrees' : 10.,
         
         }
         """
@@ -1246,7 +1270,7 @@ class ToothForHelicoidalBallMill(ToothInsert):
         params['cutting_edge_geom'] = [{'seg_length' : 0., \
                                         'nb_elementary_tools': 1, \
                                         'nb_slices':  dic['nb_slices']},\
-                                       {'angle_degrees': dic['angle_secteur_de_coupe'], 'radius':dic['radius'],\
+                                       {'angle_degrees': dic['cutting_angle_degrees'], 'radius':dic['radius'],\
                                         'nb_elementary_tools': dic['nb_elementary_tools'], 'nb_slices': dic['nb_slices']}, \
                                        {'seg_length' :0.,                'nb_elementary_tools': 5, 'nb_slices': 2}] 
         params['insert_location'] ={'bissectrice_arc_idx' : 0, 'dist_from_origin': 0.}
@@ -1255,11 +1279,11 @@ class ToothForHelicoidalBallMill(ToothInsert):
         
         self.helix_angle = np.radians(dic['helix_angle'])
         self.radius = dic['radius']
-        angle_secteur_de_coupe = np.radians(dic['angle_secteur_de_coupe'])
-        angle_debut_secteur  = np.radians(dic['angle_debut_secteur'])
-        self.height = self.radius*(np.sin(angle_secteur_de_coupe+angle_debut_secteur-np.pi/2) - np.sin(angle_debut_secteur-np.pi/2))
+        cutting_angle_degrees = np.radians(dic['cutting_angle_degrees'])
+        init_angle_degrees  = np.radians(dic['init_angle_degrees'])
+        self.height = self.radius*(np.sin(cutting_angle_degrees+init_angle_degrees-np.pi/2) - np.sin(init_angle_degrees-np.pi/2))
 
-        # 3: Rotation  d'axe y pour se caler sur l'angle_debut_secteur et 
+        # 3: Rotation  d'axe y pour se caler sur l'init_angle_degrees et 
         # deplacement des points pour que la dent soit posée sur le plan (O,x,y):
         
         for elem_tool in self.elementary_tools_list:
@@ -1269,7 +1293,7 @@ class ToothForHelicoidalBallMill(ToothInsert):
                 for node in elem_tool[key]:
                     ## DONE : incerer ici la rotation d'axe y.
                     np_node = np.array(node)
-                    np_rot_matrix = FoR.npRotAroundOyAxisMatrix(np.pi/2.-np.radians(dic['angle_secteur_de_coupe']/2. + dic['angle_debut_secteur']))
+                    np_rot_matrix = FoR.npRotAroundOyAxisMatrix(np.pi/2.-np.radians(dic['cutting_angle_degrees']/2. + dic['init_angle_degrees']))
                     np_rot_node = np.dot(np_rot_matrix,np_node)
                     node[0] = np_rot_node[0]
                     node[1] = np_rot_node[1]
@@ -1277,7 +1301,7 @@ class ToothForHelicoidalBallMill(ToothInsert):
                     node[2]+=dic['radius']
                     #node[1]= -node[1]
             np_node = np.array(elem_tool['pnt_in_cut_face'])
-            np_rot_matrix = FoR.npRotAroundOyAxisMatrix(np.pi/2.-np.radians(dic['angle_secteur_de_coupe']/2. + dic['angle_debut_secteur']))
+            np_rot_matrix = FoR.npRotAroundOyAxisMatrix(np.pi/2.-np.radians(dic['cutting_angle_degrees']/2. + dic['init_angle_degrees']))
             np_rot_node = np.dot(np_rot_matrix,np_node)
             elem_tool['pnt_in_cut_face'][0] = np_rot_node[0]
             elem_tool['pnt_in_cut_face'][1] = np_rot_node[1]
@@ -1367,6 +1391,6 @@ if __name__ == "__main__":
     #plaquette = Insert(dicPlaquetteEquerre)
     # plaquette = Insert(dicInsertModel1)
     
-    dent_helico_type2 = ToothForHelicoidalMillType2(dicToothHelicoType2)
+    dent_helico_type2 = Tooth_toroidal_mill(dicToothHelicoType2)
     #print plaquette.dic
     dent_helico_type2.draw()

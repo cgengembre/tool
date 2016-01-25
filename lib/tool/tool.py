@@ -141,8 +141,8 @@ class Tool:
 # --------------------------------------------------------------------------------------------------
     def draw(self, dc_color = None, bloc_type = CUTFACE_BLOC):
         self.compute_out_blocs()
-        out_d = './d_tool'
-        #out_d = os.path.abspath('./d_tool')
+        out_d = './OUT/d_tool'
+        #out_d = os.path.abspath('./OUT/d_tool')
         if not os.path.isdir(out_d): os.mkdir(out_d)
         
         tooth.tool_util.view_bloc(self.elem_tool_out_list, out_d, dc_color)
@@ -199,9 +199,9 @@ class Tool:
         self.compute_out_blocs()    
         
         if file_name == None :
-            file_name = 'tool_def_' + self.name + '.py'
+            file_name = 'OUT/tool_def_' + self.name + '.py'
         else:
-            file_name = 'tool_def_' + file_name + '.py' 
+            file_name = 'OUT/tool_def_' + file_name + '.py' 
         
         file_tool = open(file_name, 'w')
         file_tool.write("tool_def = [")

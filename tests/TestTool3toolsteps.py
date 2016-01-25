@@ -25,7 +25,7 @@ insert_tooth = tooth.ToothInsert(**insert_tooth_dic)
 # a helico cylindric tooth ball end :
 # ----------------------------------------------
 
-helico_tooth = tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de type 2',
+helico_tooth = tooth.Tooth_toroidal_mill(name = 'dent de fraise hélicoïdale de type 2',
          
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,
@@ -67,11 +67,11 @@ ball_tooth_dic = {'name' : 'dent boule SNECMA',
         
         'radius' : 4.E-3,
         'helix_angle' : 20., # or  torsion_angle_degrees
-        'angle_secteur_de_coupe' : 100.,
-        'angle_debut_secteur' : 5.# 90-51.3,
+        'cutting_angle_degrees' : 100.,
+        'init_angle_degrees' : 5.# 90-51.3,
         }
 
-ball_tooth = tooth.ToothForHelicoidalBallMill(**ball_tooth_dic)
+ball_tooth = tooth.Tooth_ball_mill(**ball_tooth_dic)
 ball_tooth.draw()
 
 # =======================

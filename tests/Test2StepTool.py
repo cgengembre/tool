@@ -19,7 +19,7 @@ dent = tooth.ToothInsert(**insert_tooth_dic)
 dent.draw()
 
 
-dentHelico = tooth.ToothForHelicoidalMillType2(name = 'dent de fraise hélicoïdale de type 2',
+dentHelico = tooth.Tooth_toroidal_mill(name = 'dent de fraise hélicoïdale de type 2',
          
          cut_face_thickness = 2.3E-3,
          cut_face_nb_layers = 1,
