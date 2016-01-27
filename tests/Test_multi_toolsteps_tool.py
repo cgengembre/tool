@@ -13,7 +13,7 @@ insert_tooth_tri_dic = {
         {'radius'     : 0.8, 'angle_degrees': 120., 'nb_elementary_tools': 5, 'nb_slices': 1},
         {'seg_length' : 13.7287187,                      'nb_elementary_tools': 3, 'nb_slices': 1},
         {'radius'     : 0.8, 'angle_degrees': 120., 'nb_elementary_tools': 3, 'nb_slices': 1},
-        {'seg_length' : 10.7287187,                      'nb_elementary_tools': 1, 'nb_slices': 1},
+        {'seg_length' : 6.7287187,                      'nb_elementary_tools': 1, 'nb_slices': 1},
         #{'seg_length' : 13.7287187,                      'nb_elementary_tools': 1, 'nb_slices': 1},
         #{'radius'     : 0.8, 'angle_degrees': 120., 'nb_elementary_tools': 3, 'nb_slices': 1},
         #{'seg_length' : 0.,                      'nb_elementary_tools': 1, 'nb_slices': 1},

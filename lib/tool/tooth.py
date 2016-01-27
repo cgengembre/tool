@@ -755,8 +755,8 @@ class Tooth_insert(Tooth_model) :
             current_point = [rayon*math.cos (current_angle) + centreArc[0], rayon*math.sin (current_angle) + centreArc[1]]
             # segment :
             longSeg = self.dic["seg_length_list"][idxSeg]
-            current_point[0] += longSeg * math.cos(current_angle+math.pi/2.)
-            current_point[1] += longSeg * math.sin(current_angle+math.pi/2.)
+            current_point[0] += longSeg * math.cos(current_angle-math.pi/2.)
+            current_point[1] += longSeg * math.sin(current_angle-math.pi/2.)
             
             idxArc -=1
             idxSeg -=1
