@@ -12,9 +12,9 @@ my_tooth = tooth.Tooth_toroidal_mill(
          dist_from_origin = 6.0e-3, # futur radius of the mill...
          tool_tip_radius = 3.E-3,
          lenght_before = 5.E-03,
-         lenght_after = 1.E-03, # 1.5E-03, #  lenght_after = 0.
+         lenght_after = 1.E-03, 
          tool_tip_angle_degrees = 50.0, 
-         helix_angle_degrees = 45., # tool_tip_angle_degrees = 110.0, helix_angle_degrees = 10.0,
+         helix_angle_degrees = 15., 
          seg_nb_elem_tool_before = 5, seg_nb_elem_tool_after = 3, arc_nb_elem_tool = 5,
          seg_nb_slice_before = 1, seg_nb_slice_after = 1, arc_nb_slices = 2,         
          nb_binding_slice = 1 )
