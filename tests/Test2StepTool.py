@@ -15,7 +15,7 @@ insert_tooth_dic = {   'name' : 'ma plaquette',
              #'mcr_cv_cl_name' : 'Macro Clearance Volume Cut Law Name',
          }
 
-dent = tooth.ToothInsert(**insert_tooth_dic)
+dent = tooth.Tooth_insert(**insert_tooth_dic)
 dent.draw()
 
 

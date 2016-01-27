@@ -2,11 +2,6 @@
 # Christophe Gengembre - Test de la classe dent en slices
 # TODO : Renomer le fichier en TestToothSliced.py ...
 
-import sys
-sys.path.append('../sources')
-
-from Tool import Tool, Toolstep, Tooth
-import FrameOfReference as FoR
 
 
 from os import chdir
@@ -53,7 +48,7 @@ print 'nombre de slices dans donnees : ', nb_data_slice
                                ...
                               ]
 """
-dent = Tooth.Tooth_sliced(name = 'dent en slices', 
+dent = tooth.Tooth_sliced(name = 'dent en slices', 
                          cut_face_thickness= 1.2E-3, 
                          cut_face_nb_layers = 1, 
                          clearance_face1_nb_layers = 1,

@@ -1,10 +1,5 @@
 # -*- coding: Utf-8 -*-
 # 
-import sys
-sys.path.append('../sources')
-
-from Tool import Tool, Toolstep, Tooth
-import FrameOfReference as FoR
 
 
 # ----------------------------------------------------------------------
@@ -35,7 +30,7 @@ PlaquetteNormale_P_Utile = {
 # Dent planeuse
 
 
-plaquette = Tooth.ToothInsert(**PlaquetteNormale_P_Utile)
+plaquette = tooth.Tooth_insert(**PlaquetteNormale_P_Utile)
 
 plaquette.draw()
 # ----------------------------------------------------------------------

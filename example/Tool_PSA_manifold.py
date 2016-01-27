@@ -1,11 +1,6 @@
 # -*- coding: Utf-8 -*-
 # 
 
-import sys
-sys.path.append('../sources')
-
-from Tool import Tool, Toolstep, Tooth
-import FrameOfReference as FoR
 
 tool_name = 'Tool_PSA_manifold_11N1P'
 #tool_name = 'Tool_PSA_manifold_12N'
@@ -151,12 +146,12 @@ PlaquettePlaneuse_S = {
 
 # Teeth creation
 
-Insert_normal_PU = Tooth.ToothInsert(**PlaquetteNormale_P_Utile)
-Insert_normal_S  = Tooth.ToothInsert(**PlaquetteNormale_S)
-Insert_normal_PI = Tooth.ToothInsert(**PlaquetteNormale_P_Inutile)
+Insert_normal_PU = tooth.Tooth_insert(**PlaquetteNormale_P_Utile)
+Insert_normal_S  = tooth.Tooth_insert(**PlaquetteNormale_S)
+Insert_normal_PI = tooth.Tooth_insert(**PlaquetteNormale_P_Inutile)
 
-Insert_planing_P = Tooth.ToothInsert(**PlaquettePlaneuse_P)
-Insert_planing_S = Tooth.ToothInsert(**PlaquettePlaneuse_S)
+Insert_planing_P = tooth.Tooth_insert(**PlaquettePlaneuse_P)
+Insert_planing_S = tooth.Tooth_insert(**PlaquettePlaneuse_S)
 
 
 # ----------------------------------------------------------------------

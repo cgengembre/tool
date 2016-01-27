@@ -4,11 +4,7 @@
 
 # Outil, piece, trajectoire.
 # 1: création de l'outil
-import sys
-sys.path.append('../sources')
 
-from Tool import Tool, Toolstep, Tooth
-import FrameOfReference as FoR
 #fraise = Tool.FraiseMonoblocType1 (idNoeudMaitre      = 1,    # Champ facultatif
 #  loiDeCoupe         = "nomLoiCoupe",
 #  angleAxialInitial  = 0.0,
@@ -170,9 +166,9 @@ dicFraisePlaquettes = {
 ### Outil à étages
 angles = [0, 90,  180,  270  ]
 angles2 = [10, 100,  190, 280  ]
-plaquette = Tooth.ToothInsert(**dicInsert1)
+plaquette = tooth.Tooth_insert(**dicInsert1)
 # plaquette.draw()
-plaquetteArc = Tooth.ToothInsert(**dicInsert1Arc)
+plaquetteArc = tooth.Tooth_insert(**dicInsert1Arc)
 # plaquette.draw()
 
 outil = Tool.Tool(name = 'toolstep_tool1')

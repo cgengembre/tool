@@ -1,9 +1,4 @@
 # -*- coding: Utf-8 -*-
-import sys
-sys.path.append('../sources')
-
-from Tool import Tool, Toolstep, Tooth
-import FrameOfReference as FoR
 
 insert_tool_dic = {   'name' : 'ma plaquette',
              'cutting_edge_geom': [{'seg_length' : 2.5e-3,                      'nb_elementary_tools': 1, 'nb_slices': 1},
@@ -20,7 +15,7 @@ insert_tool_dic = {   'name' : 'ma plaquette',
              'mcr_rf_cl_name' : "LC0"
          }
 
-dent = Tooth.ToothInsert(**insert_tool_dic)
+dent = tooth.Tooth_insert(**insert_tool_dic)
 dent.draw()
 
 outil = Tool.Tool(name = 'Plaquette pour usinage tube2')

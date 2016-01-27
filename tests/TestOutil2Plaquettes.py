@@ -18,7 +18,7 @@ dicInsert1 = {   'name' : 'ma plaquette',
              'mcr_cv_cl_name' : 'Macro Clear Law Name'
          }
 
-dent = Tooth.ToothInsert(**dicInsert1)
+dent = Tooth.Tooth_insert(**dicInsert1)
 dent.draw()
 
 outil = Tool.Tool(name = 'outil elicoidale de type 1')

@@ -34,7 +34,7 @@ class ToothInFrame:
         self.tooth_id = dic['tooth_id']
 
 # ==================================================================================================
-class ToothModel:
+class Tooth_model:
 # ==================================================================================================
     """
     Abstract class -  Mother class of every tooth.
@@ -215,28 +215,12 @@ class ToothModel:
         
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
-class ToothInsert(ToothModel) :
+class Tooth_insert(Tooth_model) :
 # ==================================================================================================
 # --------------------------------------------------------------------------------------------------
     def __init__(self, **dic):
         """
-        Structure de dic OBSOLETE :
-       {
-            "nom" : "nomModelGeomPlaquette",
-            "longSegment1" : 6.0e-3, "nbPartieSeg1"   :  4,
-            "rayonArc1"    : 1.0e-3, "angleDegreArc1" : 45, "nbPartiesArc1":3,
-            "longSegment2" : 5.0e-3, "nbPartieSeg2"   :  5,
-            "rayonArc2"    : 2.0e-3, "angleDegreArc2" : 30, "nbPartiesArc2":3,
-            "longSegment3" : 8.0e-3, "nbPartieSeg3"   : 4,
-            "bissectriceArc" : 2,
-            # Numéro de l'arc pour definir axe x_p
-            # Utiliser 'mediatriceSeg' pour un segment
-            "distanceOrigine" : 4.0e-3,
-            "epaisseurFaceCoupe" : 3.e-3,
-            "nbCouchesFaceDeCoupe" : 2
-         }
-         Nouvelle structure de dic adoptée : 
-         {   
+          {   
              'name' : 'ma plaquette',
              
              'cut_face_thickness' : 3.E-3,
@@ -257,7 +241,7 @@ class ToothInsert(ToothModel) :
          On pourra en théorie mettre autant de segment que l'on veut. 
          S'il y a n segments il y aura n-1 arcs.
         """
-        ToothModel.__init__(self, **dic) 
+        Tooth_model.__init__(self, **dic) 
         if dic.has_key('clearance_face_thickness') and dic['clearance_face_thickness']:
             self._has_clear_face = True
             self.clearance_face_thickness = dic['clearance_face_thickness']
@@ -376,7 +360,7 @@ class ToothInsert(ToothModel) :
                 dicoPartie["tooth_id"] = 0
                 dicoPartie["pnt_cut_edge"] = [ [p2[1], 0., p2[0]],[p1[1], 0., p1[0]]]
                 dicoPartie["pnt_in_cut_face"] = [p3[1], 0., p3[0]]
-                dicoPartie["h_cut_max"] = 1.2*e
+                dicoPartie["h_cut_max"] = .8*e
                 dicoPartie["node_cut_face"] = []
                 dicoPartie["tri_cut_face"] = []
                 #   maillage :
@@ -644,7 +628,7 @@ class ToothInsert(ToothModel) :
                 dicoPartie["tooth_id"] = 0
                 dicoPartie["pnt_cut_edge"] = [[p2[1], 0., p2[0]],[p1[1], 0., p1[0]]]
                 dicoPartie["pnt_in_cut_face"] = [p3[1], 0., p3[0]]
-                dicoPartie["h_cut_max"] = 1.2*e
+                dicoPartie["h_cut_max"] = .8*e
                 dicoPartie["node_cut_face"] = []
                 dicoPartie["tri_cut_face"] = []
                 # Maillage :
@@ -820,7 +804,7 @@ class ToothInsert(ToothModel) :
         #for ddd in self.elementary_tools_list:
         #    print ddd
 
-class Tooth_toroidal_mill(ToothInsert):
+class Tooth_toroidal_mill(Tooth_insert):
     def __init__(self, **dic):
         """
          example for dic : 
@@ -843,7 +827,7 @@ class Tooth_toroidal_mill(ToothInsert):
          'nb_binding_slice'    : 1, 'nb_sweep' : 1
          }
         """
-        #ToothModel.__init__(self,**dic)
+        #Tooth_model.__init__(self,**dic)
         # 0 : On construit le dictionnaire passé à la classe mere :
         params = {   
              'name' : dic ['name'],
@@ -865,7 +849,7 @@ class Tooth_toroidal_mill(ToothInsert):
              'insert_location': {'mediatrice_seg_idx': 0, 'dist_from_origin':dic['dist_from_origin'] }
          }
         # 0.1 : Appel du constructeur de la classe mère sur les params :
-        ToothInsert.__init__(self,**params)
+        Tooth_insert.__init__(self,**params)
         #1 : preparer les donnees pour pouvoir appliquer la methode classe insert
         # Construction des listes
         """
@@ -912,17 +896,17 @@ class Tooth_toroidal_mill(ToothInsert):
         #4 : Application de la methode l'hélicoidalisation 
         # self.radius, self.height, et self.helix_angle ou self.torsion_angle doivent exister.
         self.radius = self.dic['dist_from_origin']
-        self.helix_angle = dic['helix_angle_degrees']
+        self.helix_angle = math.radians(dic['helix_angle_degrees'])
         self.height = dic['tool_tip_radius']+dic['lenght_before']
         self.torsion_transformation()
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
-class Tooth_sliced(ToothModel):
+class Tooth_sliced(Tooth_model):
 # ==================================================================================================
     def __init__(self, **dic):
         """
         structure de dic attendue :
-        --> Clés héritées de ToothModel:
+        --> Clés héritées de Tooth_model:
         'name' : 'name for th tooth' # Optional
         'cut_face_thickness' : 1.2E-3
         'cut_face_nb_layers' : 1
@@ -939,7 +923,7 @@ class Tooth_sliced(ToothModel):
               'L_gamma': 1.3E-2,'alpha1': 10 ,'L1':1.E-2 ,'alpha2': 30,'L2':0.7E-2 },
              ... ]
         """
-        ToothModel.__init__(self, **dic)
+        Tooth_model.__init__(self, **dic)
         self._has_clear_face = True
         self.nb_elementary_tools = dic['nb_elementary_tools']
         self.nb_slices_per_elt = dic['nb_slices_per_elt']
@@ -1145,7 +1129,7 @@ class Tooth_sliced(ToothModel):
             self.give_mesh_rect_patch(tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt, offset = offset)
         self.__clearance_bnd_mesh_mng__()
 # ==================================================================================================
-class Tooth_cylindrical_mill(ToothInsert):
+class Tooth_cylindrical_mill(Tooth_insert):
     def __init__(self, **dic):
         """
         waited params : 
@@ -1165,21 +1149,6 @@ class Tooth_cylindrical_mill(ToothInsert):
         'height' : 2.E-3,
         'torsion_angle_degrees' : 30, # or helix_angle
         }
-        #self.radius, #self.height, and self.helix_angle or self.torsion_angle must be defined. 
-                 {   
-             'name' : 'ma plaquette',
-             
-             
-             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                'nb_elementary_tools': 4, 'nb_slices': 1}, # même nbSlices pour chaque el. tool
-                                   {'angle_degrees': 45, 'radius':1.0e-3, 'nb_elementary_tools': 4, 'nb_slices': 3},
-                                   {'seg_length' : 5.0e-3,                'nb_elementary_tools': 5, 'nb_slices': 4},
-                                   {'angle_degrees': 30, 'radius':2.0e-3, 'nb_elementary_tools': 4                }, # valeur par defaut : nb_slices = 1
-                                   ...
-                                   {'seg_length' : 8.0e-3,                'nb_elementary_tools': 4, 'nb_slices': 1},
-                                  ],
-             'insert_location': {'bissectrice_arc_idx'|'mediatrice_seg_idx': 2, 'dist_from_origin':4.0e-3 }
-         }
-
         """
         self.torsion_angle = math.radians(dic['torsion_angle_degrees'])
         self.height = dic['height']
@@ -1206,7 +1175,7 @@ class Tooth_cylindrical_mill(ToothInsert):
         
         
         # 2: Appel du contructeur de la classe mère :
-        ToothInsert.__init__(self, **params) 
+        Tooth_insert.__init__(self, **params) 
         # 3: deplacement des points pour que la dent soit posée sur le plan (O,x,y)
         
         for elem_tool in self.elementary_tools_list:
@@ -1224,7 +1193,7 @@ class Tooth_cylindrical_mill(ToothInsert):
                 
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
-class Tooth_ball_mill(ToothInsert):
+class Tooth_ball_mill(Tooth_insert):
     def __init__(self, **dic):
         """
         waited params : 
@@ -1275,7 +1244,7 @@ class Tooth_ball_mill(ToothInsert):
                                        {'seg_length' :0.,                'nb_elementary_tools': 5, 'nb_slices': 2}] 
         params['insert_location'] ={'bissectrice_arc_idx' : 0, 'dist_from_origin': 0.}
         # 2: Appel du contructeur de la classe mère :
-        ToothInsert.__init__(self, **params)
+        Tooth_insert.__init__(self, **params)
         
         self.helix_angle = np.radians(dic['helix_angle'])
         self.radius = dic['radius']
