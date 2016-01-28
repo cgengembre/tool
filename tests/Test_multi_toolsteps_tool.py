@@ -19,9 +19,9 @@ insert_tooth_tri_dic = {
         #{'seg_length' : 0.,                      'nb_elementary_tools': 1, 'nb_slices': 1},
                          ],
     'insert_location': {'bissectrice_arc_idx': 0 , 'dist_from_origin': 0.}, #'mediatrice_seg_idx':0'bissectrice_arc_idx': 1
-    'cut_face_thickness' : .8,
+    'cut_face_thickness' : 2.4,
     'cut_face_nb_layers' : 1,
-    'clearance_face_thickness' : .6,
+    'clearance_face_thickness' : 1.4,
     'clearance_face_nb_layers' : 1,
     'clearance_face_angle_degrees' : 20.,
     'mcr_cv_cl_name' : 'MCV0',
@@ -47,9 +47,9 @@ insert_tooth_sqr_dic = {
         #{'seg_length' : 0.,                      'nb_elementary_tools': 1, 'nb_slices': 1},
                          ],
     'insert_location': {'bissectrice_arc_idx': 0 , 'dist_from_origin': 0.}, #'mediatrice_seg_idx':0'bissectrice_arc_idx': 1
-    'cut_face_thickness' : .8,
+    'cut_face_thickness' : 2.4,
     'cut_face_nb_layers' : 1,
-    'clearance_face_thickness' : .6,
+    'clearance_face_thickness' : 1.4,
     'clearance_face_nb_layers' : 1,
     'clearance_face_angle_degrees' : 20.,
     'mcr_cv_cl_name' : 'MCV0',
@@ -63,14 +63,14 @@ insert_tooth_sqr = tooth.Tooth_insert(**insert_tooth_sqr_dic)
 toolstep1 = toolstep.ToolstepModel(name = 'toolstep1')
 toolstep2 = toolstep.ToolstepModel(name = 'toolstep2')
 toolstep3 = toolstep.ToolstepModel(name = 'toolstep3')
-toolstep4 = toolstep.ToolstepModel(name = 'toolstep4')
+
 
 #
 # Put the teeth in the toolsteps : 
 #
 
 # Toolstep1 :
-for alpha in range(0,360,180) : # for alpha in range(0,360,120) :
+for alpha in range(0,360,120) :
     frame = toolstep1.foref.create_frame(
            name                  = 'toolstep1_'+str(alpha),
     	   father_frame_name     = "Canonical",
@@ -104,7 +104,7 @@ for alpha in range(0,360,180) :
            name                  = 'toolstep3_'+str(alpha),
     	   father_frame_name     = "Canonical",
     	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
-    	   axial_angle_degrees   = alpha, # 60.+alpha, 
+    	   axial_angle_degrees   = 60.+alpha, 
     	   radius                = 39.65,
     	   axial_position        = 0.,
     	   rot_normal_degrees = 35.,
@@ -112,20 +112,18 @@ for alpha in range(0,360,180) :
     	   rot_axial_degrees  =  0. )
     toolstep3.addTooth(insert_tooth_sqr, frame)
 
-# Toolstep4 :
-#
-#for alpha in range(0,360,180) :    
-#    frame = toolstep4.foref.create_frame(
-#           name                  = 'toolstep4_'+str(alpha),
-#    	   father_frame_name     = "Canonical",
-#    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
-#    	   axial_angle_degrees   = 60.+alpha, 
-#    	   radius                = 39.65,
-#    	   axial_position        = 109.5,
-#    	   rot_normal_degrees = 35.,
-#    	   rot_radial_degrees =  0.,
-#    	   rot_axial_degrees  =  0. )
-#    toolstep3.addTooth(insert_tooth_sqr, frame)
+for alpha in range(0,360,180) :    
+    frame = toolstep3.foref.create_frame(
+           name                  = 'toolstep3_'+str(alpha-45),
+    	   father_frame_name     = "Canonical",
+    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   axial_angle_degrees   = -45.+alpha, 
+    	   radius                = 44.2,
+    	   axial_position        = 14.,
+    	   rot_normal_degrees = 0.,
+    	   rot_radial_degrees =  0.,
+    	   rot_axial_degrees  =  0. )
+    toolstep3.addTooth(insert_tooth_sqr, frame)
 
 #
 # Create the tool :
@@ -174,6 +172,20 @@ frame_Etage = tool_example.foref.create_frame(
 tool_example.addToolstep(name = 'toolstep 3', 
                   tstep = toolstep3, 
                   frame = frame_Etage)
+                  
+#frame_Etage = tool_example.foref.create_frame(
+#           name                  = 'frame_Etage_4',
+#    	   father_frame_name     = "Canonical",
+#    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+#    	   axial_angle_degrees   = 0., 
+#    	   radius                = 0.,
+#    	   axial_position        = 123.5,
+#    	   rot_normal_degrees = 0.,
+#    	   rot_radial_degrees = 0.,
+#    	   rot_axial_degrees  = 0. )
+#tool_example.addToolstep(name = 'toolstep 4', 
+#                  tstep = toolstep4, 
+#                  frame = frame_Etage)
                   
 tool_example.write("OUT_tool_3toolsteps")
 tool_example.draw(1)
