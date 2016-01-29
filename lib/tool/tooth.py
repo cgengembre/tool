@@ -32,7 +32,7 @@ class ToothInFrame:
         self.tooth = dic['tth']
         self.frame = dic['frame']
         self.tooth_id = dic['tooth_id']
-
+# --------------------------------------------------------------------------------------------------
 # ==================================================================================================
 class Tooth_model:
 # ==================================================================================================
@@ -217,31 +217,63 @@ class Tooth_model:
 # ==================================================================================================
 class Tooth_insert(Tooth_model) :
 # ==================================================================================================
-# --------------------------------------------------------------------------------------------------
     def __init__(self, **dic):
         """
-          {   
-             'name' : 'ma plaquette',
-             
-             'cut_face_thickness' : 3.E-3,
-             'cut_face_nb_layers' : 2,
-             'clearance_face_thickness' : 2.E-3,
-             'clearance_face_nb_layers' : 2,
-             'clearance_face_angle_degrees' : 45.,
-
-             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                'nb_elementary_tools': 4, 'nb_slices': 1}, # même nbSlices pour chaque el. tool
-                                   {'angle_degrees': 45, 'radius':1.0e-3, 'nb_elementary_tools': 4, 'nb_slices': 3},
-                                   {'seg_length' : 5.0e-3,                'nb_elementary_tools': 5, 'nb_slices': 4},
-                                   {'angle_degrees': 30, 'radius':2.0e-3, 'nb_elementary_tools': 4                }, # valeur par defaut : nb_slices = 1
-                                   ...
-                                   {'seg_length' : 8.0e-3,                'nb_elementary_tools': 4, 'nb_slices': 1},
-                                  ],
-             'insert_location': {'bissectrice_arc_idx'|'mediatrice_seg_idx': 2, 'dist_from_origin':4.0e-3 }
-         }
-         On pourra en théorie mettre autant de segment que l'on veut. 
-         S'il y a n segments il y aura n-1 arcs.
+        {   
+            # Mandatory data : 
+            'name' : 'ma plaquette',
+            'cutting_edge_geom': [
+                {'seg_length' : 6.0e-3,                      'nb_elementary_tools': 1, 'nb_slices': 1},
+                {'radius'     : 1.E-3, 'angle_degrees': 45, 'nb_elementary_tools': 3, 'nb_slices': 4}, # radius = 1.E-3
+                {'seg_length' : 5.0e-3,                      'nb_elementary_tools': 5},
+                {'radius'     : 2.0e-3, 'angle_degrees': 30, 'nb_elementary_tools': 3, 'nb_slices': 3},
+                {'seg_length' : 8.0e-3,                      'nb_elementary_tools': 1, 'nb_slices': 4},
+            ],
+            'insert_location': {'mediatrice_seg_idx':0 , 'dist_from_origin':4.0e-3 }, #'bissectrice_arc_idx': 1
+            'cut_face_thickness' : 3.E-3,
+            'mcr_rf_cl_name' : 'mcl_rake_face'
+            # optional data :
+            'cut_face_nb_layers' : 2, # default: 1
+            # Mandatory if clearance volume is given:
+            'clearance_face_thickness' : 2.E-3,
+            'clearance_face_angle_degrees' : 30.,
+            'mcr_cv_cl_name' : 'mcl_rake_face'
+            # Option for clearance volume :
+            'clearance_face_nb_layers' : 2, # default: 1
+        }
+        An insert can contain as many segments as necessary.
+        If it contain n segments it will contain n-1 arcs.
         """
-        Tooth_model.__init__(self, **dic) 
+        Tooth_model.__init__(self, **dic)
+        # 0: Examnination of the coherence of the entries, defaults values
+        needed_data = \
+                dic.has_key('name') \
+            and dic.has_key('cutting_edge_geom') \
+            and dic.has_key('insert_location') \
+            and dic.has_key('cut_face_thickness') \
+            and dic.has_key('mcr_rf_cl_name')
+        if not needed_data:
+            raise Exception("Tooth_insert creation: one mandatory key is missing")            
+        # optional data :
+        if not dic.has_key('cut_face_nb_layers'): dic['cut_face_nb_layers'] = 1
+        # clearance face data :
+        # mandatory data if clearance volume is present
+        clearance_vol = dic.has_key('clearance_face_thickness') \
+                     or dic.has_key('clearance_face_angle_degrees') \
+                     or dic.has_key('mcr_cv_cl_name') \
+                     or dic.has_key('clearance_face_nb_layers')
+        
+        if clearance_vol : 
+            needed_clear_data = dic.has_key('clearance_face_thickness') \
+                            and dic.has_key('clearance_face_angle_degrees') \
+                            and dic.has_key('mcr_cv_cl_name')
+            if not needed_clear_data : 
+                raise Exception("Tooth_ball_mill creation: one mandatory key for clearance volume is missing")
+            
+            if not dic.has_key('clearance_face_nb_layers') : 
+                dic['clearance_face_nb_layers'] = 1
+        
+        # 1
         if dic.has_key('clearance_face_thickness') and dic['clearance_face_thickness']:
             self._has_clear_face = True
             self.clearance_face_thickness = dic['clearance_face_thickness']
@@ -253,7 +285,7 @@ class Tooth_insert(Tooth_model) :
         for ceg_dic in dic['cutting_edge_geom']:
             self.nb_elementary_tools += ceg_dic['nb_elementary_tools']
 
-        # 1 : on transforme dic en une structure de données plus pratique pour l'algo :
+        # 2 : on transforme dic en une structure de données plus pratique pour l'algo :
         
         if dic.has_key('cutting_edge_geom'):
             # partie "commune" entre self.dic et dic :
@@ -321,12 +353,12 @@ class Tooth_insert(Tooth_model) :
                     self.dic["arc_nb_elementary_tools_list"][int(key[-1])-1] = dic[key]
         # Calcul des points dans le plan (Op, zp, xp):
         # print self.dic
-        self.__generePartiesEtMaillagePlaquette__()
+        self.__generePartiesEtMaillagePlaquette()
         # print 'Elementary tools list : ',self.elementary_tools_list
 # --------------------------------------------------------------------------------------------------
-    def __generePartiesEtMaillageArc__(self, idxArc, current_point, current_angle, next_point, next_angle):
+    def __generePartiesEtMaillageArc(self, idxArc, current_point, current_angle, next_point, next_angle):
         dicoPartie = {}
-        # print "__generePartiesEtMaillageArc__  -  idxArc = %d\n"%(idxArc) 
+        # print "__generePartiesEtMaillageArc  -  idxArc = %d\n"%(idxArc) 
         nbPartiesArc = self.dic["arc_nb_elementary_tools_list"][idxArc]
         rayon = self.dic["radius_list"][idxArc]
         alpha = math.radians(self.dic["arc_angle_degrees_list"][idxArc])
@@ -409,13 +441,13 @@ class Tooth_insert(Tooth_model) :
                         
             lastIdxElemTool = len (self.elementary_tools_list)
 
-            self.__genereVolumeDepouilleArc__([centreArc[1],0,centreArc[0]], rayon, current_angle, deltaAlpha, sliceAngle, nbSlices, nbCouchesReel, firstIdxElemTool, lastIdxElemTool)
+            self.__genereVolumeDepouilleArc([centreArc[1],0,centreArc[0]], rayon, current_angle, deltaAlpha, sliceAngle, nbSlices, nbCouchesReel, firstIdxElemTool, lastIdxElemTool)
             self.__clearance_bnd_mesh_mng__()
         else:
             next_point[0],next_point[1] = current_point[0], current_point[1]
             next_angle[0] = current_angle + alpha
 # --------------------------------------------------------------------------------------------------        
-    def __genereVolumeDepouilleArc__ (self, center, radius, current_angle, et_angle, slice_angle, nb_slices, cutf_nb_layers,  firstIdx, lastIdx):
+    def __genereVolumeDepouilleArc (self, center, radius, current_angle, et_angle, slice_angle, nb_slices, cutf_nb_layers,  firstIdx, lastIdx):
         
         if not (self.has_clear_face()) : return None
         
@@ -601,7 +633,7 @@ class Tooth_insert(Tooth_model) :
                     
             ## """
 # --------------------------------------------------------------------------------------------------               
-    def __generePartiesEtMaillageSegment__(self, idxSeg, current_point, current_angle, next_point):
+    def __generePartiesEtMaillageSegment(self, idxSeg, current_point, current_angle, next_point):
         
 
         longSeg = self.dic["seg_length_list"][idxSeg]
@@ -662,14 +694,14 @@ class Tooth_insert(Tooth_model) :
             next_point[0],next_point[1] = p2[0], p2[1]
             lastIdxElemTools = len(self.elementary_tools_list)
 
-            self.__genereVolumeDepouilleSegment__(current_angle, nbSlices, firstIdxElemTool, lastIdxElemTools)
+            self.__genereVolumeDepouilleSegment(current_angle, nbSlices, firstIdxElemTool, lastIdxElemTools)
             self.__clearance_bnd_mesh_mng__()
         else:
             next_point[0],next_point[1] = current_point[0], current_point[1]
         
         
 # --------------------------------------------------------------------------------------------------
-    def __genereVolumeDepouilleSegment__(self, current_angle, nb_slices, firstIdx, lastIdx):
+    def __genereVolumeDepouilleSegment(self, current_angle, nb_slices, firstIdx, lastIdx):
         
         if not (self.has_clear_face()) : return None
         
@@ -724,7 +756,7 @@ class Tooth_insert(Tooth_model) :
             self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.cut_face_nb_layers, offset)
 # --------------------------------------------------------------------------------------------------
 
-    def __calculPremierPointEtAngle__(self, pointEtAngle):
+    def __calculPremierPointEtAngle(self, pointEtAngle):
         if self.dic.has_key("bissectrice_arc_idx"):
             idxArc = self.dic["bissectrice_arc_idx"]
             idxSeg = idxArc
@@ -769,7 +801,7 @@ class Tooth_insert(Tooth_model) :
         pointEtAngle [1] = current_point[1]
         pointEtAngle [2] = current_angle
 # --------------------------------------------------------------------------------------------------        
-    def __generePartiesEtMaillagePlaquette__(self):
+    def __generePartiesEtMaillagePlaquette(self):
         # On effectue  tous les calculs dans le repère (Op,zp,xp).
         # On ajoute yp lors de la creation des dictionnaires à passer en entrée de donnnées.
         self.elementary_tools_list = []
@@ -777,7 +809,7 @@ class Tooth_insert(Tooth_model) :
         nbCouchesFaceDeCoupe = self.cut_face_nb_layers
         pointEtAngle = [0.,0.,0.] # contiendra [z,x, alpha]
         current_point = [0.,0.]
-        self.__calculPremierPointEtAngle__(pointEtAngle)
+        self.__calculPremierPointEtAngle(pointEtAngle)
         current_point[0], current_point[1], current_angle = pointEtAngle[0],pointEtAngle[1],pointEtAngle[2]  
         
         idxSeg = 0
@@ -787,48 +819,96 @@ class Tooth_insert(Tooth_model) :
         next_angle = [0.]
         while idxArc < len (self.dic["radius_list"]):
             ### Section segment
-            self.__generePartiesEtMaillageSegment__(idxSeg, current_point, current_angle, next_point)
+            self.__generePartiesEtMaillageSegment(idxSeg, current_point, current_angle, next_point)
             current_point = next_point
             
             ### Section arc :
-            self.__generePartiesEtMaillageArc__(idxArc, current_point, current_angle, next_point, next_angle)
+            self.__generePartiesEtMaillageArc(idxArc, current_point, current_angle, next_point, next_angle)
             ### Section Segment : 
             current_point = next_point
             current_angle = next_angle[0]
             idxArc += 1
             idxSeg += 1
         ### derniere section segment :    
-        self.__generePartiesEtMaillageSegment__(idxSeg, current_point, current_angle, next_point)
+        self.__generePartiesEtMaillageSegment(idxSeg, current_point, current_angle, next_point)
         
         #print '<CGen> self.elementary_tools_list :'
         #for ddd in self.elementary_tools_list:
         #    print ddd
-
+# --------------------------------------------------------------------------------------------------
+# ==================================================================================================
 class Tooth_toroidal_mill(Tooth_insert):
+# ==================================================================================================
     def __init__(self, **dic):
         """
-         example for dic : 
-         {
-         'name': 'dent de fraise hélicoïdale de type 2',
-         
-         'cut_face_thickness': 2.3E-2,
-         'cut_face_nb_layers': 1,
-         
-         'dist_from_origin'      : 6.0D-3, # futur radiurs of the mill...
-         'tool_tip_radius' : 3.D-3,
-         'lenght_before'   : 5.D-03,
-         'lenght_after'    : 0.0,
-         'tool_tip_angle_degrees': 110.0, 'helix_angle_degrees': -10.0,
-
-          
-         'seg_nb_elem_tool_before' : 5, 'seg_nb_elem_tool_after' : 0, 'arc_nb_elem_tool' : 5,
-         'seg_nb_slice_before':1, 'seg_nb_slice_after': 1, 'arc_nb_slices': 2,
-         
-         'nb_binding_slice'    : 1, 'nb_sweep' : 1
-         }
+        
+        
+        waited params : 
+            # Mandatory data : 
+            'name'                    : 'toothMonoblocTyp1', ##
+            'dist_from_origin'        : 6.0D-3, ## futur radiurs of the mill...
+            'tool_tip_radius'         : 3.D-3,
+            'tool_tip_angle_degrees'  : 110.0,
+            'lenght_before'           : 5.D-03,
+            'lenght_after'            : 0.0,
+            'seg_nb_elem_tool_before' : 5, 
+            'seg_nb_elem_tool_after'  : 0, 
+            'arc_nb_elem_tool'        : 5,
+            'cut_face_thickness'      : 1.E-3, ##
+            'mcr_rf_cl_name'          : "MCL1",
+            # optional data :
+            'helix_angle_degrees'     : -10.0, # defaut: 0.
+            'cut_face_nb_layers'      : 2, # default: 1 ##
+            'seg_nb_slice_before'     : 1,  # default: 1       
+            'seg_nb_slice_after'      : 1, # default: 1
+            'arc_nb_slices'           : 2, # default: 1   
+        
+            # mandatory data if clearance volume is present
+            'clearance_face_angle_degrees' : 5.,
+            'clearance_face_thickness'     : 0.5E-3,
+            'mcr_cv_cl_name'               : "MCV1",
+            # optional data if clearance volume is present
+            'clearance_face_nb_layers'     : 1, # default: 1
         """
-        #Tooth_model.__init__(self,**dic)
-        # 0 : On construit le dictionnaire passé à la classe mere :
+        # 0: Examnination of the coherence of the entries, defaults values
+        # Medatory data : 
+        needed_data = \
+                dic.has_key('name') \
+                and dic.has_key('dist_from_origin') \
+                and dic.has_key('tool_tip_radius') \
+                and dic.has_key('tool_tip_angle_degrees') \
+                and dic.has_key('lenght_before') \
+                and dic.has_key('lenght_after') \
+                and dic.has_key('seg_nb_elem_tool_before') \
+                and dic.has_key('seg_nb_elem_tool_after') \
+                and dic.has_key('arc_nb_elem_tool') \
+                and dic.has_key('cut_face_thickness') \
+                and dic.has_key('mcr_rf_cl_name')
+        if not needed_data:
+            raise Exception("Tooth_toroidal_mill creation: one mandatory key is missing")
+        # Optional data :
+        if not dic.has_key('helix_angle_degrees'): dic['helix_angle_degrees'] = 0.
+        if not dic.has_key('cut_face_nb_layers') : dic['cut_face_nb_layers' ] = 1
+        if not dic.has_key('seg_nb_slice_before'): dic['seg_nb_slice_before'] = 1
+        if not dic.has_key('seg_nb_slice_after') : dic['seg_nb_slice_after' ] = 1
+        if not dic.has_key('arc_nb_slices')      : dic['arc_nb_slices'      ] = 1
+        # mandatory data if clearance volume is present
+        clearance_vol = dic.has_key('clearance_face_thickness') \
+                     or dic.has_key('clearance_face_angle_degrees') \
+                     or dic.has_key('mcr_cv_cl_name') \
+                     or dic.has_key('clearance_face_nb_layers')
+        
+        if clearance_vol : 
+            needed_clear_data = dic.has_key('clearance_face_thickness') \
+                            and dic.has_key('clearance_face_angle_degrees') \
+                            and dic.has_key('mcr_cv_cl_name')
+            if not needed_clear_data : 
+                raise Exception("Tooth_ball_mill creation: one mandatory key for clearance volume is missing")
+            
+            if not dic.has_key('clearance_face_nb_layers') : 
+                dic['clearance_face_nb_layers'] = 1
+        
+        # 1: On construit le dictionnaire passé à la classe mere :
         params = {   
              'name' : dic ['name'],
              'mcr_rf_cl_name' : dic['mcr_rf_cl_name'], 
@@ -848,7 +928,7 @@ class Tooth_toroidal_mill(Tooth_insert):
                                   ],
              'insert_location': {'mediatrice_seg_idx': 0, 'dist_from_origin':dic['dist_from_origin'] }
          }
-        # 0.1 : Appel du constructeur de la classe mère sur les params :
+        # 2 : Appel du constructeur de la classe mère sur les params :
         Tooth_insert.__init__(self,**params)
         #1 : preparer les donnees pour pouvoir appliquer la methode classe insert
         # Construction des listes
@@ -901,30 +981,273 @@ class Tooth_toroidal_mill(Tooth_insert):
         self.torsion_transformation()
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
+class Tooth_cylindrical_mill(Tooth_insert):
+# ==================================================================================================
+    def __init__(self, **dic):
+        """
+        waited params : 
+            # Mandatory data : 
+            name = 'toothMonoblocTyp1',
+            radius                   = 3.6E-3,
+            cut_face_thickness       = 1.E-3,
+            height                   = 2.E-3,
+            nb_elementary_tools      = 3,
+            mcr_rf_cl_name = "MCL1",
+            # optional data :
+            torsion_angle_degrees    = 20.# default: 0.0
+            cut_face_nb_layers       = 2, # default: 1
+            nb_slices                = 4, # default: 1
+            # mandatory data if clearance volume is present
+            clearance_face_angle_degrees = 5.,
+            clearance_face_thickness = 0.5E-3,
+            mcr_cv_cl_name = "MCV1",
+            # optional data if clearance volume is present
+            clearance_face_nb_layers = 1, # default: 1
+        """
+        # 0: Examnination of the coherence of the entries, defaults values
+        needed_data = dic.has_key('name') \
+                    and dic.has_key('radius') \
+                    and dic.has_key('cut_face_thickness') \
+                    and dic.has_key('height') \
+                    and dic.has_key('nb_elementary_tools') \
+                    and dic.has_key('mcr_rf_cl_name')
+        if not needed_data:
+            raise Exception("Tooth_cylindrical_mill creation: one mandatory key is missing")
+        # Default values
+        if not dic.has_key('torsion_angle_degrees') : 
+            dic['torsion_angle_degrees'] = 0.0
+        if not dic.has_key('cut_face_nb_layers') : 
+            dic['cut_face_nb_layers'] = 1        
+        if not dic.has_key('nb_slices') : 
+            dic['nb_slices'] = 1
+        
+        clearance_vol = dic.has_key('clearance_face_thickness') \
+                     or dic.has_key('clearance_face_angle_degrees') \
+                     or dic.has_key('mcr_cv_cl_name') \
+                     or dic.has_key('clearance_face_nb_layers')
+        
+        if clearance_vol : 
+            needed_clear_data = dic.has_key('clearance_face_thickness') \
+                            and dic.has_key('clearance_face_angle_degrees') \
+                            and dic.has_key('mcr_cv_cl_name')
+            if not needed_clear_data : 
+                raise Exception("Tooth_ball_mill creation: one mandatory key for clearance volume is missing")
+            
+            if not dic.has_key('clearance_face_nb_layers') : 
+                dic['clearance_face_nb_layers'] = 1
+
+
+
+
+                    
+        self.torsion_angle = math.radians(dic['torsion_angle_degrees'])
+        self.height = dic['height']
+        # 1: transformation des données pour être géré commme une plaquette. 
+        params = {}
+        params['name'] = dic['name']
+        params['cut_face_thickness'] = dic['cut_face_thickness']
+        params['cut_face_nb_layers'] = dic['cut_face_nb_layers']
+        params['clearance_face_thickness'] = dic.get('clearance_face_thickness')
+        params['clearance_face_nb_layers'] = dic.get('clearance_face_nb_layers')
+        params['clearance_face_angle_degrees'] = dic.get('clearance_face_angle_degrees')
+        params['mcr_rf_cl_name']  = dic ['mcr_rf_cl_name']
+        params['mcr_cv_cl_name'] = dic.get('mcr_cv_cl_name')
+        
+        params['cutting_edge_geom'] = [{'seg_length' : dic['height'], \
+                                        'nb_elementary_tools': dic['nb_elementary_tools'], \
+                                        'nb_slices':  dic['nb_slices']},]
+        params['insert_location'] ={'mediatrice_seg_idx' : 0, 'dist_from_origin': dic['radius']}
+        
+        
+        # 2: Appel du contructeur de la classe mère :
+        Tooth_insert.__init__(self, **params) 
+        # 3: deplacement des points pour que la dent soit posée sur le plan (O,x,y)
+        
+        for elem_tool in self.elementary_tools_list:
+            liste_cles = ['node_cut_face','pnt_cut_edge']
+            if self.has_clear_face(): liste_cles+=['node_clearance_bnd','pnt_clearance_face']
+            for key in liste_cles:
+                 
+                for node in elem_tool[key]:
+                    node[2]+=dic['height']/2.
+                    #node[1]= -node[1]
+            elem_tool['pnt_in_cut_face'][2] += dic['height']/2.
+            
+        # 4: application de la torsion transformation. 
+        self.torsion_transformation()
+                
+# --------------------------------------------------------------------------------------------------
+# ==================================================================================================
+class Tooth_ball_mill(Tooth_insert):
+# ==================================================================================================
+    def __init__(self, **dic):
+        """
+        waited params : 
+        {
+        # Mandatory data : 
+        'name' : 'ball_mill_tooth',
+        'radius' : 4.E-3,
+        'init_angle_degrees' : 5. ,
+        'cutting_angle_degrees' : 160., 
+        'cut_face_thickness' : 0.80E-3,
+        'nb_elementary_tools': 20,  
+        'mcr_rf_cl_name' : 'mcl_rake_face',
+        # optional data :
+        'helix_angle_degrees': 20., # default: 0.0
+        'cut_face_nb_layers' : 2,   # default: 1
+        'nb_slices'          : 3,   # default: 1       
+        # mandatory data if clearance volume is present
+        'mcr_cv_cl_name' : 'mcl_clear_face',
+        'clearance_face_thickness' : 1.5E-3,
+        'clearance_face_angle_degrees' : 1.20,
+        # optional data
+        'clearance_face_nb_layers' : 2 # default: 1
+        #
+        }
+        """
+        
+        # 0: Examnination of the coherence of the entries, defaults values
+        
+        needed_data = dic.has_key('name') \
+                  and dic.has_key('radius') \
+                  and dic.has_key('init_angle_degrees') \
+                  and dic.has_key('cutting_angle_degrees') \
+                  and dic.has_key('cut_face_thickness') \
+                  and dic.has_key('nb_elementary_tools') \
+                  and dic.has_key('mcr_rf_cl_name')
+        if not needed_data:
+            raise Exception("Tooth_ball_mill creation: one mandatory key is missing")
+        
+        # Default values
+        if not dic.has_key('helix_angle_degrees') : 
+            dic['helix_angle_degrees'] = 0.0
+        if not dic.has_key('cut_face_nb_layers') : 
+            dic['cut_face_nb_layers'] = 1        
+        if not dic.has_key('nb_slices') : 
+            dic['nb_slices'] = 1
+        
+        clearance_vol = dic.has_key('clearance_face_thickness') \
+                     or dic.has_key('clearance_face_angle_degrees') \
+                     or dic.has_key('mcr_cv_cl_name') \
+                     or dic.has_key('clearance_face_nb_layers')
+        
+        if clearance_vol : 
+            needed_clear_data = dic.has_key('clearance_face_thickness') \
+                            and dic.has_key('clearance_face_angle_degrees') \
+                            and dic.has_key('mcr_cv_cl_name')
+            if not needed_clear_data : 
+                raise Exception("Tooth_ball_mill creation: one mandatory key for clearance volume is missing")
+            
+            if not dic.has_key('clearance_face_nb_layers') : 
+                dic['clearance_face_nb_layers'] = 1
+                        
+        
+        # 1: transformation des données pour être géré commme une plaquette. 
+        params = {}
+        params['name'] = dic['name']
+        params['cut_face_thickness'] = dic['cut_face_thickness']
+        params['cut_face_nb_layers'] = dic['cut_face_nb_layers']
+        params['mcr_rf_cl_name']  = dic ['mcr_rf_cl_name']
+        if clearance_vol :
+            params['clearance_face_thickness'] = dic.get('clearance_face_thickness')
+            params['clearance_face_nb_layers'] = dic.get('clearance_face_nb_layers')
+            params['clearance_face_angle_degrees'] = dic.get('clearance_face_angle_degrees')
+            params['mcr_cv_cl_name'] = dic.get('mcr_cv_cl_name')
+        else :
+            params['clearance_face_thickness'] = 0.0
+            params['clearance_face_angle_degrees'] = 0.0
+            
+        ## TODO : Controler que radius > cut_face_thickness + debordement volume en depouille /!\
+        params['radius'] = dic['radius']
+        if (params['radius'] < params['cut_face_thickness']+params['clearance_face_thickness']*math.sin(math.radians(params['clearance_face_angle_degrees']))):
+            raise Exception("Attention le volume de la dent va au delà  de l'axe de rotation de la fraise !")
+        
+        params['cutting_edge_geom'] = [{'seg_length' : 0., \
+                                        'nb_elementary_tools': 1, \
+                                        'nb_slices':  dic['nb_slices']},\
+                                       {'angle_degrees': dic['cutting_angle_degrees'], 'radius':dic['radius'],\
+                                        'nb_elementary_tools': dic['nb_elementary_tools'], 'nb_slices': dic['nb_slices']}, \
+                                       {'seg_length' :0.,                'nb_elementary_tools': 5, 'nb_slices': 2}] 
+        params['insert_location'] ={'bissectrice_arc_idx' : 0, 'dist_from_origin': 0.}
+        # 2: Appel du contructeur de la classe mère :
+        Tooth_insert.__init__(self, **params)
+        
+        self.helix_angle = np.radians(dic['helix_angle_degrees'])
+        self.radius = dic['radius']
+        cutting_angle_degrees = np.radians(dic['cutting_angle_degrees'])
+        init_angle_degrees  = np.radians(dic['init_angle_degrees'])
+        self.height = self.radius*(np.sin(cutting_angle_degrees+init_angle_degrees-np.pi/2) - np.sin(init_angle_degrees-np.pi/2))
+
+        # 3: Rotation  d'axe y pour se caler sur l'init_angle_degrees et 
+        # deplacement des points pour que la dent soit posée sur le plan (O,x,y):
+        
+        for elem_tool in self.elementary_tools_list:
+            liste_cles = ['node_cut_face','pnt_cut_edge']
+            if self.has_clear_face(): liste_cles+=['node_clearance_bnd','pnt_clearance_face']
+            for key in liste_cles:                 
+                for node in elem_tool[key]:
+                    ## DONE : incerer ici la rotation d'axe y.
+                    np_node = np.array(node)
+                    np_rot_matrix = FoR.npRotAroundOyAxisMatrix(np.pi/2.-np.radians(dic['cutting_angle_degrees']/2. + dic['init_angle_degrees']))
+                    np_rot_node = np.dot(np_rot_matrix,np_node)
+                    node[0] = np_rot_node[0]
+                    node[1] = np_rot_node[1]
+                    node[2] = np_rot_node[2]
+                    node[2]+=dic['radius']
+                    #node[1]= -node[1]
+            np_node = np.array(elem_tool['pnt_in_cut_face'])
+            np_rot_matrix = FoR.npRotAroundOyAxisMatrix(np.pi/2.-np.radians(dic['cutting_angle_degrees']/2. + dic['init_angle_degrees']))
+            np_rot_node = np.dot(np_rot_matrix,np_node)
+            elem_tool['pnt_in_cut_face'][0] = np_rot_node[0]
+            elem_tool['pnt_in_cut_face'][1] = np_rot_node[1]
+            elem_tool['pnt_in_cut_face'][2] = np_rot_node[2]
+            elem_tool['pnt_in_cut_face'][2]+=dic['radius']
+            
+        # 5: application de l'angle de torsion 
+        self.torsion_transformation()
+        
+# --------------------------------------------------------------------------------------------------
+# ==================================================================================================
 class Tooth_sliced(Tooth_model):
 # ==================================================================================================
     def __init__(self, **dic):
         """
         structure de dic attendue :
-        --> Clés héritées de Tooth_model:
-        'name' : 'name for th tooth' # Optional
-        'cut_face_thickness' : 1.2E-3
-        'cut_face_nb_layers' : 1
-        'clearance_face1_nb_layers' : 1  # clearance face 1 defined by alpha1 and L1
-        'clearance_face2_nb_layers' : 1  # clearance face 2 defined by alpha2 and L2
-        'nb_slices_per_elt': 1
-        --> Clés propres à ToothForMonoblocMillType3
-        'nb_elementary_tools' : 50
-        'cutting_edge_geom' : name_of_gtooth_file
-            The contents of gtooth_file is converted in a dictionary : 
-            [{'z': 2.0E-2, 'x': 3.0E-2 , 'y': 1.0E-2 , 'gamma':60 ,
-              'L_gamma': 1.3E-2,'alpha1': 10 ,'L1':1.E-2 ,'alpha2': 30,'L2':0.7E-2 },
-             {'z': 4.0E-2, 'x': 3.4E-2 , 'y': 1.4E-2 , 'gamma':60 ,
-              'L_gamma': 1.3E-2,'alpha1': 10 ,'L1':1.E-2 ,'alpha2': 30,'L2':0.7E-2 },
-             ... ]
+        # Mandatory data :    
+        name                      = 'ball_mill_tooth',
+        cutting_edge_geom         = file_gtooth,
+        nb_elementary_tools       = 4,
+        nb_slices_per_elt         = 5,
+        clearance_face1_nb_layers = 1,
+        clearance_face2_nb_layers = 1,
+        mcr_rf_cl_name            = 'mcl_cut_face', 
+        cut_face_thickness        = 1.E-3,
+        # Optional data :
+        cut_face_nb_layers = 1, # default: 1
+        mcr_cv_cl_name = 'mcl_clear_face'  # if not specified, clearance volume is
+                                           # not generated
         """
+        # 0: Examnination of the coherence of the entries, defaults values
+        # 0.1: Mandatory data :
+        needed_data = dic.has_key('name') \
+                 and  dic.has_key('cutting_edge_geom') \
+                 and  dic.has_key('nb_elementary_tools') \
+                 and  dic.has_key('nb_slices_per_elt') \
+                 and  dic.has_key('clearance_face1_nb_layers') \
+                 and  dic.has_key('clearance_face2_nb_layers') \
+                 and  dic.has_key('mcr_rf_cl_name') \
+                 and  dic.has_key('cut_face_thickness')
+        if not needed_data:
+            raise Exception("Tooth_sliced creation: one mandatory key is missing")
+        
+        if not dic.has_key('cut_face_nb_layers'): dic['cut_face_nb_layers'] = 1
+        # 1: Call the constructor of the mother class
         Tooth_model.__init__(self, **dic)
-        self._has_clear_face = True
+        if self.mcr_cv_cl_name: self._has_clear_face = True
+        
+        
+            
+            
         self.nb_elementary_tools = dic['nb_elementary_tools']
         self.nb_slices_per_elt = dic['nb_slices_per_elt']
         self.clearance_face1_nb_layers = dic['clearance_face1_nb_layers']
@@ -1128,278 +1451,12 @@ class Tooth_sliced(Tooth_model):
             elem_tool['node_clearance_bnd']+=elem_tool['node_cut_face']
             self.give_mesh_rect_patch(tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt, offset = offset)
         self.__clearance_bnd_mesh_mng__()
-# ==================================================================================================
-class Tooth_cylindrical_mill(Tooth_insert):
-    def __init__(self, **dic):
-        """
-        waited params : 
-        {
-        'name' : 'toothMonoblocTyp1',
-        'nb_elementary_tools': 3,
-        'nb_slices' : 4,
-        'mcr_rf_cl_name' : 'Nom cutlaw',
-        'mcr_cv_cl_name' : 'Nom clearlaw',
-        'cut_face_thickness' : 3.E-3,
-        'cut_face_nb_layers' : 2,
-        'clearance_face_thickness' : 2.E-3,
-        'clearance_face_nb_layers' : 2,
-        'clearance_face_angle_degrees' : 45.,
-        
-        'radius' : 1.6E-3,
-        'height' : 2.E-3,
-        'torsion_angle_degrees' : 30, # or helix_angle
-        }
-        """
-        self.torsion_angle = math.radians(dic['torsion_angle_degrees'])
-        self.height = dic['height']
-        # 1: transformation des données pour être géré commme une plaquette. 
-        params = {}
-        params['name'] = dic['name']
-        params['cut_face_thickness'] = dic['cut_face_thickness']
-        params['cut_face_nb_layers'] = dic['cut_face_nb_layers']
-        params['clearance_face_thickness'] = dic.get('clearance_face_thickness')
-        params['clearance_face_nb_layers'] = dic.get('clearance_face_nb_layers')
-        params['clearance_face_angle_degrees'] = dic.get('clearance_face_angle_degrees')
-        params['mcr_rf_cl_name']  = dic ['mcr_rf_cl_name']
-        params['mcr_cv_cl_name'] = dic.get('mcr_cv_cl_name')
-        ## TODO : Controler que radius > cut_face_thickness + debordement volume en depouille /!\
-        params['radius'] = dic['radius']
-        if (params['radius'] < params['cut_face_thickness']+params['clearance_face_thickness']*math.sin(math.radians(params['clearance_face_angle_degrees']))):
-            raise Exception("Attention le volume de la dent va au delà  de l'axe de rotation de la fraise !")
-        params['torsion_angle_degrees'] = dic['torsion_angle_degrees']
-        
-        params['cutting_edge_geom'] = [{'seg_length' : dic['height'], \
-                                        'nb_elementary_tools': dic['nb_elementary_tools'], \
-                                        'nb_slices':  dic['nb_slices']},]
-        params['insert_location'] ={'mediatrice_seg_idx' : 0, 'dist_from_origin': dic['radius']}
-        
-        
-        # 2: Appel du contructeur de la classe mère :
-        Tooth_insert.__init__(self, **params) 
-        # 3: deplacement des points pour que la dent soit posée sur le plan (O,x,y)
-        
-        for elem_tool in self.elementary_tools_list:
-            liste_cles = ['node_cut_face','pnt_cut_edge']
-            if self.has_clear_face(): liste_cles+=['node_clearance_bnd','pnt_clearance_face']
-            for key in liste_cles:
-                 
-                for node in elem_tool[key]:
-                    node[2]+=dic['height']/2.
-                    #node[1]= -node[1]
-            elem_tool['pnt_in_cut_face'][2] += dic['height']/2.
-            
-        # 4: application de la torsion transformation. 
-        self.torsion_transformation()
-                
 # --------------------------------------------------------------------------------------------------
-# ==================================================================================================
-class Tooth_ball_mill(Tooth_insert):
-    def __init__(self, **dic):
-        """
-        waited params : 
-        {
-        'name' : 'toothMonoblocTyp1',
-        'nb_elementary_tools': 3,
-        'nb_slices' : 4,
-        'mcr_rf_cl_name' : 'Nom cutlaw',
-        'mcr_cv_cl_name' : 'Nom clearlaw',
-        'cut_face_thickness' : 3.E-3,
-        'cut_face_nb_layers' : 2,
-        'clearance_face_thickness' : 2.E-3,
-        'clearance_face_nb_layers' : 2,
-        'clearance_face_angle_degrees' : 45.,
-        
-        #'torre_radius': 1.3E-3 # condition : 
-        
-        
-        'radius' : 1.6E-3,
-        'helix_angle' : 30, # or 
-        'cutting_angle_degrees' : 130.,
-        'init_angle_degrees' : 10.,
-        
-        }
-        """
-        
-        # 0: Examnination of the coherence of the entries, defaults values
-        
-        needed_data = dic.has_key('name') \
-                  and dic.has_key('radius') \
-                  and dic.has_key('init_angle_degrees') \
-                  and dic.has_key('cutting_angle_degrees') \
-                  and dic.has_key('cut_face_thickness') \
-                  and dic.has_key('nb_elementary_tools') \
-                  and dic.has_key('mcr_rf_cl_name')
-        if not needed_data:
-            raise Exception("Tooth_ball_mill creation: one mandatory key is missing")
-        
-        # Default values
-        if not dic.has_key('helix_angle') : 
-            dic['helix_angle'] = 0.0
-        if not dic.has_key('cut_face_nb_layers') : 
-            dic['cut_face_nb_layers'] = 1        
-        if not dic.has_key('nb_slices') : 
-            dic['nb_slices'] = 1
-        
-        clearance_vol = dic.has_key('clearance_face_thickness') \
-                     or dic.has_key('clearance_face_angle_degrees') \
-                     or dic.has_key('mcr_cv_cl_name') \
-                     or dic.has_key('clearance_face_nb_layers')
-        
-        if clearance_vol : 
-            needed_clear_data = dic.has_key('clearance_face_thickness') \
-                            and dic.has_key('clearance_face_angle_degrees') \
-                            and dic.has_key('mcr_cv_cl_name')
-            if not needed_clear_data : 
-                raise Exception("Tooth_ball_mill creation: one mandatory key for clearance volume is missing")
-            
-            if not dic.has_key('clearance_face_nb_layers') : 
-                dic['clearance_face_nb_layers'] = 1
-                        
-        
-        # 1: transformation des données pour être géré commme une plaquette. 
-        params = {}
-        params['name'] = dic['name']
-        params['cut_face_thickness'] = dic['cut_face_thickness']
-        params['cut_face_nb_layers'] = dic['cut_face_nb_layers']
-        params['mcr_rf_cl_name']  = dic ['mcr_rf_cl_name']
-        if clearance_vol :
-            params['clearance_face_thickness'] = dic.get('clearance_face_thickness')
-            params['clearance_face_nb_layers'] = dic.get('clearance_face_nb_layers')
-            params['clearance_face_angle_degrees'] = dic.get('clearance_face_angle_degrees')
-            params['mcr_cv_cl_name'] = dic.get('mcr_cv_cl_name')
-        else :
-            params['clearance_face_thickness'] = 0.0
-            params['clearance_face_angle_degrees'] = 0.0
-            
-        ## TODO : Controler que radius > cut_face_thickness + debordement volume en depouille /!\
-        params['radius'] = dic['radius']
-        if (params['radius'] < params['cut_face_thickness']+params['clearance_face_thickness']*math.sin(math.radians(params['clearance_face_angle_degrees']))):
-            raise Exception("Attention le volume de la dent va au delà  de l'axe de rotation de la fraise !")
-        
-        params['cutting_edge_geom'] = [{'seg_length' : 0., \
-                                        'nb_elementary_tools': 1, \
-                                        'nb_slices':  dic['nb_slices']},\
-                                       {'angle_degrees': dic['cutting_angle_degrees'], 'radius':dic['radius'],\
-                                        'nb_elementary_tools': dic['nb_elementary_tools'], 'nb_slices': dic['nb_slices']}, \
-                                       {'seg_length' :0.,                'nb_elementary_tools': 5, 'nb_slices': 2}] 
-        params['insert_location'] ={'bissectrice_arc_idx' : 0, 'dist_from_origin': 0.}
-        # 2: Appel du contructeur de la classe mère :
-        Tooth_insert.__init__(self, **params)
-        
-        self.helix_angle = np.radians(dic['helix_angle'])
-        self.radius = dic['radius']
-        cutting_angle_degrees = np.radians(dic['cutting_angle_degrees'])
-        init_angle_degrees  = np.radians(dic['init_angle_degrees'])
-        self.height = self.radius*(np.sin(cutting_angle_degrees+init_angle_degrees-np.pi/2) - np.sin(init_angle_degrees-np.pi/2))
-
-        # 3: Rotation  d'axe y pour se caler sur l'init_angle_degrees et 
-        # deplacement des points pour que la dent soit posée sur le plan (O,x,y):
-        
-        for elem_tool in self.elementary_tools_list:
-            liste_cles = ['node_cut_face','pnt_cut_edge']
-            if self.has_clear_face(): liste_cles+=['node_clearance_bnd','pnt_clearance_face']
-            for key in liste_cles:                 
-                for node in elem_tool[key]:
-                    ## DONE : incerer ici la rotation d'axe y.
-                    np_node = np.array(node)
-                    np_rot_matrix = FoR.npRotAroundOyAxisMatrix(np.pi/2.-np.radians(dic['cutting_angle_degrees']/2. + dic['init_angle_degrees']))
-                    np_rot_node = np.dot(np_rot_matrix,np_node)
-                    node[0] = np_rot_node[0]
-                    node[1] = np_rot_node[1]
-                    node[2] = np_rot_node[2]
-                    node[2]+=dic['radius']
-                    #node[1]= -node[1]
-            np_node = np.array(elem_tool['pnt_in_cut_face'])
-            np_rot_matrix = FoR.npRotAroundOyAxisMatrix(np.pi/2.-np.radians(dic['cutting_angle_degrees']/2. + dic['init_angle_degrees']))
-            np_rot_node = np.dot(np_rot_matrix,np_node)
-            elem_tool['pnt_in_cut_face'][0] = np_rot_node[0]
-            elem_tool['pnt_in_cut_face'][1] = np_rot_node[1]
-            elem_tool['pnt_in_cut_face'][2] = np_rot_node[2]
-            elem_tool['pnt_in_cut_face'][2]+=dic['radius']
-            
-        # 5: application de l'angle de torsion 
-        self.torsion_transformation()
-        
-    
 # ==================================================================================================
 
 
 if __name__ == "__main__":
-    dico1 = {
-            "nom" : "nomModelGeomPlaquette",
-            "longSegment1" : 6.0e-3, "nbPartieSeg1"   :  4,
-            "rayonArc1"    : 1.0e-3, "angleDegreArc1" : 45, "nbPartiesArc1":3,
-            "longSegment2" : 5.0e-3, "nbPartieSeg2"   :  5,
-            "rayonArc2"    : 2.0e-3, "angleDegreArc2" : 30, "nbPartiesArc2":3,
-            "longSegment3" : 8.0e-3, "nbPartieSeg3"   : 4,
-            "bissectriceArc" : 2,
-            # Numéro de l'arc pour definir axe x_p
-            # Utiliser 'mediatriceSeg' pour un segment
-            "distanceOrigine" : 4.0e-3,
-            "epaisseurFaceCoupe" : 3.e-3,
-            "nbCouchesFaceDeCoupe": 2
-            }
-    dicInsertModel1 = {   'name' : 'ma plaquette',
-                          'tooth_id' : 0, 'storey_id': 0,
-             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                      'nb_elementary_tools': 4, 'nb_slices': 4},
-                                   {'radius'     : 4.0e-3, 'angle_degrees': 45, 'nb_elementary_tools': 3, 'nb_slices': 4},
-                                   {'seg_length' : 5.0e-3,                      'nb_elementary_tools': 5},
-                                   {'radius'     : 6.0e-3, 'angle_degrees': 30, 'nb_elementary_tools': 3, 'nb_slices': 3},
-                                   {'seg_length' : 8.0e-3,                      'nb_elementary_tools': 4, 'nb_slices': 1},
-                                  ],
-             'insert_location': {'bissectrice_arc_idx': 1, 'dist_from_origin':4.0e-3 },
-             'cut_face_thickness' : 3.E-3,
-             'cut_face_nb_layers' : 3
-         }
-    dicInsertModel3 = {   'name' : 'ma plaquette',
-                          'tooth_id' : 0, 'storey_id': 0,
-             'cutting_edge_geom': [{'seg_length' : 6.0e-3,                      'nb_elementary_tools': 4, 'nb_slices': 4},
-                                   {'radius'     : 0., 'angle_degrees': 45, 'nb_elementary_tools': 3, 'nb_slices': 1},
-                                   {'seg_length' : 5.0e-3,                      'nb_elementary_tools': 5},
-                                   {'radius'     : 0., 'angle_degrees': 30, 'nb_elementary_tools': 3},
-                                   {'seg_length' : 8.0e-3,                      'nb_elementary_tools': 4, 'nb_slices': 1},
-                                  ],
-             'insert_location': {'bissectrice_arc_idx': 1, 'dist_from_origin':4.0e-3 },
-             'cut_face_thickness' : 3.E-3,
-             'cut_face_nb_layers' : 2
-         }
-    dicInsertModel2 = {   'name' : 'ma plaquette',
-                          'tooth_id' : 0, 'storey_id': 0,
-             'cutting_edge_geom': [{'seg_length' : 0.,                      'nb_elementary_tools': 4, 'nb_slices': 4},
-                                   {'radius'     : 2.8e-3, 'angle_degrees': 45, 'nb_elementary_tools': 4, 'nb_slices': 3},
-                                   {'seg_length' : 0.,                      'nb_elementary_tools': 5}
-                                                                     ],
-             'insert_location': {'bissectrice_arc_idx': 0, 'dist_from_origin':4.0e-3 },
-             'cut_face_thickness' : 3.E-3,
-             'cut_face_nb_layers' : 6
-         }
-         
-    dicToothHelicoType2 = {
-         'name': 'dent de fraise hélicoïdale de type 2',
-         'tooth_id': 0,
-         'storey_id': 0,
-         
-         'cut_face_thickness': 2.3E-2,
-         'cut_face_nb_layers': 3,
-         
-         'dist_from_origin'      : 6.0E-3, # futur radiurs of the mill...
-         'tool_tip_radius' : 3.E-3,
-         'lenght_before'    : 5.E-03,
-         'lenght_after'    : 0.0,
-         'tool_tip_angle_degrees' : 110.0, 'helix_angle_degrees' : -10.0,
-
-          
-         'seg_nb_elem_tool_before' : 5, 'seg_nb_elem_tool_after' : 0, 'arc_nb_elem_tool' : 5,
-         'seg_nb_slice_before':1, 'seg_nb_slice_after': 1, 'arc_nb_slices': 2,
-         
-         'nb_binding_slice'    : 1, 'nb_sweep' : 1
-         }
-    #plaquette = Insert(dicPlaquette1Segment)
-    #plaquette = Insert(dicPlaquette1Arc)
-    #plaquette = Insert(dicPlaquette3seg)
-    #plaquette = Insert(dicPlaquetteEquerre)
-    # plaquette = Insert(dicInsertModel1)
-    
-    dent_helico_type2 = Tooth_toroidal_mill(dicToothHelicoType2)
-    #print plaquette.dic
-    dent_helico_type2.draw()
+    """
+    TODO : test
+    """
+    print "TODO : a test that test every thing ..."

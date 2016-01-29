@@ -1,23 +1,32 @@
 # -*- coding: Utf-8 -*-
 
 my_tooth = tooth.Tooth_toroidal_mill(
-         name = 'tooth_toroidal_mill',
-         cut_face_thickness = 1.5E-3,
-         cut_face_nb_layers = 1,
-         mcr_rf_cl_name = "MCL1",
-         #mcr_cv_cl_name = "MCV1",
-         #clearance_face_thickness = 2.E-3,
-         #clearance_face_nb_layers = 2,
-         #clearance_face_angle_degrees = 30.,
-         dist_from_origin = 6.0e-3, # futur radius of the mill...
-         tool_tip_radius = 3.E-3,
-         lenght_before = 5.E-03,
-         lenght_after = 1.E-03, 
-         tool_tip_angle_degrees = 50.0, 
-         helix_angle_degrees = 15., 
-         seg_nb_elem_tool_before = 5, seg_nb_elem_tool_after = 3, arc_nb_elem_tool = 5,
-         seg_nb_slice_before = 1, seg_nb_slice_after = 1, arc_nb_slices = 2,         
-         nb_binding_slice = 1 )
+            # Mandatory data : 
+            name                    = 'toothMonoblocTyp1', 
+            dist_from_origin        = 6.0E-3, ## futur radiurs of the mill...
+            tool_tip_radius         = 3.E-3,
+            tool_tip_angle_degrees  = 110.0,
+            lenght_before           = 5.E-03,
+            lenght_after            = 0.0,
+            seg_nb_elem_tool_before = 5, 
+            seg_nb_elem_tool_after  = 0, 
+            arc_nb_elem_tool        = 5,
+            cut_face_thickness      = 1.E-3, ##
+            mcr_rf_cl_name          = "MCL1",
+            # optional data :
+            helix_angle_degrees     = 10.0, # default: 0.
+            cut_face_nb_layers      = 2,     # default: 1 ##
+            seg_nb_slice_before     = 1,     # default: 1       
+            seg_nb_slice_after      = 1,     # default: 1
+            arc_nb_slices           = 2,     # default: 1   
+        
+            # mandatory data if clearance volume is present
+            clearance_face_angle_degrees = 5.,
+            clearance_face_thickness     = 0.5E-3,
+            mcr_cv_cl_name               = "MCV1",
+            # optional data if clearance volume is present
+            clearance_face_nb_layers     = 1, # default: 1 
+            )
          
 # my_tooth.draw()
 

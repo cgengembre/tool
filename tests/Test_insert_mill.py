@@ -1,7 +1,8 @@
 # -*- coding: Utf-8 -*-
 # import FrameOfReference as FoR
 
-my_insert_dic = {   
+my_insert_dic = {
+    # Mandatory data : 
     'name' : 'ma plaquette',
     'cutting_edge_geom': [
         {'seg_length' : 6.0e-3,                      'nb_elementary_tools': 1, 'nb_slices': 1},
@@ -12,10 +13,15 @@ my_insert_dic = {
     ],
     'insert_location': {'mediatrice_seg_idx':0 , 'dist_from_origin':4.0e-3 }, #'bissectrice_arc_idx': 1
     'cut_face_thickness' : 3.E-3,
-    'cut_face_nb_layers' : 2,
+    'mcr_rf_cl_name' : 'mcl_rake_face',
+    # optional data :
+    'cut_face_nb_layers' : 2, # default: 1
+    # Mandatory if clearance volume is given:
     'clearance_face_thickness' : 2.E-3,
-    'clearance_face_nb_layers' : 2,
     'clearance_face_angle_degrees' : 30.,
+    'mcr_cv_cl_name' : 'mcl_rake_face',
+    # Option for clearance volume :
+    'clearance_face_nb_layers' : 2, # default: 1
 }
 
 my_insert = tooth.Tooth_insert(**my_insert_dic) #Arc)

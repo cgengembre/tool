@@ -123,7 +123,7 @@ class ToolstepModel:
             self.elem_tool_out_list.append(elem_tool_cut)
             
             ## clear face
-            if elem_tool.get('node_clearance_bnd'):
+            if elem_tool.get('mcr_cv_cl_name'):
                 elem_tool_clear['type']           = 'clear_vol'
                 elem_tool_clear['node']           = elem_tool['node_clearance_bnd']# noeud
                 elem_tool_clear['tri']            = elem_tool['tri_clearance_bnd']# tri
