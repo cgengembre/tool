@@ -1,20 +1,25 @@
 # -*- coding: Utf-8 -*-
 
 dic_bm_tooth = {
+        # mandatory data
         'name' : 'ball_mill_tooth',
-        'cut_face_thickness' : 0.80E-3,
-        'cut_face_nb_layers' : 2,
-        'clearance_face_thickness' : 1.5E-3,
-        'clearance_face_nb_layers' : 2,
-        'clearance_face_angle_degrees' : 1.20,
-        'mcr_rf_cl_name' : 'mcl_rake_face',
-        'mcr_cv_cl_name' : 'mcl_clear_face',
         'radius' : 4.E-3,
-        'nb_slices' : 3,
+        'init_angle_degrees' : 5. ,
         'cutting_angle_degrees' : 160., 
+        'cut_face_thickness' : 0.80E-3,
         'nb_elementary_tools': 20,  
-        'helix_angle' : 20., # or  torsion_angle_degrees
-        'init_angle_degrees' : 5. 
+        'mcr_rf_cl_name' : 'mcl_rake_face',
+        # not mandatory
+        'helix_angle'        : 20., # default: 0.0
+        'cut_face_nb_layers' : 2,   # default: 1
+        'nb_slices'          : 3,   # default: 1       
+        # mandatory data if clearance volume is present
+        'mcr_cv_cl_name' : 'mcl_clear_face',
+        'clearance_face_thickness' : 1.5E-3,
+        'clearance_face_angle_degrees' : 1.20,
+        # not mandatory data
+        'clearance_face_nb_layers' : 2 # default: 1
+        #
         }
 
 bm_tooth = tooth.Tooth_ball_mill(**dic_bm_tooth)

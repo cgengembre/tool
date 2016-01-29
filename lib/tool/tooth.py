@@ -1220,17 +1220,57 @@ class Tooth_ball_mill(Tooth_insert):
         }
         """
         
+        # 0: Examnination of the coherence of the entries, defaults values
+        
+        needed_data = dic.has_key('name') \
+                  and dic.has_key('radius') \
+                  and dic.has_key('init_angle_degrees') \
+                  and dic.has_key('cutting_angle_degrees') \
+                  and dic.has_key('cut_face_thickness') \
+                  and dic.has_key('nb_elementary_tools') \
+                  and dic.has_key('mcr_rf_cl_name')
+        if not needed_data:
+            raise Exception("Tooth_ball_mill creation: one mandatory key is missing")
+        
+        # Default values
+        if not dic.has_key('helix_angle') : 
+            dic['helix_angle'] = 0.0
+        if not dic.has_key('cut_face_nb_layers') : 
+            dic['cut_face_nb_layers'] = 1        
+        if not dic.has_key('nb_slices') : 
+            dic['nb_slices'] = 1
+        
+        clearance_vol = dic.has_key('clearance_face_thickness') \
+                     or dic.has_key('clearance_face_angle_degrees') \
+                     or dic.has_key('mcr_cv_cl_name') \
+                     or dic.has_key('clearance_face_nb_layers')
+        
+        if clearance_vol : 
+            needed_clear_data = dic.has_key('clearance_face_thickness') \
+                            and dic.has_key('clearance_face_angle_degrees') \
+                            and dic.has_key('mcr_cv_cl_name')
+            if not needed_clear_data : 
+                raise Exception("Tooth_ball_mill creation: one mandatory key for clearance volume is missing")
+            
+            if not dic.has_key('clearance_face_nb_layers') : 
+                dic['clearance_face_nb_layers'] = 1
+                        
         
         # 1: transformation des données pour être géré commme une plaquette. 
         params = {}
         params['name'] = dic['name']
         params['cut_face_thickness'] = dic['cut_face_thickness']
         params['cut_face_nb_layers'] = dic['cut_face_nb_layers']
-        params['clearance_face_thickness'] = dic.get('clearance_face_thickness')
-        params['clearance_face_nb_layers'] = dic.get('clearance_face_nb_layers')
-        params['clearance_face_angle_degrees'] = dic.get('clearance_face_angle_degrees')
         params['mcr_rf_cl_name']  = dic ['mcr_rf_cl_name']
-        params['mcr_cv_cl_name'] = dic.get('mcr_cv_cl_name')
+        if clearance_vol :
+            params['clearance_face_thickness'] = dic.get('clearance_face_thickness')
+            params['clearance_face_nb_layers'] = dic.get('clearance_face_nb_layers')
+            params['clearance_face_angle_degrees'] = dic.get('clearance_face_angle_degrees')
+            params['mcr_cv_cl_name'] = dic.get('mcr_cv_cl_name')
+        else :
+            params['clearance_face_thickness'] = 0.0
+            params['clearance_face_angle_degrees'] = 0.0
+            
         ## TODO : Controler que radius > cut_face_thickness + debordement volume en depouille /!\
         params['radius'] = dic['radius']
         if (params['radius'] < params['cut_face_thickness']+params['clearance_face_thickness']*math.sin(math.radians(params['clearance_face_angle_degrees']))):
