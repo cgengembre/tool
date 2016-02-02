@@ -13,7 +13,7 @@ bm_tooth = tooth.Tooth_sliced(
                          cut_face_thickness= 1.E-3,
                          # Optional data :
                          cut_face_nb_layers = 1, # default: 1
-                         #mcr_cv_cl_name = 'mcl_clear_face'  # if not specified, clearance volume is
+                         mcr_cv_cl_name = 'mcl_clear_face'  # if not specified, clearance volume is
                                                             # not generated
  )
 

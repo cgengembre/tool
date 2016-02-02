@@ -1212,7 +1212,7 @@ class Tooth_sliced(Tooth_model):
 # ==================================================================================================
     def __init__(self, **dic):
         """
-        structure de dic attendue :
+        parameters        
         # Mandatory data :    
         name                      = 'ball_mill_tooth',
         cutting_edge_geom         = file_gtooth,

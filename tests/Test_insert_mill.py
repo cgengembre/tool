@@ -1,5 +1,4 @@
 # -*- coding: Utf-8 -*-
-# import FrameOfReference as FoR
 
 my_insert_dic = {
     # Mandatory data : 
