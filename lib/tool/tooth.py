@@ -14,7 +14,7 @@ import os
 # tool_util
 my_dir=os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(my_dir,'..','..','..','n2m','lib'))
-case_path = os.path.abspath(os.curdir)
+# case_path = os.path.abspath(os.curdir)
 
 import tool_util
 
@@ -24,7 +24,52 @@ from frame_of_reference import frame_of_reference as FoR
 
 CUTFACE_BLOC = 0
 CLEARANCE_BLOC = 1
-   
+
+# ==================================================================================================
+# 2 functions that compute the mesh.
+# ==================================================================================================
+# --------------------------------------------------------------------------------------------------
+def give_mesh_rect_patch(tri, dim1, dim2, offset=0):
+    """
+    Maillage d'une zone rectangulaire de (dim1+1)*(dim2+1) points rangés dans un tableau unidimensionel.   
+    Ajoute le maillage (indices dans le tableau de nodes des sommets des triangles) au tableau tri
+    
+        *--*--*-- ...--*\
+        *--*--*-- ...--* \
+        ...               dim2+1 
+        *--*--*-- ...--* /
+        *--*--*-- ...--*/
+        \_____dim1+1___/
+    """
+    # print "give_mesh --> Rectangle dim1 : %d, dim2 : %d"%(dim1, dim2) 
+    for j in range (dim2):    
+            for i in range(dim1):
+                tri.append([offset + j*(dim1+1)+i+1, offset + j*(dim1+1)+i,     offset + (j+1)*(dim1+1)+i ])
+                tri.append([offset + j*(dim1+1)+i+1, offset + (j+1)*(dim1+1)+i, offset + (j+1)*(dim1+1)+i +1 ])
+# --------------------------------------------------------------------------------------------------        
+def give_mesh_rect_peak_patch(tri, dim1, dim2, offset=0):
+    """
+    Maillage d'une zone de (dim1+1)*(dim2+1) + 1 points rangés dans un tableau unidimensionel.
+    Les (dim1+1)*(dim2+1) premiers point forment un rectangle. Le dernier point formera dim1 triangles avec la 
+    dernière ligne de dim1+1 points.
+    Ajoute le maillage (indices dans le tableau de nodes des sommets des triangles) au tableau tri
+    
+        *--*--*-- ...--*\
+        *--*--*-- ...--* \
+        ...               dim2+1 
+        *--*--*-- ...--* /
+        *--*--*-- ...--*/
+               *
+        \_____dim1+1___/
+    """
+    # print "give_mesh --> Rectangle + 1 point dim1 : %d, dim2 : %d"%(dim1, dim2) 
+    for j in range (dim2):    
+        for i in range(dim1):
+            tri.append([offset + j*(dim1+1)+i+1, offset + j*(dim1+1)+i,     offset + (j+1)*(dim1+1)+i ])
+            tri.append([offset + j*(dim1+1)+i+1, offset + (j+1)*(dim1+1)+i, offset + (j+1)*(dim1+1)+i +1 ])
+    for i in range(dim1):
+        tri.append([offset+(dim1+1)*(dim2+1),offset+(dim1+1)*(dim2+1)-1-i, offset+(dim1+1)*(dim2+1)-2-i])
+# --------------------------------------------------------------------------------------------------
 # ==================================================================================================
 class ToothInFrame:
 # ==================================================================================================
@@ -62,6 +107,7 @@ class Tooth_model:
         self.nb_elementary_tools = 0 # Computed or given in subclasses
         self.elementary_tools_list = []
         self._has_clear_face = False
+# --------------------------------------------------------------------------------------------------
     def has_clear_face(self):
         return self._has_clear_face
 # --------------------------------------------------------------------------------------------------
@@ -108,8 +154,6 @@ class Tooth_model:
             
                 self.elem_tool_out_list.append(elem_tool_clear)
             elemtool_id+=1
-            
-# --------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------    
     def torsion_transformation(self):
         """
@@ -119,9 +163,10 @@ class Tooth_model:
         """
         if hasattr(self, 'helix_angle'):
             self.torsion_angle = self.height*math.tan(self.helix_angle)/self.radius
-        ## Transformation des points de self.elementary_tools_list.
+        ## Transformation of the points of self.elementary_tools_list.
         for et in self.elementary_tools_list:
-            # transformation de l'arrete, des nodes de face de coupe et de volume en dépouille, des point sur la cutface et sur la clearance face :
+            # transformation de l'arrete, des nodes de face de coupe et de volume en dépouille, 
+            # des point sur la cutface et sur la clearance face :
             liste_nodes = et['pnt_cut_edge'] + et['node_cut_face'] + [et['pnt_in_cut_face'],] 
             if et.has_key("node_clearance_bnd"): liste_nodes+= et['node_clearance_bnd'] + et['pnt_clearance_face']
             for node in liste_nodes:
@@ -129,46 +174,6 @@ class Tooth_model:
                 node[0], node[1] = node[0]*math.cos(beta) - node[1]*math.sin(beta), node[0]*math.sin(beta) + node[1]*math.cos(beta)
                 # node[1] = node[0]*math.sin(beta) + node[1]*math.cos(beta)
             
-    def give_mesh_rect_patch(self, tri, dim1, dim2, offset=0):
-        """
-        Maillage d'une zone rectangulaire de (dim1+1)*(dim2+1) points rangés dans un tableau unidimensionel.   
-        Ajoute le maillage (indices dans le tableau de nodes des sommets des triangles) au tableau tri
-        
-            *--*--*-- ...--*\
-            *--*--*-- ...--* \
-            ...               dim2+1 
-            *--*--*-- ...--* /
-            *--*--*-- ...--*/
-            \_____dim1+1___/
-        """
-        # print "give_mesh --> Rectangle dim1 : %d, dim2 : %d"%(dim1, dim2) 
-        for j in range (dim2):    
-                for i in range(dim1):
-                    tri.append([offset + j*(dim1+1)+i+1, offset + j*(dim1+1)+i,     offset + (j+1)*(dim1+1)+i ])
-                    tri.append([offset + j*(dim1+1)+i+1, offset + (j+1)*(dim1+1)+i, offset + (j+1)*(dim1+1)+i +1 ])
-            
-    def give_mesh_rect_peak_patch(self, tri, dim1, dim2, offset=0):
-        """
-        Maillage d'une zone de (dim1+1)*(dim2+1) + 1 points rangés dans un tableau unidimensionel.
-        Les (dim1+1)*(dim2+1) premiers point forment un rectangle. Le dernier point formera dim1 triangles avec la 
-        dernière ligne de dim1+1 points.
-        Ajoute le maillage (indices dans le tableau de nodes des sommets des triangles) au tableau tri
-        
-            *--*--*-- ...--*\
-            *--*--*-- ...--* \
-            ...               dim2+1 
-            *--*--*-- ...--* /
-            *--*--*-- ...--*/
-                   *
-            \_____dim1+1___/
-        """
-        # print "give_mesh --> Rectangle + 1 point dim1 : %d, dim2 : %d"%(dim1, dim2) 
-        for j in range (dim2):    
-            for i in range(dim1):
-                tri.append([offset + j*(dim1+1)+i+1, offset + j*(dim1+1)+i,     offset + (j+1)*(dim1+1)+i ])
-                tri.append([offset + j*(dim1+1)+i+1, offset + (j+1)*(dim1+1)+i, offset + (j+1)*(dim1+1)+i +1 ])
-        for i in range(dim1):
-            tri.append([offset+(dim1+1)*(dim2+1),offset+(dim1+1)*(dim2+1)-1-i, offset+(dim1+1)*(dim2+1)-2-i])
     
     def __clearance_bnd_mesh_mng__(self):
         if not self.has_clear_face(): return 0
@@ -465,7 +470,7 @@ class Tooth_insert(Tooth_model) :
             elem_tool_dic['pnt_clearance_face'] = copy.deepcopy(elem_tool_dic['pnt_cut_edge']) + \
                 [[center[0],  radius*math.cos(self.clearance_face_angle)/math.sin(self.clearance_face_angle), center[2]],]
             
-            # calcul des points :
+            # compute the points :
             curr_et_angle = current_angle + (k - firstIdx)*et_angle
             
             clearance_layers_points_list = []
@@ -518,10 +523,10 @@ class Tooth_insert(Tooth_model) :
                 clearance_layers_points_list.append(clearance_layer_points)
             
             actual_clearance_face_nb_layers = len(clearance_layers_points_list)-1
-            # nodes et maillage du volume en dépouille :
+            # nodes and mesh of the clearance volume :
             offset = 0
             
-            # --> La face en dépouille :
+            # --> The clearance face :
             
             
             for j in range(actual_clearance_face_nb_layers):
@@ -529,15 +534,15 @@ class Tooth_insert(Tooth_model) :
             if len(clearance_layers_points_list[-1]) == 1 :
                 
                 elem_tool_dic['node_clearance_bnd'].append(clearance_layers_points_list[-1][0])
-                self.give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, actual_clearance_face_nb_layers-1, offset)
+                give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, actual_clearance_face_nb_layers-1, offset)
                 offset = (nb_slices+1) * actual_clearance_face_nb_layers +1  
             else :
                  
                 elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[actual_clearance_face_nb_layers][0:nb_slices+1]
-                self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, actual_clearance_face_nb_layers, offset)
+                give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, actual_clearance_face_nb_layers, offset)
                 offset = (nb_slices+1) * (self.clearance_face_nb_layers+1) 
             
-            ## Calcul d'un point dans la face en depouille : On prend la moyenne des points
+            ## Compute a point in the clearance face : the average of the points.
             sum_pnt_in_clear_face = reduce (lambda a,b:  [a[i]+b[i] for i in range(3)],  elem_tool_dic['node_clearance_bnd'])
             elem_tool_dic['pnt_clearance_face'][2] = [sum_pnt_in_clear_face[i]/len (elem_tool_dic['node_clearance_bnd']) for i in range (3)]
             
@@ -547,9 +552,9 @@ class Tooth_insert(Tooth_model) :
                 elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[-1]
                 if back_peak :
             
-                    self.give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, cutf_nb_layers-1, offset)
+                    give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, cutf_nb_layers-1, offset)
                 else :
-                    self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, cutf_nb_layers, offset)
+                    give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, cutf_nb_layers, offset)
                 offset += len (clearance_layers_points_list[-1])
             
             # print "ici ici"   
@@ -563,14 +568,14 @@ class Tooth_insert(Tooth_model) :
                         elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[j][-nb_slices-1:]
                     elem_tool_dic['node_clearance_bnd'].append(clearance_layers_points_list[idx_first_peaked_clearance_face_layer][-1])
                     # print "back peak - mesh peak"
-                    self.give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, idx_first_peaked_clearance_face_layer-1, offset)
+                    give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, idx_first_peaked_clearance_face_layer-1, offset)
                     offset+=(nb_slices+1)*(idx_first_peaked_clearance_face_layer)+1
             else :
 
                 for j in range(actual_clearance_face_nb_layers+1):
                     elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[j][-nb_slices-1:]
                 # print "back no peak - mesh rect"
-                self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, actual_clearance_face_nb_layers, offset)
+                give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, actual_clearance_face_nb_layers, offset)
                 offset += (actual_clearance_face_nb_layers+1) * (nb_slices+1)    
 
             
@@ -579,13 +584,13 @@ class Tooth_insert(Tooth_model) :
                 for j in range(actual_clearance_face_nb_layers):
                     elem_tool_dic['node_clearance_bnd']+=[clearance_layers_points_list[j][i*(nb_slices+1)] for i in range(cutf_nb_layers+1) ]
                 elem_tool_dic['node_clearance_bnd'].append(clearance_layers_points_list[-1][0])
-                self.give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers-1, offset)
+                give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers-1, offset)
                 offset+=actual_clearance_face_nb_layers*(cutf_nb_layers+1)+1
                 for j in range(actual_clearance_face_nb_layers):
                     elem_tool_dic['node_clearance_bnd']+=[clearance_layers_points_list[j][(i+1)*(nb_slices+1)-1] for i in range(cutf_nb_layers) ]
                     elem_tool_dic['node_clearance_bnd'].append(clearance_layers_points_list[j][-1])####
                 elem_tool_dic['node_clearance_bnd'].append(clearance_layers_points_list[-1][0])
-                self.give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers-1, offset)
+                give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers-1, offset)
                 
                
             else:
@@ -593,12 +598,12 @@ class Tooth_insert(Tooth_model) :
                 if idx_first_peaked_clearance_face_layer == 0 :
                     for j in range(actual_clearance_face_nb_layers+1):
                         elem_tool_dic['node_clearance_bnd']+=[clearance_layers_points_list[j][i*(nb_slices+1)] for i in range(cutf_nb_layers+1) ] 
-                    self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers, offset)
+                    give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers, offset)
                     offset+=(actual_clearance_face_nb_layers+1)*(cutf_nb_layers+1)
                 else :
                     for j in range(actual_clearance_face_nb_layers+1):
                         elem_tool_dic['node_clearance_bnd']+=[clearance_layers_points_list[j][i*(nb_slices+1)] for i in range(cutf_nb_layers+1) ] 
-                    self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers, offset)
+                    give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers, offset)
                     offset+=(actual_clearance_face_nb_layers+1)*(cutf_nb_layers+1)
                 
                 # couvercle 2 :
@@ -610,7 +615,7 @@ class Tooth_insert(Tooth_model) :
                             elem_tool_dic['node_clearance_bnd'].append(clearance_layers_points_list[j][-1])
                         else :
                             elem_tool_dic['node_clearance_bnd']+=[clearance_layers_points_list[j][(i+1)*(nb_slices+1)-1] for i in range(cutf_nb_layers+2) ] 
-                    self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers, offset)
+                    give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers, offset)
                     #offset+=(actual_clearance_face_nb_layers+1)*(cutf_nb_layers+2)
                 else :
                     for j in range(actual_clearance_face_nb_layers+1):
@@ -619,16 +624,16 @@ class Tooth_insert(Tooth_model) :
                             elem_tool_dic['node_clearance_bnd'].append(clearance_layers_points_list[j][-1])
                         else :
                             elem_tool_dic['node_clearance_bnd']+=[clearance_layers_points_list[j][(i+1)*(nb_slices+1)-1] for i in range(cutf_nb_layers+1) ]
-                    self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers, offset)
+                    give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], cutf_nb_layers, actual_clearance_face_nb_layers, offset)
                     #offset+=(actual_clearance_face_nb_layers+1)*(cutf_nb_layers+1)
             offset = len(elem_tool_dic['node_clearance_bnd'])
                 
             # --> on ferme avec la face de coupe :
             elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[0]
             if back_peak and idx_first_peaked_clearance_face_layer == 0:
-                self.give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'],   nb_slices, cutf_nb_layers - 1, offset)
+                give_mesh_rect_peak_patch(elem_tool_dic['tri_clearance_bnd'],   nb_slices, cutf_nb_layers - 1, offset)
             else :
-                self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'],   nb_slices, cutf_nb_layers, offset)
+                give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'],   nb_slices, cutf_nb_layers, offset)
         
                     
             ## """
@@ -731,29 +736,29 @@ class Tooth_insert(Tooth_model) :
             # --> face en depouille :
             for j in range(self.clearance_face_nb_layers+1):
                 elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[j][0:nb_slices+1]
-            self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.clearance_face_nb_layers)
+            give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.clearance_face_nb_layers)
             offset = (nb_slices+1) * (self.clearance_face_nb_layers+1) 
             # --> face arriere
             for j in range(self.clearance_face_nb_layers+1):
                 elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[j][-nb_slices-1:]
-            self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.clearance_face_nb_layers, offset)
+            give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.clearance_face_nb_layers, offset)
             offset = 2*offset
             # --> face en dessous
             elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[self.clearance_face_nb_layers]
-            self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.cut_face_nb_layers, offset)
+            give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.cut_face_nb_layers, offset)
             offset += (nb_slices+1)*(self.cut_face_nb_layers+1) 
             # --> faces des côtés (faces adjassantes à un autre elem_tool)
             for j in range(self.clearance_face_nb_layers+1):
                 elem_tool_dic['node_clearance_bnd']+=[clearance_layers_points_list[j][i*(nb_slices+1)] for i in range(self.cut_face_nb_layers+1) ]
-            self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], self.cut_face_nb_layers, self.clearance_face_nb_layers, offset)
+            give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], self.cut_face_nb_layers, self.clearance_face_nb_layers, offset)
             offset += (self.clearance_face_nb_layers+1)*(self.cut_face_nb_layers+1)
             for j in range(self.clearance_face_nb_layers+1):
                 elem_tool_dic['node_clearance_bnd']+=[clearance_layers_points_list[j][(i+1)*(nb_slices+1)-1] for i in range(self.cut_face_nb_layers+1) ]
-            self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], self.cut_face_nb_layers, self.clearance_face_nb_layers, offset)
+            give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], self.cut_face_nb_layers, self.clearance_face_nb_layers, offset)
             offset = len(elem_tool_dic['node_clearance_bnd'])
             # --> face de coupe pour fermer le volume
             elem_tool_dic['node_clearance_bnd']+=copy.deepcopy(elem_tool_dic['node_cut_face'])
-            self.give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.cut_face_nb_layers, offset)
+            give_mesh_rect_patch(elem_tool_dic['tri_clearance_bnd'], nb_slices, self.cut_face_nb_layers, offset)
 # --------------------------------------------------------------------------------------------------
 
     def __calculPremierPointEtAngle(self, pointEtAngle):
@@ -1382,7 +1387,7 @@ class Tooth_sliced(Tooth_model):
             
             for j in range (self.nb_slices_per_elt+1):
                 elem_tool['node_cut_face']+=elem_tools_slices_points_list[k][j][0:self.cut_face_nb_layers+1]
-            self.give_mesh_rect_patch( tri = elem_tool['tri_cut_face'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt)
+            give_mesh_rect_patch( tri = elem_tool['tri_cut_face'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt)
             #for j in range (self.nb_slices_per_elt):    
             #    for i in range(self.cut_face_nb_layers):
             #        elem_tool['tri_cut_face'].append([j*(self.cut_face_nb_layers+1)+i+1, j*(self.cut_face_nb_layers+1)+i,     (j+1)*(self.cut_face_nb_layers+1)+i ])
@@ -1407,7 +1412,7 @@ class Tooth_sliced(Tooth_model):
                                                    (elem_tools_slices_points_list[k][self.nb_slices_per_elt][self.clearance_face1_nb_layers*(self.cut_face_nb_layers+1)][idx]))/2. for idx in [0,1,2]],]
             for j in range(self.nb_slices_per_elt+1):
                 elem_tool['node_clearance_bnd']+=[elem_tools_slices_points_list[k][j][i*(self.cut_face_nb_layers+1)] for i in range(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1)]
-            self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, dim2 = self.nb_slices_per_elt)
+            give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, dim2 = self.nb_slices_per_elt)
             
              
         # print 'self.elementary_tools_list : ', self.elementary_tools_list
@@ -1418,7 +1423,7 @@ class Tooth_sliced(Tooth_model):
             elem_tool = self.elementary_tools_list[k]
             for j in range(self.nb_slices_per_elt+1):
                 elem_tool['node_clearance_bnd']+=[elem_tools_slices_points_list[k][j][(i+1)*(self.cut_face_nb_layers+1)-1] for i in range(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1)]
-            self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, dim2 = self.nb_slices_per_elt, \
+            give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, dim2 = self.nb_slices_per_elt, \
                                    offset=(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1))
         
         # print 'self.elementary_tools_list After : ', self.elementary_tools_list
@@ -1428,16 +1433,16 @@ class Tooth_sliced(Tooth_model):
             elem_tool = self.elementary_tools_list[k]
             for j in range(self.nb_slices_per_elt+1):
                 elem_tool['node_clearance_bnd']+=elem_tools_slices_points_list[k][j][-self.cut_face_nb_layers-1:]
-            self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt, \
+            give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt, \
                                    offset=2*(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1))
         # Face dessous et face dessus :
         for k in range (self.nb_elementary_tools):
             elem_tool = self.elementary_tools_list[k]
             elem_tool['node_clearance_bnd']+=elem_tools_slices_points_list[k][0]
             elem_tool['node_clearance_bnd']+=elem_tools_slices_points_list[k][self.nb_slices_per_elt]
-            self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, \
+            give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, \
                                    offset=2*(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1)+(self.cut_face_nb_layers+1)*(self.nb_slices_per_elt+1))
-            self.give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], \
+            give_mesh_rect_patch( tri = elem_tool['tri_clearance_bnd'], \
                                        dim1 = self.cut_face_nb_layers, \
                                        dim2 = self.clearance_face1_nb_layers+self.clearance_face2_nb_layers, \
                                        offset=2*(self.nb_slices_per_elt+1)*(self.clearance_face1_nb_layers+self.clearance_face2_nb_layers+1) + \
@@ -1449,7 +1454,7 @@ class Tooth_sliced(Tooth_model):
             elem_tool = self.elementary_tools_list[k]
             offset = len(elem_tool['node_clearance_bnd'])
             elem_tool['node_clearance_bnd']+=elem_tool['node_cut_face']
-            self.give_mesh_rect_patch(tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt, offset = offset)
+            give_mesh_rect_patch(tri = elem_tool['tri_clearance_bnd'], dim1 = self.cut_face_nb_layers, dim2 = self.nb_slices_per_elt, offset = offset)
         self.__clearance_bnd_mesh_mng__()
 # --------------------------------------------------------------------------------------------------
 # ==================================================================================================
