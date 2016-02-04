@@ -19,7 +19,10 @@ class ToolstepModel:
     __instance_counter__ = 0
 # --------------------------------------------------------------------------------------------------
     def __init__(self, **dic):
-        """
+        """Constructor of ToolstepModel.
+        
+        Madatory key for dic :
+        'name' : The name the user give
         
         """
         
@@ -48,7 +51,8 @@ class ToolstepModel:
         
 # --------------------------------------------------------------------------------------------------
     def addTooth(self, tth, frame, set_id = None):
-        """
+        """Add the tooth tth to the toolstep self. The position in self is defined by the frame. 
+        
         In this method, frame must be a frame created in self.foref.
         If set_id == None : tooth is alone.
         Else : tooth belongs to a set of teeth identified by set_id. The user is guarant of the coherence
@@ -157,13 +161,19 @@ class ToolstepModel:
 # ==================================================================================================
 class ToolstepInFrame:
 # ==================================================================================================
+    """Internal class : used to add a toolstep to a tool.
+
+    When you add a toolstep to a tool, a ToolstepInFrame is created and added to the tool.
+    """
     def __init__(self, **dic):
-        """
-        structure de dic :
+        """ToolstepInFrame constructor.
+        
+        Mandatory keys for dic :
         {
-            'name'  : "nom de l'etage"
-            'frame' : le repere pour placer l'étage dans un outil
-            'toolstep': l'étage  
+            'name'    : "name for the toolstep"
+            'frame'   : a frame to position the toolstep in the tool
+            'toolstep': the toolstep
+            'id'      : id to identify the toolstep in the tool.  
         }
         """
         self.name = dic['name']

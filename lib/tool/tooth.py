@@ -31,8 +31,8 @@ CLEARANCE_BLOC = 1
 # --------------------------------------------------------------------------------------------------
 def give_mesh_rect_patch(tri, dim1, dim2, offset=0):
     """
-    Maillage d'une zone rectangulaire de (dim1+1)*(dim2+1) points rangés dans un tableau unidimensionel.   
-    Ajoute le maillage (indices dans le tableau de nodes des sommets des triangles) au tableau tri
+    Mesh of a rectangular area composed of (dim1+1)*(dim2+1) nodes stored in a one-dimensional array.
+    Add the mesh to the array 'tri' (indexes in the nodes array of the triangles vertices  )
     
         *--*--*-- ...--*\
         *--*--*-- ...--* \
@@ -49,10 +49,10 @@ def give_mesh_rect_patch(tri, dim1, dim2, offset=0):
 # --------------------------------------------------------------------------------------------------        
 def give_mesh_rect_peak_patch(tri, dim1, dim2, offset=0):
     """
-    Maillage d'une zone de (dim1+1)*(dim2+1) + 1 points rangés dans un tableau unidimensionel.
-    Les (dim1+1)*(dim2+1) premiers point forment un rectangle. Le dernier point formera dim1 triangles avec la 
-    dernière ligne de dim1+1 points.
-    Ajoute le maillage (indices dans le tableau de nodes des sommets des triangles) au tableau tri
+    Mesh of an area composed of (dim1+1)*(dim2+1) + 1 nodes stored in a one-dimensional array.
+    The (dim1+1)*(dim2+1) first nodes is a rectangle. The last node gives dim1 triangles whith the last
+    line of dim1+1 nodes.
+    Add the mesh to the array 'tri'
     
         *--*--*-- ...--*\
         *--*--*-- ...--* \
@@ -156,9 +156,10 @@ class Tooth_model:
             elemtool_id+=1
 # --------------------------------------------------------------------------------------------------    
     def torsion_transformation(self):
-        """
+        """apply a torsion transformation to the tooth self.
+        
         Attention : To call this method, attributes 
-        self.radius, self.height, and self.helix_angle or self.torsion_angle must be defined.
+        self.radius, self.height, and  (self.helix_angle or self.torsion_angle) must be defined.
         Angles expressed in radians 
         """
         if hasattr(self, 'helix_angle'):
@@ -223,7 +224,7 @@ class Tooth_model:
 class Tooth_insert(Tooth_model) :
 # ==================================================================================================
     def __init__(self, **dic):
-        """
+        """Tooth_insert constructor.
         {   
             # Mandatory data : 
             'name' : 'ma plaquette',
@@ -356,7 +357,7 @@ class Tooth_insert(Tooth_model) :
                     
                 if key[0:-1] == "nbPartiesArc" :
                     self.dic["arc_nb_elementary_tools_list"][int(key[-1])-1] = dic[key]
-        # Calcul des points dans le plan (Op, zp, xp):
+        # Compute the points in plan (Op, zp, xp):
         # print self.dic
         self.__generePartiesEtMaillagePlaquette()
         # print 'Elementary tools list : ',self.elementary_tools_list
@@ -546,7 +547,7 @@ class Tooth_insert(Tooth_model) :
             sum_pnt_in_clear_face = reduce (lambda a,b:  [a[i]+b[i] for i in range(3)],  elem_tool_dic['node_clearance_bnd'])
             elem_tool_dic['pnt_clearance_face'][2] = [sum_pnt_in_clear_face[i]/len (elem_tool_dic['node_clearance_bnd']) for i in range (3)]
             
-            # --> La face en dessous :
+            # --> The face below :
             if len(clearance_layers_points_list[-1]) != 1 :
                 # print "On passe ...."
                 elem_tool_dic['node_clearance_bnd']+=clearance_layers_points_list[-1]
@@ -559,7 +560,7 @@ class Tooth_insert(Tooth_model) :
             
             # print "ici ici"   
             
-            ## --> La face arrière optionnelle
+            ## --> The rear face (optional face)
             # print "Face arriere"
             if back_peak:
                 # print 'idx_first_peaked_clearance_face_layer =', idx_first_peaked_clearance_face_layer
