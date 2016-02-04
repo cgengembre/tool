@@ -96,7 +96,7 @@ The module ``tooth`` offers 5 Python classes to create teeth :
     * ``Tooth_ball_mill``
     * ``Tooth_sliced``
 
-The class inheritance system wellknown in Object-oriented programming, offer here 2 things : 
+The class inheritance system well-known in Object-oriented programming, offers here 2 things : 
     * each ``Tooth_*`` class above have in common 2 *methodes* : 
         * ``my_tooth.draw()`` draw the tooth ``my_tooth`` in a 3D window.
         * ``my_tooth.torsion_transformation()`` applies a tortion transfomation to the tooth ``my_tooth``
