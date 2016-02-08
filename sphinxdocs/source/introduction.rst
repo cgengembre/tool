@@ -80,23 +80,27 @@ The **tool** package need an other module called **FoR** (short for "frame of re
 
 The **tool** pyhton package has been thought in *Object-oriented programming*. 
 
-For example in the script above, ``toothInsert = tooth.Tooth_insert(…)`` create a new *object* that is an *instance* of the *class* ``Toot_insert`` defined in the module ``tooth``, and assign the variable ``toothInsert`` with the *object* newly created.
+For example in the script above, ``toothInsert = tooth.Tooth_insert(…)`` create a new *object* that is an *instance* of the *class* ``Tooth_insert`` defined in the module ``tooth``, and assign the variable ``toothInsert`` with the *object* newly created.
 
 Module ``tooth``
 --------------------------------------------------------------------------------
 
 The module ``tooth`` offers 5 Python classes to create teeth :
-    * ``Tooth_insert``
-    * ``Tooth_toroidal_mill``
-    * ``Tooth_cylindrical_mill``
-    * ``Tooth_ball_mill``
-    * ``Tooth_sliced``
+    
+* ``Tooth_insert``
+* ``Tooth_toroidal_mill``
+* ``Tooth_cylindrical_mill``
+* ``Tooth_ball_mill``
+* ``Tooth_sliced``
 
-The class inheritance system in Object-oriented programming, offers here 2 things : 
-    * each ``Tooth_*`` class above have in common 2 *methods* : 
-        * ``my_tooth.draw()`` draw the tooth ``my_tooth`` in a 3D window.
-        * ``my_tooth.torsion_transformation()`` applies a tortion transfomation to the tooth ``my_tooth``
-    * every object that is an instance of a class ``Tooth_*`` can be added to a toolstep or a tool.
+Next topics will detail those five classes.
+
+The class inheritance system in Object-oriented programming, offers here 2 things :
+
+* each ``Tooth_*`` class above have in common 2 *methods* :
+    * ``my_tooth.draw()`` draw the tooth ``my_tooth`` in a 3D window.
+    * ``my_tooth.torsion_transformation()`` applies a tortion transfomation to the tooth ``my_tooth``
+* every object that is an instance of a class ``Tooth_*`` can be added to a toolstep or a tool.
 
 
 Module ``toolstep``
@@ -127,13 +131,11 @@ Methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 A toolstep (instance of the class ``toolstep.ToolstepModel``) has 2 methods :
 
-    * ``my_toolstep.draw()`` Draw the toolstep in a 3d window.
-    * ``my_toolstep.addTooth(...)`` Add a tooth to my_toolstep.
-      This method accept 3 named arguments :
-
-        * ``tth`` : the tooth, 
-        * ``frame`` : the frame, 
-        * ``set_id`` : optional argument. Add it if you want the tooth to belong to a set of teeth (default value : ``set_id = None`` : no set is defined ).
+* ``my_toolstep.draw()`` Draw the toolstep in a 3d window.
+* ``my_toolstep.addTooth(...)`` Add a tooth to my_toolstep. This method accept 3 named arguments :
+    * ``tth`` : the tooth, 
+    * ``frame`` : the frame, 
+    * ``set_id`` : optional argument. Add it if you want the tooth to belong to a set of teeth (default value : ``set_id = None`` : no set is defined ).
 
 Module ``tool``
 --------------------------------------------------------------------------------
@@ -155,19 +157,19 @@ Fields
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Every tool (instance of the class ``tool.Tool``) has the following fields :
 
-    * ``foref``: the frame of reference of the tool in which you can create the frames.
-    * ``base_toolstep``: this is an instance of the class ``toolstep.ToolstepModel``. This is the base toolstep of the tool in which you can add teeth. This toolstep has his own ``foref`` in which you can create frames to position teeth.
+* ``foref``: the frame of reference of the tool in which you can create the frames.
+* ``base_toolstep``: this is an instance of the class ``toolstep.ToolstepModel``. This is the base toolstep of the tool in which you can add teeth. This toolstep has his own ``foref`` in which you can create frames to position teeth.
     
 Methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 A tool has 4 methods with named arguments:
 
-    * ``my_tool.addToolstep(tstep = a_toolstep, frame = a_frame, name = a_name)`` : add ``a_toolstep`` to ``my_tool`` at the position defined by ``a_frame``. The argument ``name`` is optional and is generated if you don't give one. It is better if the toolstep contain teeth when you call this method.
-    * ``my_tool.addTooth( tth = a_tooth, frame = a_frame, set_id = an_id, tsif_name = a_toolstep_name)``: add directly ``a_tooth`` to ``my_tool``. Arguments :
-        * ``tth`` : mandatory argument. The tooth to be added.
-        * ``frame`` : mandatory argument. Define the position of the tooth.
-        * ``set_id`` : optional argument. Add it if you want the tooth to belong to a set of teeth (default value : ``set_id = None`` : no set is defined)
-        * ``tsif_name`` : optional argument. Identify which toolstep will recieve the tooth. By default, the tooth is added to the ``base_toolstep`` of the tool. If you whant to add the tooth to an other toolstep, you must set this argument to the ``mame`` you choose when you add the toolstep (cf. ``my_tool.addToolstep`` method) to the tool.
+* ``my_tool.addToolstep(tstep = a_toolstep, frame = a_frame, name = a_name)`` : add ``a_toolstep`` to ``my_tool`` at the position defined by ``a_frame``. The argument ``name`` is optional and is generated if you don't give one. It is better if the toolstep contain teeth when you call this method.
+* ``my_tool.addTooth( tth = a_tooth, frame = a_frame, set_id = an_id, tsif_name = a_toolstep_name)``: add directly ``a_tooth`` to ``my_tool``. Arguments :
+    * ``tth`` : mandatory argument. The tooth to be added.
+    * ``frame`` : mandatory argument. Define the position of the tooth.
+    * ``set_id`` : optional argument. Add it if you want the tooth to belong to a set of teeth (default value : ``set_id = None`` : no set is defined)
+    * ``tsif_name`` : optional argument. Identify which toolstep will recieve the tooth. By default, the tooth is added to the ``base_toolstep`` of the tool. If you whant to add the tooth to an other toolstep, you must set this argument to the ``mame`` you choose when you add the toolstep (cf. ``my_tool.addToolstep`` method) to the tool.
     * ``my_tool.draw(dc_color)`` : draw the tool in a 3d window. The dc_color parameter is optional and its default value is None. This parameter indicate how to color the tool :
         * dc_color = None : one diferrent color by elementary tooth,
         * dc_color = 0 : one different color by Toolstep,
