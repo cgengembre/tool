@@ -30,9 +30,7 @@ class InconcistentDataError(Exception):
 CUTFACE_BLOC = 0
 CLEARANCE_BLOC = 1
 
-###
-### TODO : gerer le cas ou il n'y a pas de clearance face.
-###
+
 # ==================================================================================================
 class Tool:
 # ==================================================================================================
@@ -61,7 +59,7 @@ class Tool:
     def addToolstep(self, tstep, frame, name = "default" ):
         
         if name == "default" :
-            name = a_toolstep.name + str (self.__toolstep_id__+1)
+            name = tstep.name + str (self.__toolstep_id__+1)
         if self.benen_in_etl_dic.has_key(name):
             print name, " : attention - nom déjà choisi pour l'etage !!" 
         else:

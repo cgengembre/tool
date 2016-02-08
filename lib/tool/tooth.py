@@ -158,7 +158,7 @@ class Tooth_model:
     def torsion_transformation(self):
         """apply a torsion transformation to the tooth self.
         
-        Attention : To call this method, attributes 
+        Attention : To call this method, the fields
         self.radius, self.height, and  (self.helix_angle or self.torsion_angle) must be defined.
         Angles expressed in radians 
         """

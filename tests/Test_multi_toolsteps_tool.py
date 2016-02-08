@@ -110,7 +110,7 @@ for alpha in range(0,360,180) :
     	   rot_normal_degrees = 35.,
     	   rot_radial_degrees =  0.,
     	   rot_axial_degrees  =  0. )
-    toolstep3.addTooth(insert_tooth_sqr, frame)
+    toolstep3.addTooth(insert_tooth_sqr, frame, set_id = 1)
 
 for alpha in range(0,360,180) :    
     frame = toolstep3.foref.create_frame(
@@ -123,7 +123,7 @@ for alpha in range(0,360,180) :
     	   rot_normal_degrees = 0.,
     	   rot_radial_degrees =  0.,
     	   rot_axial_degrees  =  0. )
-    toolstep3.addTooth(insert_tooth_sqr, frame)
+    toolstep3.addTooth(insert_tooth_sqr, frame, set_id = 2)
 
 #
 # Create the tool :
