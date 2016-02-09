@@ -1,8 +1,11 @@
-####################################################################################################
+################################################################
 Tooth_insert
-####################################################################################################
-This is an example of python scrip that create a toroidal mill :
+################################################################
+
+This is an example of python scrip that create a toroidal mill:
+
 ::
+    
     # -*- coding: Utf-8 -*-
     
     my_insert_dic = {
@@ -45,6 +48,14 @@ This is an example of python scrip that create a toroidal mill :
                                             rot_radial_degrees = -30.,
                                             rot_axial_degrees  = 0.)
         my_tool.addTooth(my_insert, frame)
-
+    
     my_tool.write('inserts_mill')
     my_tool.draw(2)
+
+.. image:: fig/PlaquettesPlanes.png
+    :align: center
+    :width: 15 cm
+
+.. image:: fig/ExemplePlqt_3_seg.png
+    :align: center
+    :width: 15 cm

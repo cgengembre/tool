@@ -1,8 +1,12 @@
-####################################################################################################
+
+##################################################################
 Tooth_ball_mill
-####################################################################################################
-This is an example of python scrip that create a ball mill :
+##################################################################
+
+This is an example of python scrip that create a ball mill:
+
 ::
+    
     # -*- coding: Utf-8 -*-
     dic_bm_tooth = {
         # Mandatory data : 
@@ -25,15 +29,16 @@ This is an example of python scrip that create a ball mill :
         'clearance_face_nb_layers' : 2 # default: 1
         #
         }
-
+    
     bm_tooth = tooth.Tooth_ball_mill(**dic_bm_tooth)
-
+    
     bm_tooth.draw()
-
+    
     bm_tool = tool.Tool(name = 'Ball_mill_tool')
-
+    
     for angle in range (0, 360, 90) :
-        frame = bm_tool.base_toolstep.foref.create_frame(name = "Tooth position "+str(angle)+" degrees",
+        frame = bm_tool.base_toolstep.foref.create_frame(
+           name = "Tooth position "+str(angle)+" degrees",
            father_frame_name   = "Canonical",
            frame_type          = FoR.FRAME_CYLINDRIC_NRA,
            axial_angle_degrees = float(angle),
@@ -43,11 +48,11 @@ This is an example of python scrip that create a ball mill :
            rot_radial_degrees  = 0.,
            rot_axial_degrees   = 0. )
         bm_tool.addTooth(bm_tooth, frame)
-
+    
     bm_tool.write('Ball_mill_tool')
     bm_tool.draw()
 
-On the picture below you can see parameters used in the script :
+On the picture below you can see parameters used in the script:
 
 .. image:: fig/ball_mill.png
     :align: center

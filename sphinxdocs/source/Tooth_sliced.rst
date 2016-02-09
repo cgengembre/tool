@@ -1,8 +1,11 @@
-####################################################################################################
+##############################################################
 Tooth_sliced
-####################################################################################################
-This is an example of python scrip that create a sliced mill :
+##############################################################
+
+This is an example of python scrip that create a sliced mill:
+
 ::
+    
     # -*- coding: Utf-8 -*-
     
     file_gtooth = 'sliced_tooth.gtooth'
@@ -41,7 +44,7 @@ This is an example of python scrip that create a sliced mill :
     
     bm_tool.draw(2)
     
-On the figures below you can see parameters used in the script :
+On the figures below you can see parameters used in the script:
 
 .. image:: fig/sliced_tooth_type4.png
     :align: center
