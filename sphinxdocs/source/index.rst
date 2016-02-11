@@ -9,7 +9,7 @@ Welcome to tool's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    
    introduction
    script_explanations
@@ -19,11 +19,4 @@ Contents:
    Tooth_ball_mill
    Tooth_sliced
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
