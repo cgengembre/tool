@@ -1,9 +1,22 @@
 
 ##################################################################
-Tooth_ball_mill
+Ball mill
 ##################################################################
 
-This is an example of python scrip that create a ball mill:
+
+Geometry
+*********************************
+
+The geometry, and associated parameters, of a ball mill are defined as follows:
+
+
+.. image:: fig/ball_mill.png
+    :align: center
+    :width: 12 cm
+
+
+Script example
+*********************************
 
 ::
     
@@ -52,8 +65,10 @@ This is an example of python scrip that create a ball mill:
     bm_tool.write('Ball_mill_tool')
     bm_tool.draw()
 
-On the picture below you can see parameters used in the script:
+    
+Obtained tool:
 
-.. image:: fig/ball_mill.png
+.. image:: fig/Tool_ball_mill.png
     :align: center
-    :width: 12 cm
+    :width: 10 cm
+

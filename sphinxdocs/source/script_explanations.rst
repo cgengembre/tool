@@ -7,7 +7,7 @@ The **tool** python package consists of tree python modules:
     * the ``toolstep`` module manages the toolsteps of the tools,
     * the ``tool`` module allows to create the tools.
 
-The **tool** package need an other module called ``FoR`` (short for "Frame of Reference") manages the positioning of the teeth inside the toolsteps or the toolsteps inside the tools. 
+The **tool** package need an other module called ``FoR`` (short for "Frame of Reference") managing the positioning of the teeth inside the toolsteps or the toolsteps inside the tools. 
 
 The **tool** pyhton package has been thought in *Object-oriented programming*. 
 
@@ -111,4 +111,26 @@ A tool has four methods with named arguments:
         * dc_color = 0 : one different color by Toolstep,
         * dc_color = 1 : one different color by Tooth (tooth having to the same set_id will have the same color).
     * ``my_tool.write(file_name = a_name)`` : optional argument. Write the generated ***data*** to the file named ``./OUT/tool_def_<file_name>``. If you do not specify this argument, then the tool name is used.  
+
+********************************************************************************
+Module ``FoR``
+********************************************************************************
+
+On the figure below is depicted an exemple of the positioning of a Son frame of reference :math:`R_S=(O_S,\overrightarrow{x}_S,\overrightarrow{y}_S,\overrightarrow{z}_S)` with respect to a Father frame of reference 
+:math:`R_F=(O_F,\overrightarrow{x}_F,\overrightarrow{y}_S,\overrightarrow{z}_S)`.
+
+The way use for this positioning is:
+
+    * Positioning of :math:`O_S`: usage of a cylindrical coordinate system, with the 3 coordinates :math:`r`, :math:`\alpha` and :math:`z.`
+    * Orientation of the basis :math:`(\overrightarrow{x}_S,\overrightarrow{y}_S,\overrightarrow{z}_S)`: this orientation is defined by 3 successive rotations, 
     
+        * *i)* a rotation around :math:`\overrightarrow{e}_\theta\ ` (``rot_normal_degrees``), 
+        * *ii)* a rotation around :math:`\overrightarrow{e}_r\ ` (``rot_radial_degrees``), 
+        * *iii)* a rotation around :math:`\overrightarrow{z}_F` (``rot_axial_degrees``). 
+
+
+.. image:: fig/FoR_positioning.png
+    :align: center
+    :width: 13 cm
+
+Many other ways are possible in order to define the positioning of a frame with respect to an other frame but only the previous way is used for all the given examples.

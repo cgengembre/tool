@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to tool documentation!
-================================
+Welcome to package tool documentation!
+===========================================
 
 Contents:
 
@@ -13,10 +13,11 @@ Contents:
    
    introduction
    script_explanations
-   Tooth_insert
-   Tooth_toroidal_mill
    Tooth_cylindrical_mill
    Tooth_ball_mill
+   Tooth_toroidal_mill
    Tooth_sliced
+   Tooth_insert
+   Multi_step_tool
 
 

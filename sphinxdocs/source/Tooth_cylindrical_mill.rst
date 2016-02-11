@@ -1,8 +1,24 @@
 ###############################################################
-Tooth_cylindrical_mill
+Cylindrical mill
 ###############################################################
 
-This is an example of python scrip that create a cylindrical mill:
+
+Geometry
+*********************************
+
+The geometry, and associated parameters, of a cylindrical mill are defined as follows:
+
+.. image:: fig/cylindrical_mill_type1.png
+    :align: center
+    :width: 12 cm
+
+.. image:: fig/FraiseHelicoidaleParties.png
+    :align: center
+    :width: 12 cm
+
+
+Script example
+*********************************
 
 ::
     
@@ -47,13 +63,10 @@ This is an example of python scrip that create a cylindrical mill:
     my_tool.write('Cylindrical_mill')
     my_tool.draw()
     
+    
+Obtained tool:
 
-On the figures below you can see parameters used in the script:
-
-.. image:: fig/cylindrical_mill_type1.png
+.. image:: fig/Tool_cylindrical.png
     :align: center
-    :width: 12 cm
+    :width: 10 cm
 
-.. image:: fig/FraiseHelicoidaleParties.png
-    :align: center
-    :width: 12 cm

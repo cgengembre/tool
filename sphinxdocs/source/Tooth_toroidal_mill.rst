@@ -1,8 +1,18 @@
 ##################################################################
-Tooth_toroidal_mill
+Toroidal mill
 ##################################################################
 
-This is an example of python scrip that create a toroidal mill:
+Geometry
+*********************************
+
+The geometry, and associated parameters, of a toroidal mill are defined as follows:
+
+.. image:: fig/toroidal_mill_type2.png
+    :align: center
+    :width: 12 cm
+
+Script example
+*********************************
 
 ::
     
@@ -54,12 +64,11 @@ This is an example of python scrip that create a toroidal mill:
     my_tool.write('toroidal_mill')
     my_tool.draw(2)
     
+Obtained tool:
+
+.. image:: fig/Tool_toroidal.png
+    :align: center
+    :width: 10 cm
 
     
-
-On the figures below you can see parameters used in the script:
-
-.. image:: fig/toroidal_mill_type2.png
-    :align: center
-    :width: 12 cm
 
