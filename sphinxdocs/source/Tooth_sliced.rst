@@ -44,7 +44,7 @@ This is an example of python scrip that create a sliced mill:
     
     bm_tool.draw(2)
     
-On the figures below you can see parameters used in the script:
+The geometry of a sliced tooth is defined as follows:
 
 .. image:: fig/sliced_tooth_type4.png
     :align: center

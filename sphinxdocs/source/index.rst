@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
    
    introduction
+   script_explanations
    Tooth_insert
    Tooth_toroidal_mill
    Tooth_cylindrical_mill
