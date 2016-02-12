@@ -119,7 +119,7 @@ Module ``FoR``
 On the figure below is depicted an exemple of the positioning of a Son frame of reference :math:`R_S=(O_S,\overrightarrow{x}_S,\overrightarrow{y}_S,\overrightarrow{z}_S)` with respect to a Father frame of reference 
 :math:`R_F=(O_F,\overrightarrow{x}_F,\overrightarrow{y}_S,\overrightarrow{z}_S)`.
 
-The way use for this positioning is:
+The way used for this positioning is:
 
     * Positioning of :math:`O_S`: usage of a cylindrical coordinate system, with the 3 coordinates :math:`r`, :math:`\alpha` and :math:`z.`
     * Orientation of the basis :math:`(\overrightarrow{x}_S,\overrightarrow{y}_S,\overrightarrow{z}_S)`: this orientation is defined by 3 successive rotations, 

@@ -27,8 +27,6 @@ The cutting tool description is recursive:
 Python script skeleton
 ********************************************************************************
 
-texte
-
 ::
     
     # File Test_tool.py
