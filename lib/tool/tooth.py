@@ -299,7 +299,7 @@ class Tooth_insert(Tooth_model) :
                             and dic.has_key('clearance_face_angle_degrees') \
                             and dic.has_key('mcr_cv_cl_name')
             if not needed_clear_data : 
-                raise Exception("Tooth_ball_mill creation: one mandatory key for clearance volume is missing")
+                raise Exception("Tooth_insert creation: one mandatory key for clearance volume is missing")
             
             if not dic.has_key('clearance_face_nb_layers') : 
                 dic['clearance_face_nb_layers'] = 1
@@ -934,7 +934,7 @@ class Tooth_toroidal_mill(Tooth_insert):
                             and dic.has_key('clearance_face_angle_degrees') \
                             and dic.has_key('mcr_cv_cl_name')
             if not needed_clear_data : 
-                raise Exception("Tooth_ball_mill creation: one mandatory key for clearance volume is missing")
+                raise Exception("Tooth_toroidal_mill creation: one mandatory key for clearance volume is missing")
             
             if not dic.has_key('clearance_face_nb_layers') : 
                 dic['clearance_face_nb_layers'] = 1
@@ -1062,7 +1062,7 @@ class Tooth_cylindrical_mill(Tooth_insert):
                             and dic.has_key('clearance_face_angle_degrees') \
                             and dic.has_key('mcr_cv_cl_name')
             if not needed_clear_data : 
-                raise Exception("Tooth_ball_mill creation: one mandatory key for clearance volume is missing")
+                raise Exception("Tooth_cylindrical_mill creation: one mandatory key for clearance volume is missing")
             
             if not dic.has_key('clearance_face_nb_layers') : 
                 dic['clearance_face_nb_layers'] = 1
@@ -1184,14 +1184,10 @@ class Tooth_ball_mill(Tooth_insert):
             params['clearance_face_nb_layers'] = dic.get('clearance_face_nb_layers')
             params['clearance_face_angle_degrees'] = dic.get('clearance_face_angle_degrees')
             params['mcr_cv_cl_name'] = dic.get('mcr_cv_cl_name')
-        else :
-            params['clearance_face_thickness'] = 0.0
-            params['clearance_face_angle_degrees'] = 0.0
+        
             
         ## TODO : Controler que radius > cut_face_thickness + debordement volume en depouille /!\
         params['radius'] = dic['radius']
-        if (params['radius'] < params['cut_face_thickness']+params['clearance_face_thickness']*math.sin(math.radians(params['clearance_face_angle_degrees']))):
-            raise Exception("Attention le volume de la dent va au delà  de l'axe de rotation de la fraise !")
         
         params['cutting_edge_geom'] = [{'seg_length' : 0., \
                                         'nb_elementary_tools': 1, \

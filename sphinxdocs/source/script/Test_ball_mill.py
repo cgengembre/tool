@@ -14,11 +14,11 @@ dic_bm_tooth = {
         'cut_face_nb_layers' : 2,   # default: 1
         'nb_slices'          : 3,   # default: 1       
         # mandatory data if clearance volume is present
-        'mcr_cv_cl_name' : 'mcl_clear_face',
-        'clearance_face_thickness' : 1.5E-3,
-        'clearance_face_angle_degrees' : 1.20,
+        #'mcr_cv_cl_name' : 'mcl_clear_face',
+        #'clearance_face_thickness' : 1.5E-3,
+        #'clearance_face_angle_degrees' : 1.20,
         # optional data
-        'clearance_face_nb_layers' : 2 # default: 1
+        #'clearance_face_nb_layers' : 2 # default: 1
         #
         }
 
