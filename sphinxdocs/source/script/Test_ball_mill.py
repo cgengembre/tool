@@ -42,4 +42,3 @@ for angle in range (0, 360, 90) :
 
 bm_tool.write('Ball_mill_tool')
 bm_tool.draw()
-    
