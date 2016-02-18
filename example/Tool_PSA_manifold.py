@@ -170,7 +170,7 @@ if tool_name == 'Tool_PSA_manifold_11N1P' :
     FoR_insert_planing_P = Toolstep_planing.foref.create_frame(
            name                  = 'FoR_insert_planing_P',
     	   father_frame_name     = "Canonical",
-    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees   = 0.0, 
     	   radius                = 43.482404e-3,
     	   axial_position        = 2.922084e-3,
@@ -182,7 +182,7 @@ if tool_name == 'Tool_PSA_manifold_11N1P' :
     FoR_insert_planing_S = Toolstep_planing.foref.create_frame(
            name                  = 'Insert_planing_S',
     	   father_frame_name     = "Canonical",
-    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees   = 0.0, 
     	   radius                = 35.454045e-3,
     	   axial_position        = 0.0,
@@ -207,7 +207,7 @@ for alpha in angles_toolstep_normal :
     FoR_insert_normal_PU = Toolstep_normal.foref.create_frame(
            name                  = 'PU_'+str(alpha),
     	   father_frame_name     = "Canonical",
-    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees   = alpha, 
     	   radius                = 43.482404e-3,
     	   axial_position        = 2.922084e-3,
@@ -219,7 +219,7 @@ for alpha in angles_toolstep_normal :
     FoR_insert_normal_S = Toolstep_normal.foref.create_frame(
            name                  = 'S_'+str(alpha),
     	   father_frame_name     = "Canonical",
-    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees   = alpha, 
     	   radius                = 38.854045e-3,
     	   axial_position        =  0.,
@@ -231,7 +231,7 @@ for alpha in angles_toolstep_normal :
     FoR_insert_normal_PI = Toolstep_normal.foref.create_frame(
            name                  = 'PI_'+str(alpha),
     	   father_frame_name     = "Canonical",
-    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees   = alpha, 
     	   radius                = 33.352058e-3,
     	   axial_position        =  3.808374e-3,
@@ -251,7 +251,7 @@ if tool_name == 'Tool_PSA_manifold_11N1P' :
     FoR_toolstep_planing = Tool_PSA.foref.create_frame(
            name                  = 'FoR_toolstep_planing',
     	   father_frame_name     = "Canonical",
-    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees   = 0., 
     	   radius                = 0.,
     	   axial_position        = 0.,
@@ -265,7 +265,7 @@ if tool_name == 'Tool_PSA_manifold_11N1P' :
 FoR_toolstep_normal = Tool_PSA.foref.create_frame(
            name                  = 'FoR_toolstep_normal',
     	   father_frame_name     = "Canonical",
-    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees   = 0., 
     	   radius                = 0.,
     	   axial_position        = 0.,

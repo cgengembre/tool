@@ -34,7 +34,7 @@ my_tool = tool.Tool(name = 'toroidal_mill')
 for angle in [0., 60., 120., 180., 240., 300.  ]:
     frame = my_tool.base_toolstep.foref.create_frame(name =  "tooth"+str(int(angle)),
            father_frame_name  = "Canonical",
-           frame_type          = FoR.FRAME_CYLINDRIC_NRA,
+           frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
            axial_angle_degrees = 30.,
            radius              = 0.,
            axial_position      = 0.,

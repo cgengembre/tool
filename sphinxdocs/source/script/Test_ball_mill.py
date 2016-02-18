@@ -31,7 +31,7 @@ bm_tool = tool.Tool(name = 'Ball_mill_tool')
 for angle in range (0, 360, 90) :
     frame = bm_tool.base_toolstep.foref.create_frame(name = "Tooth position "+str(angle)+" degrees",
            father_frame_name   = "Canonical",
-           frame_type          = FoR.FRAME_CYLINDRIC_NRA,
+           frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
            axial_angle_degrees = float(angle),
            radius              = 0.,
            axial_position      = 0.,

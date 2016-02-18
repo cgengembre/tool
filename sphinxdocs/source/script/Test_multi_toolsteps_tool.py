@@ -80,7 +80,7 @@ for alpha in range(0,360,120) :
     frame = toolstep1.foref.create_frame(
            name                = 'toolstep1_'+str(alpha),
     	   father_frame_name   = "Canonical",
-    	   frame_type          = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees = alpha, 
     	   radius              = 36.825,
     	   axial_position      = 0.,
@@ -94,7 +94,7 @@ for alpha in range(0,360,180) :
     frame = toolstep2.foref.create_frame(
            name                = 'toolstep2_'+str(alpha),
     	   father_frame_name   = "Canonical",
-    	   frame_type          = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees = alpha, 
     	   radius              = 39.,
     	   axial_position      = 0.,
@@ -108,7 +108,7 @@ for alpha in range(0,360,180) :
     frame = toolstep3.foref.create_frame(
            name                = 'toolstep3_'+str(alpha),
     	   father_frame_name   = "Canonical",
-    	   frame_type          = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees = 60.+alpha, 
     	   radius              = 39.65,
     	   axial_position      = 0.,
@@ -121,7 +121,7 @@ for alpha in range(0,360,180) :
     frame = toolstep3.foref.create_frame(
            name                = 'toolstep3_'+str(alpha-45),
     	   father_frame_name   = "Canonical",
-    	   frame_type          = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees = -45.+alpha, 
     	   radius              = 44.2,
     	   axial_position      = 14.,
@@ -137,7 +137,7 @@ tool_example = tool.Tool(name = 'Tree toolsteps tool')
 frame_Etage = tool_example.foref.create_frame(
            name                = 'frame_Etage_1',
     	   father_frame_name   = "Canonical",
-    	   frame_type          = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees = 0., 
     	   radius              = 0.,
     	   axial_position      = 0.,
@@ -152,7 +152,7 @@ tool_example.addToolstep(
 frame_Etage = tool_example.foref.create_frame(
            name                = 'frame_Etage_2',
     	   father_frame_name   = "Canonical",
-    	   frame_type          = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees = 0., 
     	   radius              = 0.,
     	   axial_position      = 64.15,
@@ -167,7 +167,7 @@ tool_example.addToolstep(
 frame_Etage = tool_example.foref.create_frame(
            name                = 'frame_Etage_3',
     	   father_frame_name   = "Canonical",
-    	   frame_type          = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees = 0., 
     	   radius              = 0.,
     	   axial_position      = 109.5,

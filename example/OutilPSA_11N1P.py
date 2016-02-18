@@ -44,7 +44,7 @@ for alpha in angles :
     frame = etage.foref.create_frame(
            name                  = 'P_'+str(alpha),
     	   father_frame_name     = "Canonical",
-    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees   = alpha, 
     	   radius                = 43.482404e-3,
     	   axial_position        = 2.922084e-3,
@@ -62,7 +62,7 @@ outil = Tool.Tool(name = 'OUtilPSA')
 frame_Etage = outil.foref.create_frame(
            name                  = 'frame_Etage',
     	   father_frame_name     = "Canonical",
-    	   frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+    	   frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
     	   axial_angle_degrees   = 0., 
     	   radius                = 0.,
     	   axial_position        = 0.,

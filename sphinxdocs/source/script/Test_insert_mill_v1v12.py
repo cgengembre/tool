@@ -38,13 +38,13 @@ for angle in range(0,360, 120):
     frame = my_tool.base_toolstep.foref.create_frame(
            name =  "tooth"+str(angle),
            father_frame_name   = "Canonical",
-           frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
-           axial_angle_degrees = 30. + angle,
-           radius              = 2.E-2,
-           axial_position      = 0.,
-           rot_normal_degrees  = 20.,
-           rot_radial_degrees  = -30.,
-           rot_axial_degrees   = 0.)
+           frame_type          = FoR.FRAME_CYLINDRICAL_V1V12,
+           origin              = [2.E-2, 30. + angle, 0.], # r,teta,z
+           vector1             = [1., 0,  0],  # u_r, u_teta, u_z
+           vector12            = [0,  1., 0])  # u_r, u_teta, u_z
+           #rot_normal_degrees  = 20.,
+           #rot_radial_degrees  = -30.,
+           #rot_axial_degrees   = 0.)
     my_tool.addTooth(my_insert, frame)
 
 my_tool.write('inserts_mill')

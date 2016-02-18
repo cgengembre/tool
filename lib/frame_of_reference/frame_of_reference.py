@@ -52,12 +52,24 @@ def npRotAroundOzAxisMatrix(angle):
     cos_angle = m.cos(angle)
     return np.array([cos_angle, - sin_angle, 0., sin_angle, cos_angle,0.,0., 0, 1. ]).reshape(3,3)
 # --------------------------------------------------------------------------------------------------
+def vector_norm (vect):
+    """ return the euclidian norm of vect
+    """
+    return m.sqrt (reduce (lambda a, b : a+b, [x**2 for x in vect]))
+# --------------------------------------------------------------------------------------------------
+def normalize (vect):
+    """ return a new vector that is collinear to vect, and whose norm is 1. 
+    """
+    the_norm = vector_norm(vect)
+    return map(lambda a: a/the_norm, vect)
+# --------------------------------------------------------------------------------------------------
 
-
-FRAME_CARTESIAN_V1V12 = 0
-FRAME_CARTESIAN_EULER = 1
-FRAME_CARTESIAN_NRA   = 2
-FRAME_CYLINDRIC_NRA   = 3 # FRAME_CYLINDRIC_NRA
+FRAME_CARTESIAN_V1V12   = 0   # DONE
+FRAME_CYLINDRICAL_V1V12 = 1   # DONE
+FRAME_SPHERICAL_V1V12   = 2   
+FRAME_CYLINDRICAL_NRA   = 3   # DONE
+FRAME_CYLINDRICAL_EULER = 4
+EPSILON = .1E-7
 # ==================================================================================================
 class Frame:
 # --------------------------------------------------------------------------------------------------
@@ -71,9 +83,9 @@ class Frame:
         --> clés suivantes en fonction de dic["frame_type"]
     	A/ "frame_type"   : FRAME_CARTESIAN_V1V12
     	   ---------------
-    	   "Origin"      : [xO, yO, zO] # dans le fatherFrame
-    	   "Vector1"     : [x1, y1, z1] # dans le fatherFrame
-    	   "Vector12"    : [x12,y12,z12]# dans le fatherFrame
+    	   "origin"      : [xO, yO, zO] # dans le fatherFrame
+    	   "vector1"     : [x1, y1, z1] # dans le fatherFrame
+    	   "vector12"    : [x12,y12,z12]# dans le fatherFrame
     	
     	B/ "frame_type"  : FRAME_CARTESIAN_EULER
     	   ---------------
@@ -86,7 +98,7 @@ class Frame:
     	   "rotAngles"   : [rotYfather, rotXfather, rotZfather]
     	   example : position plaquette de tour 
     	
-    	D/ "frame_type"         : FRAME_CYLINDRIC_NRA
+    	D/ "frame_type"         : FRAME_CYLINDRICAL_NRA
     	   -------------
     	   "axial_angle_degrees": alpha
     	   "radius"             : r
@@ -115,7 +127,7 @@ class Frame:
         Let P be a point expressed in self,
         [ self.npMatSelfToFather ].P + self.npVectSelfToFather expresses P in fatherFrame    
         """
-        if dic["frame_type"] == FRAME_CYLINDRIC_NRA:
+        if dic["frame_type"] == FRAME_CYLINDRICAL_NRA:
             alpha    = m.radians(dic["axial_angle_degrees"])
             radius   = dic["radius"]
             axialPos = dic["axial_position"]
@@ -123,9 +135,9 @@ class Frame:
             rotYp    = m.radians(dic["rot_normal_degrees"])
             rotZp    = m.radians(dic["rot_axial_degrees"])
             
-            npMrotXp   = npRotAroundOxAxisMatrix (rotXp)
-            npMrotYp   = npRotAroundOyAxisMatrix (rotYp)
-            npMrotZp   = npRotAroundOzAxisMatrix (rotZp)
+            npMrotXp   = npRotAroundOxAxisMatrix (rotXp) # e_radial (Radial)
+            npMrotYp   = npRotAroundOyAxisMatrix (rotYp) # e_teta   (Normal)
+            npMrotZp   = npRotAroundOzAxisMatrix (rotZp) # e_z      (Axial)
             npMrotAlpha= npRotAroundOzAxisMatrix (alpha)
             
             npMatSelfToFather = np.dot(npMrotXp,npMrotYp)
@@ -133,6 +145,63 @@ class Frame:
             npMatSelfToFather = np.dot(npMrotAlpha, npMatSelfToFather)
             self.npMatSelfToFather = npMatSelfToFather
             self.npVectSelfToFather = np.array([radius*m.cos(alpha), radius*m.sin(alpha), axialPos])
+        
+        elif dic['frame_type'] == FRAME_CARTESIAN_V1V12:
+            ## waited dic :  
+            # "origin"      : [xO, yO, zO] # dans le fatherFrame
+    	    # "vector1"     : [x1, y1, z1] # dans le fatherFrame
+    	    # "vector12"    : [x12,y12,z12]# dans le fatherFrame
+    	    self.npVectSelfToFather = np.array(dic['origin'])
+    	    # Compute the matrix : 
+    	    # 1: normalize vector1 and vector12 
+    	    # produit scalaire : np.dot(a,b). produit vectoriel : np.cross(a,b)
+    	    # Norme d'un vecteur : math.sqrt (reduce (lambda a, b : a+b, [x**2 for x in vect]))
+    	    u1 = normalize(dic['vector1'])
+    	    u12 = normalize(dic['vector12'])
+    	    
+    	    np_u1, np_u12 = np.array(u1), np.array(u12) 
+    	    if np.linalg.norm(np_u1 - np_u12) < EPSILON*np.linalg.norm(self.npVectSelfToFather):
+    	        raise FrameError('u1 and u12 vectors seems to be colinear !')
+    	    
+    	    w = np.cross(np_u1, np_u12)
+    	    u = np.array(u1)
+    	    v = np.cross (w, u)
+    	    self.npMatSelfToFather = np.concatenate ((u,v,w)).reshape(3,3).transpose()
+    	    
+    	    
+    	elif dic['frame_type'] == FRAME_CYLINDRICAL_V1V12:
+            ## waited dic :  
+            # "origin"      : [radius, teta, zO] # dans le fatherFrame
+    	    # "vector1"     : [u1_r, u1_teta, u1_z] # dans le fatherFrame
+    	    # "vector12"    : [u12_r, u12_teta, u12_z]# dans le fatherFrame
+    	    # 1.: Compute translation vector:
+    	    radius = dic['origin'][0]
+    	    teta = m.radians(dic['origin'][1])
+    	    zO = dic['origin'][2]
+    	    self.npVectSelfToFather = np.array([radius*m.cos(teta), radius*m.sin(teta), zO])
+    	    # 2.: Compute rotation matrix:
+    	    u1_r, u1_teta, u1_z = dic['vector1'][0],dic['vector1'][1],dic['vector1'][2]
+    	    u1 = normalize([u1_r*m.cos(teta)-u1_teta*m.sin(teta), u1_r*m.sin(teta)+u1_teta*m.cos(teta), u1_z])
+    	    u12_r, u12_teta, u12_z = dic['vector12'][0],dic['vector12'][1],dic['vector12'][2]
+    	    u12 = normalize([u12_r*m.cos(teta)-u12_teta*m.sin(teta), u12_r*m.sin(teta)+u12_teta*m.cos(teta), u12_z])
+    	    
+    	    np_u1, np_u12 = np.array(u1), np.array(u12) 
+    	    if np.linalg.norm(np_u1 - np_u12) < EPSILON*np.linalg.norm(self.npVectSelfToFather):
+    	        raise FrameError('u1 and u12 vectors seems to be colinear !')
+    	    
+    	    w = np.cross(np_u1, np_u12)
+    	    u = np.array(u1)
+    	    v = np.cross (w, u)
+    	    self.npMatSelfToFather = np.concatenate ((u,v,w)).reshape(3,3).transpose()
+    	    
+
+    	elif dic['frame_type'] == FRAME_SPHERICAL_V1V12:
+            ## waited dic :  
+            # "origin"      : [radius, teta, phi] # dans le fatherFrame
+    	    # "vector1"     : [u1_r, u1_teta, u1_phi] # dans le fatherFrame
+    	    # "vector12"    : [u12_r, u12_teta, u12_phi]# dans le fatherFrame
+            raise FrameError("frame_type FRAME_SPHERICAL_V1V12 not yet implemented")
+            
         else :
             raise FrameError("frame_type not yet implemented")
 # --------------------------------------------------------------------------------------------------

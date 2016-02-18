@@ -23,7 +23,7 @@ outil = Tool.Tool(name = 'Plaquette pour usinage tube2')
 
 frame = outil.toolstep_dic['base_toolstep'].toolstep.foref.create_frame(name =  "Position Plaquette",
            father_frame_name  = "Canonical",
-           frame_type         = FoR.FRAME_CYLINDRIC_NRA,
+           frame_type         = FoR.FRAME_CYLINDRICAL_NRA,
            axial_angle_degrees  = 0.,
            radius             = 0.,
            axial_position     = 0.,

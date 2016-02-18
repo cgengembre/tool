@@ -58,7 +58,7 @@ for alpha in angles_toolstep_1 :
     frameEtage1 = etage1.foref.create_frame(
             name                  = 'Etage1 alpha = %f'%(alpha),
             father_frame_name     ="Canonical",
-            frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+            frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
             axial_angle_degrees   = 0.,
             radius                = 0.,
             axial_position        = 0.,
@@ -73,7 +73,7 @@ for alpha in angles_toolstep_2 :
     frameEtage2 = etage2.foref.create_frame(
             name                  = 'Etage2 alpha = %f'%(alpha),
             father_frame_name     ="Canonical",
-            frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+            frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
             axial_angle_degrees   = 0.,
             radius                = 0.,
             axial_position        = 0.,
@@ -88,7 +88,7 @@ for alpha in angles_toolstep_2 :
 frame = outil.foref.create_frame(
             name                  = 'Etage1 alpha = %f'%(alpha),
             father_frame_name     ="Canonical",
-            frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+            frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
             axial_angle_degrees   = 0.,
             radius                = 0.,
             axial_position        = 0.,
@@ -101,7 +101,7 @@ outil.addToolstep(name = 'z=O.', tstep = etage1, frame = frame)
 frame = outil.foref.create_frame(
             name                  = 'Etage2 alpha = %f'%(alpha),
             father_frame_name     ="Canonical",
-            frame_type            = FoR.FRAME_CYLINDRIC_NRA,
+            frame_type            = FoR.FRAME_CYLINDRICAL_NRA,
             axial_angle_degrees   = 0.,
             radius                = 0.,
             axial_position        = 5.E-3,
