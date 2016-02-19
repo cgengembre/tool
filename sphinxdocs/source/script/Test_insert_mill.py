@@ -39,12 +39,9 @@ for angle in range(0,360, 120):
            name =  "tooth"+str(angle),
            father_frame_name   = "Canonical",
            frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
-           axial_angle_degrees = 30. + angle,
-           radius              = 2.E-2,
-           axial_position      = 0.,
-           rot_normal_degrees  = 20.,
-           rot_radial_degrees  = -30.,
-           rot_axial_degrees   = 0.)
+           origin              = [ 2.E-2, 30.+angle, 0.],
+           nra                 = [20.,-30.,0.]) # degrees
+
     my_tool.addTooth(my_insert, frame)
 
 my_tool.write('inserts_mill')

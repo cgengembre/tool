@@ -28,16 +28,16 @@ bm_tooth.draw()
 
 bm_tool = tool.Tool(name = 'Ball_mill_tool')
 
+
+## TODO : modify waited dic :  
+            # "origin"        : [radius, teta_degrees, zO] # dans le fatherFrame
+            # "nra_rotations" : [normal_angle_degrees, radial_angle_degrees, axial_angle_degrees]
 for angle in range (0, 360, 90) :
     frame = bm_tool.base_toolstep.foref.create_frame(name = "Tooth position "+str(angle)+" degrees",
            father_frame_name   = "Canonical",
            frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
-           axial_angle_degrees = float(angle),
-           radius              = 0.,
-           axial_position      = 0.,
-           rot_normal_degrees  = 0.,
-           rot_radial_degrees  = 0.,
-           rot_axial_degrees   = 0. )
+           origin              = [0., float(angle), 0.],
+           nra                 = [0.,0.,0.]) # degrees
     bm_tool.addTooth(bm_tooth, frame)
 
 bm_tool.write('Ball_mill_tool')

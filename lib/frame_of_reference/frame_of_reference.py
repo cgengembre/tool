@@ -128,12 +128,16 @@ class Frame:
         [ self.npMatSelfToFather ].P + self.npVectSelfToFather expresses P in fatherFrame    
         """
         if dic["frame_type"] == FRAME_CYLINDRICAL_NRA:
-            alpha    = m.radians(dic["axial_angle_degrees"])
-            radius   = dic["radius"]
-            axialPos = dic["axial_position"]
-            rotXp    = m.radians(dic["rot_radial_degrees"])
-            rotYp    = m.radians(dic["rot_normal_degrees"])
-            rotZp    = m.radians(dic["rot_axial_degrees"])
+            ## TODO : modify waited dic :  
+            # "origin"        : [radius, teta_degrees, zO] # dans le fatherFrame
+            # "nra" : [normal_angle_degrees, radial_angle_degrees, axial_angle_degrees]
+
+            radius   = dic["origin"][0]
+            alpha    = m.radians(dic["origin"][1])
+            axialPos = dic["origin"][2]
+            rotYp    = m.radians(dic["nra"][0])
+            rotXp    = m.radians(dic["nra"][1])
+            rotZp    = m.radians(dic["nra"][2])
             
             npMrotXp   = npRotAroundOxAxisMatrix (rotXp) # e_radial (Radial)
             npMrotYp   = npRotAroundOyAxisMatrix (rotYp) # e_teta   (Normal)
