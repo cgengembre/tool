@@ -63,53 +63,59 @@ def normalize (vect):
     the_norm = vector_norm(vect)
     return map(lambda a: a/the_norm, vect)
 # --------------------------------------------------------------------------------------------------
-
+# -- Integers used to define frame types --
 FRAME_CARTESIAN_V1V12   = 0   # DONE
 FRAME_CYLINDRICAL_V1V12 = 1   # DONE
 FRAME_SPHERICAL_V1V12   = 2   
 FRAME_CYLINDRICAL_NRA   = 3   # DONE
 FRAME_CYLINDRICAL_EULER = 4
+# ----------------------------------------
 EPSILON = .1E-7
 # ==================================================================================================
 class Frame:
 # --------------------------------------------------------------------------------------------------
     def __init__(self, **dic):
-        """
-    	Structures possibles pour dic :
-        --> clés communes à tous les types de reperes :
-           "name"              : "nom du repere"
-    	   "father_frame_name" : "nom du repere pere"
-    	   "frame_type"        : <Id type frame>
-        --> clés suivantes en fonction de dic["frame_type"]
-    	A/ "frame_type"   : FRAME_CARTESIAN_V1V12
-    	   ---------------
+        """ Frame class constructor
+        --> Common keys needed for every way to define a frame :
+           
+           "name"              : "name for the frame"
+    	   "father_frame_name" : "name of the father frame"
+    	   "frame_type"        : <type frame id>
+    	   
+        --> Other needed keys depend on the value of dic["frame_type"] :
+
+    	---------------
+    	if dic["frame_type"] == FRAME_CARTESIAN_V1V12 then needed keys are :
     	   "origin"      : [xO, yO, zO] # dans le fatherFrame
     	   "vector1"     : [x1, y1, z1] # dans le fatherFrame
     	   "vector12"    : [x12,y12,z12]# dans le fatherFrame
-    	
-    	B/ "frame_type"  : FRAME_CARTESIAN_EULER
-    	   ---------------
+    	---------------
+    	if dic["frame_type"] == FRAME_CYLINDRICAL_V1V12 then needed keys are :    	   
+    	   "origin"      : [radius, teta, zO] # dans le fatherFrame
+    	   "vector1"     : [u1_r, u1_teta, u1_z] # dans le fatherFrame
+    	   "vector12"    : [u12_r, u12_teta, u12_z]# dans le fatherFrame
+    	---------------
+    	if dic["frame_type"] == FRAME_CYLINDRICAL_NRA then needed keys are :    	
+    	   "origin"      : [radius, teta_degrees, zO] # dans le fatherFrame
+    	   "nra"         : [normal_angle_degrees, radial_angle_degrees, axial_angle_degrees]
+    	---------------
+    	[TODO] if dic["frame_type"] == FRAME_SPHERICAL_V1V12 then needed keys are :    	
+           "origin"      : [radius, teta, phi] # dans le fatherFrame
+    	   "vector1"     : [u1_r, u1_teta, u1_phi] # dans le fatherFrame
+    	   "vector12"    : [u12_r, u12_teta, u12_phi]# dans le fatherFrame
+    	---------------
+    	[TODO] if dic["frame_type"] == FRAME_CARTESIAN_EULER then needed keys are :        
+    	   "origin"       : [xO, yO, zO] # dans le fatherFrame
+    	   "euler_angles" : [Psi, Teta, Phi]
+    	---------------
+    	[TODO] if dic["frame_type"] == FRAME_CARTESIAN_NRA then needed keys are :        
     	   "origin"      : [xO, yO, zO] # dans le fatherFrame
-    	   "eulerAngles" : [Psi, Teta, Phi]
-        
-        C/ "frame_type"  : FRAME_CARTESIAN_NRA # INSERT_FRAME_FOR_A_TURNERY_MACHIN
-           ---------------
-    	   "origin"      : [xO, yO, zO] # dans le fatherFrame
-    	   "rotAngles"   : [rotYfather, rotXfather, rotZfather]
+    	   "nra"         : [normal_angle_degrees, radial_angle_degrees, axial_angle_degrees]
     	   example : position plaquette de tour 
-    	
-    	D/ "frame_type"         : FRAME_CYLINDRICAL_NRA
-    	   -------------
-    	   "axial_angle_degrees": alpha
-    	   "radius"             : r
-    	   "axial_position"     : z
-    	   "rot_normal_degrees" : rotYp
-    	   "rot_radial_degrees" : rotXp
-    	   "rot_axial_degrees"  : rotZp
-    	   Example : position plaquettes de fraise
-    	   
-       	Le but du constructeur est de générer le vecteur translation et la matrice de
-        rotation pour faire le changement de repère toujours de la meme manière
+    	---------------
+        
+        The constructor compute translation vector and rotation matrix expressed in
+       	cartesian coordinates so that the change of reference is always done in the same manner.
         """
         self.name              = dic["name"]
         self.father_frame_name = dic["father_frame_name"]
@@ -128,7 +134,7 @@ class Frame:
         [ self.npMatSelfToFather ].P + self.npVectSelfToFather expresses P in fatherFrame    
         """
         if dic["frame_type"] == FRAME_CYLINDRICAL_NRA:
-            ## TODO : modify waited dic :  
+            # waited dic :  
             # "origin"        : [radius, teta_degrees, zO] # dans le fatherFrame
             # "nra" : [normal_angle_degrees, radial_angle_degrees, axial_angle_degrees]
 
@@ -235,10 +241,10 @@ class FrameOfReference:
         FrameOfReference.__instance_counter__ +=1
 # --------------------------------------------------------------------------------------------------
     def create_frame(self, **dic):
-        # Verifier que le père du repère ajouté existe bien dans le réferentiel
-        # Ajouter le repère au dico des repères. Les clés sont les noms des repères
+        # Ensure that the created frame father exists in this frame of reference
+        # Add the created frame to the frames dictionary whose keys are frames mames.
         if self.dic_frames.has_key(dic['father_frame_name']):
-            ## creer le frame :
+            ## frame creation :
             if self.dic_frames.has_key(dic['name']):
                 # print self.dic_frames
                 raise FrameError('Un frame de ce nom existe déjà')
