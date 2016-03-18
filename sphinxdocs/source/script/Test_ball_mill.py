@@ -19,7 +19,7 @@ dic_bm_tooth = {
         #'clearance_face_angle_degrees' : 1.20,
         # optional data
         #'clearance_face_nb_layers' : 2 # default: 1
-        #
+        
         }
 
 bm_tooth = tooth.Tooth_ball_mill(**dic_bm_tooth)
