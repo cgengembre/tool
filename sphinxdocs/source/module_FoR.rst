@@ -24,7 +24,7 @@ Every frame of reference has its canonical frame. In addition, you can create in
 
 Every frame is identified by a ``name`` (see below). The ``name`` of the canonical frame is : ``"Canonical"``.
 
-To create a new frame inside a frame of reference, you must use its ``create_frame()`` method with the following named parameters : 
+To create a new frame inside a frame of reference, you must use its ``create_frame()`` method with the following named parameters (**CGen** very importtant): 
 
     * ``name`` : string. The name of the frame. It must be uniq in the frame of reference.
     * ``father_frame_name`` : string. The name of the frame in which you define the new frame. The frame whose name is father_frame_name must exit.
