@@ -183,7 +183,10 @@ class ToolstepModel:
         out_d = './OUT/d_toolstep'
         if not os.path.isdir(out_d): os.mkdir(out_d)
         
-        tooth.tool_util.view_bloc(self.elem_tool_out_list, out_d)
+        #tooth.tool_util.draw_bloc(self.elem_tool_out_list, out_d)
+	v3d_lf_name=tool_util.draw_bloc(self.elem_tool_out_list, out_d)
+    	tool_util.v3d.show([v3d_lf_name],'rack face & clear vol')
+
         
 
 # ==================================================================================================

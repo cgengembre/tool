@@ -168,7 +168,10 @@ class Tool:
         #out_d = os.path.abspath('./OUT/d_tool')
         if not os.path.isdir(out_d): os.mkdir(out_d)
         
-        tooth.tool_util.view_bloc(self.elem_tool_out_list, out_d, dc_color)
+        # tooth.tool_util.draw_bloc(self.elem_tool_out_list, out_d, dc_color)
+	v3d_lf_name=tool_util.draw_bloc(self.elem_tool_out_list, out_d)
+    	tool_util.v3d.show([v3d_lf_name],'rack face & clear vol')
+
         
 # --------------------------------------------------------------------------------------------------
     def compute_out_blocs (self):
