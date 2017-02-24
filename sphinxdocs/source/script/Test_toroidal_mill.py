@@ -3,7 +3,7 @@
 my_tooth = tooth.Tooth_toroidal_mill(
             # Mandatory data : 
             name                    = 'toothMonoblocTyp1', 
-            dist_from_origin        = 6.0E-3, ## futur radiurs of the mill...
+            dist_from_origin        = 6.0E-3, ## futur radius of the mill...
             tool_tip_radius         = 3.E-3,
             tool_tip_angle_degrees  = 110.0,
             lenght_before           = 5.E-03,
