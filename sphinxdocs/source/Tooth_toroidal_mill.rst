@@ -2,7 +2,7 @@
 Toroidal mill
 ##################################################################
 
-Geometry
+Geometry test cgen modif
 *********************************
 
 The geometry, and associated parameters, of a toroidal mill are defined as follows:
@@ -11,7 +11,7 @@ The geometry, and associated parameters, of a toroidal mill are defined as follo
     :align: center
     :width: 12 cm
 
-Script example
+Script example cgen example
 *********************************
 
 .. literalinclude:: script/Test_toroidal_mill.py
