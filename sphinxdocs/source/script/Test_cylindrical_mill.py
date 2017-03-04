@@ -9,12 +9,12 @@ my_tooth = tooth.Tooth_cylindrical_mill(
                         nb_elementary_tools      = 3,
                         mcr_rf_cl_name = "MCL1",
                         # optional data :
-                        torsion_angle_degrees    = 30., # default: 0.0
+                        torsion_angle_degrees    = 15., # default: 0.0
                         cut_face_nb_layers       = 2, # default: 1
                         nb_slices                = 4, # default: 1
                         # mandatory data if clearance volume is present
-                        clearance_face_angle_degrees = 45.,
-                        clearance_face_thickness = 0.5E-3,
+                        clearance_face_angle_degrees = 5.,
+                        clearance_face_thickness = 0.3E-3,
                         mcr_cv_cl_name = "MCV1",
                         # optional data if clearance volume is present
                         clearance_face_nb_layers = 1, # default: 1
