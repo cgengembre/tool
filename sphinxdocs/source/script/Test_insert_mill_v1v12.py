@@ -29,12 +29,12 @@ my_insert_dic = {
     'clearance_face_nb_layers' : 2, # default: 1
 }
 
-my_insert = tooth.Tooth_insert(**my_insert_dic) #Arc)
+my_insert = tooth.Tooth_insert(**my_insert_dic) 
 
 my_insert.draw()
 
 my_tool = tool.Tool(name = 'inserts_mill')
-for angle in range(0,360, 120):
+for angle in [0., 120., 240.]:
     frame = my_tool.base_toolstep.foref.create_frame(
            name =  "tooth"+str(angle),
            father_frame_name   = "Canonical",
@@ -42,9 +42,6 @@ for angle in range(0,360, 120):
            origin              = [2.E-2, 30. + angle, 0.], # r,teta,z
            vector1             = [1., 0,  0.5],  # u_r, u_teta, u_z
            vector12            = [1.,  1., -0.5])  # u_r, u_teta, u_z
-           #rot_normal_degrees  = 20.,
-           #rot_radial_degrees  = -30.,
-           #rot_axial_degrees   = 0.)
     my_tool.addTooth(my_insert, frame)
 
 my_tool.write('inserts_mill')

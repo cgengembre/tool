@@ -484,13 +484,39 @@ class Tooth_insert(Tooth_model) :
             next_point[0],next_point[1] = current_point[0], current_point[1]
             next_angle[0] = current_angle + alpha
 # --------------------------------------------------------------------------------------------------        
-    def __genereVolumeDepouilleArc (self, center, radius, current_angle, et_angle, slice_angle, nb_slices, cutf_nb_layers,  firstIdx, lastIdx):
+    def __genereVolumeDepouilleArc (self, center, radius, current_angle, et_angle, 
+                                    slice_angle, nb_slices, cutf_nb_layers,  
+                                    firstIdx, lastIdx):
         
         if not (self.has_clear_face()) : return None
+                
+        truncated_cone = self.clearance_face_angle < math.atan(radius/self.clearance_face_thickness)
+        coef = math.tan(self.clearance_face_angle) * self.clearance_face_thickness / radius
         
         delta_clearance_face_thickness = self.clearance_face_thickness/self.clearance_face_nb_layers
-        l_limit_on_clearance_face = max(0.,(radius - self.cut_face_thickness)/math.sin(self.clearance_face_angle))
-        l_max_on_clearance_face = radius/math.sin(self.clearance_face_angle)
+        
+        # ********************
+        # PhLo : 05/03/17
+        # Initial version: Pb if self.clearance_face_angle == 0.
+        # l_limit_on_clearance_face = max(0.,(radius - self.cut_face_thickness)/math.sin(self.clearance_face_angle))
+        # l_max_on_clearance_face = radius/math.sin(self.clearance_face_angle)
+        # New version:
+        if truncated_cone : 
+            l_max_on_clearance_face = (1.+1e-6) * self.clearance_face_thickness
+        else : 
+            l_max_on_clearance_face = radius/math.sin(self.clearance_face_angle)
+        
+        if radius - self.cut_face_thickness > 0. : 
+            if self.clearance_face_angle < math.atan((radius - self.cut_face_thickness)/self.clearance_face_thickness) : 
+                l_limit_on_clearance_face = (1.+1e-6) * self.clearance_face_thickness
+            else : 
+                l_limit_on_clearance_face = (radius - self.cut_face_thickness)/math.sin(self.clearance_face_angle)
+        else : 
+            l_limit_on_clearance_face = 0.0
+            
+        # ********************
+        
+        
         # print("limit : %f, max : %f"%(l_limit_on_clearance_face,l_max_on_clearance_face) )
         
         for k in range(firstIdx, lastIdx):
@@ -507,11 +533,24 @@ class Tooth_insert(Tooth_model) :
             #    [[center[0],  
             #      radius*math.cos(self.clearance_face_angle)/math.sin(self.clearance_face_angle), 
             #      center[2]],]
-            # New version:
+            # New version: 05/03/17
             cut_edge_middle = [0.5*elem_tool_dic['pnt_cut_edge'][0][idx]+0.5*elem_tool_dic['pnt_cut_edge'][1][idx] for idx in range(3)]
-            pnt_axe = [center[0], radius*math.cos(self.clearance_face_angle)/math.sin(self.clearance_face_angle), center[2] ]
-            pnt_0 = [0.5*elem_tool_dic['pnt_cut_edge'][1][idx]+0.5*pnt_axe[idx] for idx in range(3)]
-            pnt_1 = [0.5*elem_tool_dic['pnt_cut_edge'][0][idx]+0.5*pnt_axe[idx] for idx in range(3)]
+
+            y_length = 0.99 * min( delta_clearance_face_thickness, l_max_on_clearance_face)
+            coef = y_length * math.tan(self.clearance_face_angle) / radius
+            
+            radial_dir_0 = [ (center[idx]-elem_tool_dic['pnt_cut_edge'][1][idx]) for idx in range(3) ]
+            pnt_0 = [ elem_tool_dic['pnt_cut_edge'][1][0] + coef * radial_dir_0[0],
+                      elem_tool_dic['pnt_cut_edge'][1][1] + y_length,
+                      elem_tool_dic['pnt_cut_edge'][1][2] + coef * radial_dir_0[2] ]
+            radial_dir_1 = [ (center[idx]-elem_tool_dic['pnt_cut_edge'][01][idx]) for idx in range(3) ]
+            pnt_1 = [ elem_tool_dic['pnt_cut_edge'][0][0] + coef * radial_dir_1[0],
+                      elem_tool_dic['pnt_cut_edge'][0][1] + y_length,
+                      elem_tool_dic['pnt_cut_edge'][0][2] + coef * radial_dir_1[2] ]
+            #pnt_axe = [center[0], radius*math.cos(self.clearance_face_angle)/math.sin(self.clearance_face_angle), center[2] ]
+            #pnt_0 = [0.5*elem_tool_dic['pnt_cut_edge'][1][idx]+0.5*pnt_axe[idx] for idx in range(3)]
+            #pnt_1 = [0.5*elem_tool_dic['pnt_cut_edge'][0][idx]+0.5*pnt_axe[idx] for idx in range(3)]
+            
             elem_tool_dic['pnt_clearance_face'] = [pnt_0]+[pnt_1]+[cut_edge_middle]
             # ********************
             
@@ -757,7 +796,8 @@ class Tooth_insert(Tooth_model) :
         
         
 # --------------------------------------------------------------------------------------------------
-    def __genereVolumeDepouilleSegment(self, current_angle, nb_slices, firstIdx, lastIdx):
+    def __genereVolumeDepouilleSegment(self, current_angle, nb_slices, 
+                                       firstIdx, lastIdx):
         
         if not (self.has_clear_face()) : return None
         

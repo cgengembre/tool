@@ -14,12 +14,12 @@ dic_bm_tooth = {
         'cut_face_nb_layers' : 2,   # default: 1
         'nb_slices'          : 3,   # default: 1       
         # mandatory data if clearance volume is present
-        #'mcr_cv_cl_name' : 'mcl_clear_face',
-        #'clearance_face_thickness' : 1.5E-3,
-        #'clearance_face_angle_degrees' : 1.20,
+        'mcr_cv_cl_name' : 'mcl_clear_face',
+        'clearance_face_thickness' : 0.5E-3,
+        'clearance_face_angle_degrees' : 10.,
         # optional data
-        #'clearance_face_nb_layers' : 2 # default: 1
-        
+        'clearance_face_nb_layers' : 2 # default: 1
+        #
         }
 
 bm_tooth = tooth.Tooth_ball_mill(**dic_bm_tooth)
@@ -29,15 +29,13 @@ bm_tooth.draw()
 bm_tool = tool.Tool(name = 'Ball_mill_tool')
 
 
-## TODO : modify waited dic :  
-            # "origin"        : [radius, teta_degrees, zO] # dans le fatherFrame
-            # "nra_rotations" : [normal_angle_degrees, radial_angle_degrees, axial_angle_degrees]
-for angle in range (0, 360, 90) :
-    frame = bm_tool.base_toolstep.foref.create_frame(name = "Tooth position "+str(angle)+" degrees",
-           father_frame_name   = "Canonical",
-           frame_type          = FoR.FRAME_CYLINDRICAL_NRA,
-           origin              = [0., float(angle), 0.],
-           nra                 = [0.,0.,0.]) # degrees
+for angle in [0., 90., 180., 270.] :
+    frame = bm_tool.base_toolstep.foref.create_frame(
+           name              = "Tooth "+str(int(angle)),
+           father_frame_name = "Canonical",
+           frame_type        = FoR.FRAME_CYLINDRICAL_NRA,
+           origin            = [0., float(angle), 0.],
+           nra               = [0.,0.,0.]) # degrees
     bm_tool.addTooth(bm_tooth, frame)
 
 bm_tool.write('Ball_mill_tool')

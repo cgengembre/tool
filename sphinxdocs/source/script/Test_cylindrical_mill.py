@@ -25,11 +25,12 @@ my_tooth = tooth.Tooth_cylindrical_mill(
 my_tool = tool.Tool(name = 'Cylindrical_mill')
 
 for angle in [0., 60., 120., 180., 240., 300.  ]:
-    frame = my_tool.base_toolstep.foref.create_frame(name =  "tooth"+str(int(angle)),
+    frame = my_tool.base_toolstep.foref.create_frame(
+           name              = "Tooth"+str(int(angle)),
            father_frame_name = "Canonical",
            frame_type        = FoR.FRAME_CYLINDRICAL_NRA,
-           origin              = [0., 30.+float(angle), 0.],
-           nra                 = [0.,0.,0.]) # degrees
+           origin            = [0., 30.+float(angle), 0.],
+           nra               = [0.,0.,0.]) # degrees
     my_tool.addTooth(my_tooth, frame)
 
 my_tool.write('Cylindrical_mill')

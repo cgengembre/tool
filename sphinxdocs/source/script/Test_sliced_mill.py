@@ -20,7 +20,7 @@ bm_tooth = tooth.Tooth_sliced(
 bm_tooth.draw()
 
 bm_tool = tool.Tool(name = 'ball_mill_tool')
-for angle in range (0, 360, 90):
+for angle in [0., 90., 180., 270.]:
     frame = bm_tool.toolstep_dic['base_toolstep'].toolstep.foref.create_frame(name =  "tooth_"+str(angle),
            father_frame_name = "Canonical",
            frame_type       = FoR.FRAME_CYLINDRICAL_NRA,
