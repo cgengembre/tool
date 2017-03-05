@@ -247,7 +247,7 @@ class Tooth_model:
         # v3d_lf_name=tool_util.draw_bloc(self.elem_tool_out_list, out_d)
         # tool_util.v3d.show([v3d_lf_name],'rack face & clear vol')
         # New version:
-        tool_util.view_bloc(self.elem_tool_out_list, out_d)
+        tool_util.draw_bloc(self.elem_tool_out_list, out_d)
         # ********************
     
 # --------------------------------------------------------------------------------------------------
