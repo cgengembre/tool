@@ -2,7 +2,7 @@
 Toroidal mill
 ##################################################################
 
-Geometry test cgen modif
+Geometry
 *********************************
 
 The geometry, and associated parameters, of a toroidal mill are defined as follows:
