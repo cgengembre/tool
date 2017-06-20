@@ -3,7 +3,7 @@ Introduction
 ################################################################################
 
 
-The python **tool** package allows to to  define, via python script, cutting tools for **nessy2m**.
+The python **tool** package allows to define, via python script, cutting tools for **nessy2m**.
 
 The script, which is object oriented, defines the geometry and the discretization of the tools. 
 The association between teeth and macro-cutting laws is also prescribed in the script.
