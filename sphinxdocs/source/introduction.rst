@@ -15,7 +15,7 @@ of the **nessy2m**
 
 
 
-Cutting tool representation
+Cutting tool representation cgen
 ********************************************************************************
 
 The cutting tool description is recursive:
