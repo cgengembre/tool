@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome in tool package documentation CGen 3!
+Welcome in tool package documentation 16 sept 2017 !
 ===========================================
 
 Contents:
