@@ -27,6 +27,7 @@
 # --------------------------------------------------------------------------------------------------
 # Christophe Gengembre
 # 8 sept. 2014
+# CGen. Test pour commit avec git
 
 import os
 import sys
