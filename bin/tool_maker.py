@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: Utf-8 -*-
 
+# C'est modifier 26juin2020 !!!
+
 # This file is part of the python package 'tool', itself part of nessy2m.
 # 
 # Copyright (C) 2010-2016
